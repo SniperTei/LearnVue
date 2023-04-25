@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>todo list</title>
+    </head>
+    <body>
+        <div id="app">
+            <div class="list_icon"></div>
+            <input v-model="mytext" type="text">
+            <button @click="addTodo">add</button>
+            <ul v-for="(item, index) in tasklist">
+                <li>{{item}}</li>
+                <button @click="moveUp(index)">up</button>
+                <button @click="moveDown(index)">down</button>
+                <button @click="deleteThisItem(index)">delete</button>
+            </ul>
+        </div>
+    </body>
+    <script src="https://unpkg.com/vue"></script>
+    <script>
+        Vue.createApp({
+            data() {
+                return {
+                    message: 'Hello World!',
+                    mytext:"",
+                    tasklist:[
+                        "learn Vue",
+                        "learn Swift",
+                        "learn Python",
+                    ]
+                }
+            },
+            mounted() {
+                /* setInterval(() => {
+                    this.message = 'Hello Vue!'
+                    this.num = this.num + 1
+                    this.isDelegate = false
+                }, 1000); */
+            },
+            methods: {
+                addTodo() {
+                    console.log("addTodo");
+                    if (this.mytext == "") {
+                        console.log("addtext is empty");
+                        return;
+                    }
+                    this.tasklist.push(this.mytext);
+                },
+                moveUp(index) {
+                    if (index == 0) {
+                        console.log("moveUp : index is 0");
+                        return;
+                    }
+                    console.log("moveUp");
+                    let item = this.tasklist.splice(index, 1);
+                    this.tasklist.splice(index-1, 0, item[0]);
+                },
+                moveDown(index) {
+                    if (index == this.tasklist.length-1) {
+                        console.log("moveDown : index is last");
+                        return;
+                    }
+                    console.log("moveDown");
+                    let item = this.tasklist.splice(index, 1);
+                    this.tasklist.splice(index+1, 0, item[0]);
+                },
+                deleteThisItem(index) {
+                    console.log("deleteThisItem : " + index);
+                    this.tasklist.splice(index, 1);
+                }
+            }
+        }).mount('#app');
+    </script>
+    <style scoped>
+        #app {
+            font-family: 'Open Sans', sans-serif;
+            margin-top: 60px;
+        };
+    </style>
+</html>

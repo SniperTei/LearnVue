@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Quick Start</title>
+        <link href="https://fonts.font.im/css?family=Open+Sans" rel="stylesheet" type="text/css">
+    </head>
+<body>
+    <div id="app">
+        {{ message }}
+        {{ num }}
+        {{ isDelegate }}
+        username: <input type="text" v-model="username">
+        <br>
+        password: <input :type="pwdType" v-model="password">
+        <br>
+        <input type="button" value="showhide" @click="showhidepwd">
+        <input type="button" value="login" @click="loginA">
+        <input type="text" value="123" :disabled="disableValue">
+        <br>
+        <input type="checkbox" id="checkbox" v-model="checked" />
+        <label for="checkbox">{{ checked }}</label>
+        <br>
+        <input
+            type="checkbox"
+            v-model="toggle"
+            :true-value="dynamicTrueValue"
+            :false-value="dynamicFalseValue" />
+        <label>{{ toggle }}</label>
+        <div class="myout">
+          <div class="myin1">选取图片</div>
+          <div class="myin2">上传图片</div>
+        </div>
+        <img src="https://img0.baidu.com/it/u=1684532727,1424929765&fm=253&fmt=auto&app=120&f=JPEG?w=1200&h=675" alt="randomaimg" class="img-class">
+        <div class="abccc">
+          <span>aabbcc</span>
+        </div>
+    </div>
+    <script src="https://unpkg.com/vue"></script>
+    <script>
+        Vue.createApp({
+            data() {
+                return {
+                    message: 'Hello World!',
+                    num: 1,
+                    isDelegate: true,
+                    username: '',
+                    password: '',
+                    pwdType: 'password',
+                    disableValue: true,
+                    checked: false,
+                    dynamicTrueValue: 'zhengnanValue',
+                    dynamicFalseValue: 'zhengbeiValue',
+                    toggle: 'zhengbeiValue'
+                }
+            },
+            mounted() {
+                /* setInterval(() => {
+                    this.message = 'Hello Vue!'
+                    this.num = this.num + 1
+                    this.isDelegate = false
+                }, 1000) */
+                setTimeout(() => {
+                    this.message = 'Hello Vue!'
+                    this.num = this.num + 1
+                    this.isDelegate = false
+                }, 1000)
+            },
+            methods: {
+                showhidepwd: function() {
+                    console.log(this.username)
+                    console.log(this.password)
+                    if (this.pwdType == 'password') {
+                        this.pwdType = 'text'
+                    } else {
+                        this.pwdType = 'password'
+                    }
+                },
+                loginA: function() {
+                    this.disableValue = !this.disableValue
+                }
+            },
+        }).mount('#app')
+    </script>
+    <style scoped>
+        #app {
+            font-family: 'Open Sans', sans-serif;
+            color: #2c3e50;
+            margin-top: 60px;
+            background-color: #00539F;
+        };
+        .abccc {
+          background-color: #f00;
+          text-align: right;
+        }
+        .myout {
+          padding: 40px;
+          display: flex; 
+          flex-direction: column;
+          background: #f0f0f0;
+        }
+        .myin1 {
+          flex: none; 
+          width: 200px;
+          height: 60px;
+          background: #f00;
+          margin: auto;
+          text-align: center;
+        }
+        .myin2 {
+          flex: 1; 
+          background: #00f;
+          padding: 0px 20px 50px 20px;
+          border: 5px solid black;
+        }
+        .img-class {
+          width: 100px;
+          height: 100px;
+          display: block;
+          margin: auto;
+        }
+    </style>
+</body>
+</html>
