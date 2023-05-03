@@ -39,7 +39,7 @@ export default defineComponent({
     },
     methods: {
         login() {
-            this.$store.dispatch('login', {
+            this.$emit('login', {
                 username: this.username,
                 password: this.password,
             })

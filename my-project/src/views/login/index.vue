@@ -3,13 +3,14 @@
         <img class="login-bg" src="../../assets/login/login-bg.jpeg" mode="aspectFill"/>
         <div class="login-content">
             <span class="title-text">JYP</span>
-            <login></login>
+            <login @login="login"></login>
         </div>
     </div>
 </template>
 <script>
 import login from '@/components/login/login.vue'
 import { defineComponent } from 'vue'
+import { useUserStore } from '@/stores/userStore'
 export default defineComponent({
     components: {
         login,
@@ -22,16 +23,20 @@ export default defineComponent({
     },
     data() {
         return {
-            // username: '',
-            // password: '',
+            router:[]
         }
     },
     methods: {
-        login() {
-            // this.$store.dispatch('login', {
-            //     username: this.username,
-            //     password: this.password,
-            // })
+        login(params) {
+            const userStore = useUserStore()
+            
+            userStore.login({
+                username: params.username,
+                password: params.password,
+            })
+
+            console.log('router : ' + this.$router)
+            this.$router.push('home')
         },
     },
 })
