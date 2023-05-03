@@ -4,22 +4,22 @@
       <el-header class="home-header">JYP Home</el-header>
       <el-container class="home-container">
         <el-aside class="home-aside">
-          <el-menu default-active="2" class="el-menu-vertical-demo" @open="handleOpen" @close="handleClose">
+          <el-menu default-active="1" class="el-menu-vertical-demo" @select="menuselect">
             <el-menu-item index="1">
               <el-icon><icon-menu /></el-icon>
               <span>Navigator One</span>
             </el-menu-item>
             <el-menu-item index="2">
               <el-icon><icon-menu /></el-icon>
-              <span>Navigator Two</span>
+              <span>菜谱</span>
             </el-menu-item>
             <el-menu-item index="3">
               <el-icon><icon-menu /></el-icon>
-              <span>Navigator Three</span>
+              <span>收纳</span>
             </el-menu-item>
             <el-menu-item index="4">
               <el-icon><icon-menu /></el-icon>
-              <span>Navigator Four</span>
+              <span>健康</span>
             </el-menu-item>
           </el-menu>
         </el-aside>
@@ -31,25 +31,38 @@
 
 
 <script>
-  export default {
-    components: {
-      
+// import { defineComponent } from 'vue'
+// import IconMenu from '@/components/icon/icon-menu.vue'
+export default {
+  components: {
+    
+  },
+  setup() {
+    return {}
+  },
+  mounted() {
+    console.log('home mounted')
+  },
+  data() {
+    return {
+      currentMenu: '1',
+    }
+  },
+  methods: {
+    handleOpen(key, keyPath) {
+      console.log('key : ' + key + ' keyPath : ' + keyPath + ' open')
     },
-    setup() {
-      return {}
+    handleClose(key, keyPath) {
+      console.log('key : ' + key + ' keyPath : ' + keyPath + ' close')
     },
-    mounted() {
-      console.log('home mounted')
-    },
-    data() {
-      return {
-        
+    menuselect(index, indexPath) {
+      console.log('index : ' + index + ' indexPath : ' + indexPath)
+      if (index == 2) { // 菜谱
+        this.$router.push('recipe')
       }
     },
-    methods: {
-
-    },
-  }
+  },
+}
 </script>
 
 <style scoped>
