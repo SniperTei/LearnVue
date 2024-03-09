@@ -1,11 +1,9 @@
 <template>
-    <div class="home">
-        <h1>Welcome to the Home Page</h1>
-        <!-- Add your content here -->
-    </div>
+    <RouterView/>
 </template>
 
 <script>
+import { RouterView } from 'vue-router'
 export default {
     name: 'Home',
     // Add your component's logic here

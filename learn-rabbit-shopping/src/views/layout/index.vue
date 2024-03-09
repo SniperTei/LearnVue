@@ -1,30 +1,22 @@
-<template>
-    <div class="layout">
-        <header>
-            <!-- Your header content goes here -->
-        </header>
+<script setup>
+import LayoutNav from '@/views/layout/components/layoutNav.vue';
+import LayoutHeader from '@/views/layout/components/layoutHeader.vue';
+import LayoutFooter from '@/views/layout/components/layoutFooter.vue';
+// import LayoutFixed from './components/LayoutFixed.vue'
 
-        <main>
-            <!-- Your main content goes here -->
-            This is home page
-            <RouterView></RouterView>
-        </main>
+// import { useCategoryStore } from '@/stores/categoryStore';
+import { onMounted } from 'vue';
 
-        <footer>
-            <!-- Your footer content goes here -->
-        </footer>
-    </div>
-</template>
+// const categoryStore = useCategoryStore()
+onMounted(() => {
+    // categoryStore.getCategory()
+})
 
-<script>
-export default {
-    name: 'Layout',
-    // Your component's logic goes here
-}
 </script>
-
-<style scoped>
-.layout {
-    /* Your layout styles go here */
-}
-</style>
+<template>
+    <!-- <LayoutFixed></LayoutFixed> -->
+    <LayoutNav></LayoutNav>
+    <LayoutHeader></LayoutHeader>
+    <RouterView></RouterView>
+    <LayoutFooter></LayoutFooter>
+</template>
