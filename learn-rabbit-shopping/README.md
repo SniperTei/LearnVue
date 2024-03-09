@@ -43,3 +43,20 @@ directives -- 全局指令文件夹
 styles -- 全局样式文件夹
 utils -- 工具函数文件夹
 ```
+
+### 别名路径联想提示
+
+```
+根目录 新增jsconfig.json
+添加json格式的配置项
+{
+  "compilerOptions": {
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "exclude": ["node_modules", "dist"]
+}
+
+```
+
