@@ -33,3 +33,13 @@ npm run build
 ```sh
 npm run lint
 ```
+
+### src directory change
+
+```
+apis -- API接口文件夹
+composables -- 组合函数文件夹
+directives -- 全局指令文件夹
+styles -- 全局样式文件夹
+utils -- 工具函数文件夹
+```
