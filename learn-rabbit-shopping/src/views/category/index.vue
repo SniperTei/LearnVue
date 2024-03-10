@@ -1,6 +1,7 @@
 <script setup>
 import { getCategoryAPI } from '@/apis/category';
 import { getBannerAPI } from '@/apis/home';
+import GoodItem from '@/views/home/components/goodItem.vue';
 import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 // 拿参数用的
@@ -9,6 +10,7 @@ const route = useRoute();
 const categoryData = ref([]);
 const getCategory = async () => {
   const res = await getCategoryAPI(route.params.id);
+  console.log(" category res : ", res);
   categoryData.value = res.data.result;
 };
 // banner数据
@@ -42,6 +44,26 @@ onMounted(() => {
             <img :src="item.imgUrl" alt=""  />
           </el-carousel-item>
         </el-carousel>
+      </div>
+      <div class="sub-list">
+        <h3>全部分类</h3>
+        <ul>
+          <li v-for="item in categoryData.children" :key="item.id">
+            <RouterLink to="/">
+              <img v-img-lazy="item.picture" alt="" />
+              <p>{{ item.name }}</p>
+            </RouterLink>
+          </li>
+        </ul>
+      </div>
+      <div class="ref-goods" v-for="item in categoryData.children" :key="item.id">
+        <div class="head">
+          <h3>- {{ item.name }}-</h3>
+        </div>
+        <div class="body">
+          <GoodItem v-for="item in item.goods" :key="item.id" :good="item">
+          </GoodItem>
+        </div>
       </div>
     </div>
   </div>
