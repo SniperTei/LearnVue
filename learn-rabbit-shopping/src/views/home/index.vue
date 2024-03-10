@@ -10,10 +10,10 @@ import HomeProduct from '@/views/home/components/homeProduct.vue';
     <div class="container">
       <HomeCategory />
       <HomeBanner />
-      <HomeNew></HomeNew>
-      <HomeHot></HomeHot>
-      <HomeProduct></HomeProduct>
     </div>
+    <HomeNew></HomeNew>
+    <HomeHot></HomeHot>
+    <HomeProduct></HomeProduct>
 </template>
 
 <style scoped lang='scss'>
