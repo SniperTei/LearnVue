@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Create an instance of Axios with custom configuration
-const http = axios.create({
+const httpInstance = axios.create({
     baseURL: 'http://pcapi-xiaotuxian-front-devtest.itheima.net/', // Replace with your API base URL
     timeout: 5000, // Set a timeout value in milliseconds
     headers: {
@@ -11,7 +11,7 @@ const http = axios.create({
 
 // interceptor
 // Add a request interceptor
-http.interceptors.request.use(
+httpInstance.interceptors.request.use(
     (config) => {
         // Do something before request is sent
         return config;
@@ -24,7 +24,7 @@ http.interceptors.request.use(
 );
 
 // Add a response interceptor
-http.interceptors.response.use(
+httpInstance.interceptors.response.use(
     (response) => {
         // Do something with response data
         return response;
@@ -39,7 +39,7 @@ http.interceptors.response.use(
 // Define your API methods using the Axios instance
 export const get = async (url, params) => {
     try {
-        const response = await http.get(url, { params });
+        const response = await httpInstance.get(url, { params });
         return response.data;
     } catch (error) {
         console.error('GET request failed:', error);
@@ -49,7 +49,7 @@ export const get = async (url, params) => {
 
 export const post = async (url, data) => {
     try {
-        const response = await http.post(url, data);
+        const response = await httpInstance.post(url, data);
         return response.data;
     } catch (error) {
         console.error('POST request failed:', error);
@@ -58,4 +58,4 @@ export const post = async (url, data) => {
 };
 
 // Export the Axios instance for global usage
-export default http;
+export default httpInstance;

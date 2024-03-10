@@ -2,21 +2,24 @@
 import LayoutNav from '@/views/layout/components/layoutNav.vue';
 import LayoutHeader from '@/views/layout/components/layoutHeader.vue';
 import LayoutFooter from '@/views/layout/components/layoutFooter.vue';
-// import LayoutFixed from './components/LayoutFixed.vue'
+import LayoutFixed from './components/layoutFixed.vue'
 
-// import { useCategoryStore } from '@/stores/categoryStore';
+import { useCategoryStore } from '@/stores/categoryStore';
 import { onMounted } from 'vue';
 
-// const categoryStore = useCategoryStore()
+const categoryStore = useCategoryStore()
 onMounted(() => {
-    // categoryStore.getCategory()
+    categoryStore.getCategory()
 })
 
 </script>
 <template>
-    <!-- <LayoutFixed></LayoutFixed> -->
+    <LayoutFixed></LayoutFixed>
     <LayoutNav></LayoutNav>
     <LayoutHeader></LayoutHeader>
-    <RouterView></RouterView>
     <LayoutFooter></LayoutFooter>
 </template>
+
+<style scoped lang='scss'>
+
+</style>

@@ -1,7 +1,7 @@
-import http from "@/utils/http";
+import httpInstance from "@/utils/http";
 
 export function testAPI() {
-  return http(
+  return httpInstance(
     {
       url: "home/category/head",
       method: "get",

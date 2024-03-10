@@ -10,11 +10,11 @@ import router from './router'
 import '@/styles/common.scss'
 
 // test api function
-import { testAPI } from '@/apis/testAPI'
+// import { testAPI } from '@/apis/testAPI'
 
-testAPI().then(res => {
-  console.log(res)
-})
+// testAPI().then(res => {
+//   console.log(res)
+// })
 
 const app = createApp(App)
 

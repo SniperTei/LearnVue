@@ -1,15 +1,22 @@
+<script setup>
+// import HomeCategory from '@/views/home/components/HomeCategory.vue';
+// import HomeBanner from '@/views/home/components/HomeBanner.vue';
+// import HomeNew from '@/views/home/components/HomeNew.vue';
+// import HomeHot from '@/views/home/components/HomeHot.vue';
+// import HomeProduct from '@/views/home/components/HomeProduct.vue';
+
+</script>
 <template>
-    <RouterView/>
+  <div></div>
+    <!-- <div class="container"> -->
+      <!-- <HomeCategory />
+      <HomeBanner /> -->
+    <!-- </div> -->
+    <!-- <HomeNew></HomeNew>
+    <HomeHot></HomeHot>
+    <HomeProduct></HomeProduct> -->
 </template>
 
-<script>
-import { RouterView } from 'vue-router'
-export default {
-    name: 'Home',
-    // Add your component's logic here
-}
-</script>
+<style scoped lang='scss'>
 
-<style scoped>
-/* Add your component's styles here */
 </style>
