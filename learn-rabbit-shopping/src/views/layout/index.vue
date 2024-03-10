@@ -1,5 +1,5 @@
 <script setup>
-import LayoutNav from '@/views/layout/components/layoutNav.vue';
+// import LayoutNav from '@/views/layout/components/layoutNav.vue';
 import LayoutHeader from '@/views/layout/components/layoutHeader.vue';
 import LayoutFooter from '@/views/layout/components/layoutFooter.vue';
 import LayoutFixed from '@/views/layout/components/layoutFixed.vue'
@@ -17,7 +17,7 @@ onMounted(() => {
 <template>
     <div>
         <LayoutFixed></LayoutFixed>
-        <LayoutNav></LayoutNav>
+        <!-- <LayoutNav></LayoutNav> -->
         <LayoutHeader></LayoutHeader>
         <RouterView/>
         <LayoutFooter></LayoutFooter>

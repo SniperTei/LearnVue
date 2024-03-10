@@ -12,7 +12,6 @@ const { y } = useScroll(window)
     <div class="container">
       <RouterLink class="logo" to="/" />
       <!-- 导航区域 -->
-
       <LayoutHeaderUl />
       <div class="right">
         <RouterLink to="/">品牌</RouterLink>
