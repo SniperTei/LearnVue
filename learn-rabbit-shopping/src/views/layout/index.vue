@@ -1,5 +1,5 @@
 <script setup>
-import LayoutNav from '@/views/layout/components/layoutNav.vue';
+// import LayoutNav from '@/views/layout/components/layoutNav.vue';
 import LayoutHeader from '@/views/layout/components/layoutHeader.vue';
 import LayoutFooter from '@/views/layout/components/layoutFooter.vue';
 import LayoutFixed from './components/layoutFixed.vue'
@@ -14,10 +14,13 @@ onMounted(() => {
 
 </script>
 <template>
-    <LayoutFixed></LayoutFixed>
-    <LayoutNav></LayoutNav>
-    <LayoutHeader></LayoutHeader>
-    <LayoutFooter></LayoutFooter>
+    <div>
+        <LayoutFixed></LayoutFixed>
+        <!-- <LayoutNav></LayoutNav> -->
+        <LayoutHeader></LayoutHeader>
+        <RouterView/>
+        <LayoutFooter></LayoutFooter>
+    </div>
 </template>
 
 <style scoped lang='scss'>
