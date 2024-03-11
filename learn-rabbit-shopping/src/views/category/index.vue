@@ -1,34 +1,13 @@
 <script setup>
-import { getCategoryAPI } from '@/apis/category';
-import { getBannerAPI } from '@/apis/home';
+import { useBanner } from '@/views/category/composables/useBanner';
+import { useCategory } from '@/views/category/composables/useCategory';
 import GoodItem from '@/views/home/components/goodItem.vue';
-import { ref, onMounted } from 'vue';
-import { useRoute, onBeforeRouteUpdate } from 'vue-router';
-// 拿参数用的
-const route = useRoute();
-// 分类数据
-const categoryData = ref([]);
-const getCategory = async (id = route.params.id) => {
-  const res = await getCategoryAPI(id);
-  console.log(" category res : ", res);
-  categoryData.value = res.data.result;
-};
+
 // banner数据
-const bannerList = ref([]);
-const getBanner = async () => {
-  const res = await getBannerAPI({
-    distributionSite: '2',
-  });
-  bannerList.value = res.data.result;
-};
-onMounted(() => {
-  getCategory();
-  getBanner();
-});
-onBeforeRouteUpdate((to) => {
-  const id = to.params.id;
-  getCategory(id);
-});
+const { bannerList } = useBanner();
+// category数据
+const { categoryData } = useCategory();
+
 </script>
 
 <template>
