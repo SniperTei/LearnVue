@@ -3,13 +3,13 @@ import { getCategoryAPI } from '@/apis/category';
 import { getBannerAPI } from '@/apis/home';
 import GoodItem from '@/views/home/components/goodItem.vue';
 import { ref, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, onBeforeRouteUpdate } from 'vue-router';
 // 拿参数用的
 const route = useRoute();
 // 分类数据
 const categoryData = ref([]);
-const getCategory = async () => {
-  const res = await getCategoryAPI(route.params.id);
+const getCategory = async (id = route.params.id) => {
+  const res = await getCategoryAPI(id);
   console.log(" category res : ", res);
   categoryData.value = res.data.result;
 };
@@ -24,6 +24,10 @@ const getBanner = async () => {
 onMounted(() => {
   getCategory();
   getBanner();
+});
+onBeforeRouteUpdate((to) => {
+  const id = to.params.id;
+  getCategory(id);
 });
 </script>
 
