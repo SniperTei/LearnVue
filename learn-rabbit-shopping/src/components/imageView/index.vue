@@ -48,6 +48,7 @@ watch([elementX, elementY, isOutside], () => {
   } else if (elementY.value >= 300) {
     top.value = 200
   }
+
   // 控制大图的显示
   positionX.value = -left.value * 2
   positionY.value = -top.value * 2
@@ -80,7 +81,7 @@ watch([elementX, elementY, isOutside], () => {
     <!-- 放大镜大图 -->
     <div class="large" :style="[
       {
-        backgroundImage: `url(${imageList[i]})`,
+        backgroundImage: `url(${imageList[activeIndex]})`,
         backgroundPositionX: `${positionX}px`,
         backgroundPositionY: `${positionY}px`,
       },
