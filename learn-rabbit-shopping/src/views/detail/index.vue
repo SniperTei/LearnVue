@@ -3,8 +3,8 @@ import { getDetail } from '@/apis/detail'
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import DetailHot from './components/detailHot.vue'
-import ImageView from '@/components/imageView/index.vue'
-import XtxSku from '@/components/XtxSku/index.vue'
+// import ImageView from '@/components/imageView/index.vue'
+// import XtxSku from '@/components/XtxSku/index.vue'
 
 const good = ref({})
 const route = useRoute()
@@ -49,7 +49,7 @@ const skuChange = (sku) => {
           <div class="goods-info">
             <div class="media">
               <!-- 图片预览区 -->
-              <ImageView :imageList="good.mainPictures" />
+              <XtxImageView :imageList="good.mainPictures" />
               <!-- 统计数量 -->
               <ul class="goods-sales">
                 <li>

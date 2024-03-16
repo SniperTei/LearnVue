@@ -1,6 +1,7 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import { lazyPlugin } from '@/directives/index.js'
+import { componentPlugin } from '@/components/index.js'
 
 import App from './App.vue'
 import router from './router'
@@ -14,5 +15,7 @@ app.use(createPinia())
 app.use(router)
 // Use the lazy plugin
 app.use(lazyPlugin);
+// Use component
+app.use(componentPlugin)
 app.mount('#app')
 
