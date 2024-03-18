@@ -18,9 +18,8 @@
     <div class="container">
       <ul>
         <!-- 多模版渲染 区分登录状态和非登录状态 -->
-
         <!-- 适配思路: 登录时显示第一块 非登录时显示第二块  是否有token -->
-        <!-- <template v-if="userStore.userInfo.token">
+        <template v-if="false">
           <li><a href="javascript:;"><i class=" iconfont icon-user"></i>{{ userStore.userInfo.account }}</a></li>
           <li>
             <el-popconfirm @confirm="confirm" title="确认退出吗?" confirm-button-text="确认" cancel-button-text="取消">
@@ -36,12 +35,12 @@
           <li><a href="javascript:;" @click="$router.push('/login')">请先登录</a></li>
           <li><a href="javascript:;">帮助中心</a></li>
           <li><a href="javascript:;">关于我们</a></li>
-        </template> -->
-        <template>
+        </template>
+        <!-- <template>
           <li><a href="javascript:;" @click="$router.push('/login')">请先登录</a></li>
           <li><a href="javascript:;">帮助中心</a></li>
           <li><a href="javascript:;">关于我们</a></li>
-        </template>
+        </template> -->
       </ul>
     </div>
   </nav>
