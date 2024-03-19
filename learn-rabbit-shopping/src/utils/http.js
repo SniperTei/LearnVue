@@ -20,7 +20,7 @@ httpInstance.interceptors.request.use(
     },
     (error) => {
         // Do something with request error
-        console.error('Request error:', error);
+        // console.error('Request error:', error);
         return Promise.reject(error);
     }
 );

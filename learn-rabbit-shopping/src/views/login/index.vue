@@ -1,9 +1,11 @@
 <script setup>
 import { ref } from 'vue'
-import { loginAPI } from '@/apis/user'
 import { ElMessage } from 'element-plus'
 import 'element-plus/theme-chalk/el-message.css'
 import { useRouter } from 'vue-router' // useRouter是调方法 useRoute是拿参数
+import { useUserStore } from '@/stores/user'
+
+const userStore = useUserStore()
 
 const form = ref({
   account: '',
@@ -20,14 +22,14 @@ const rules = ref({
   ],
   agree: [
     {
-        validator: (rule, value, callback) => {
-            if (value) {
-                callback()
-            } else {
-                callback(new Error('请同意隐私条款和服务条款'))
-            }
-        },
-        trigger: 'change'
+			validator: (rule, value, callback) => {
+					if (value) {
+							callback()
+					} else {
+							callback(new Error('请同意隐私条款和服务条款'))
+					}
+			},
+			trigger: 'change'
     }
   ]
 })
@@ -36,12 +38,11 @@ const formRef = ref(null)
 const router = useRouter()
 const doLogin = () => {
 	const {account, password } = form.value
-  formRef.value.validate((valid) => {
+  formRef.value.validate(async (valid) => {
     if (valid) {
-      const res = loginAPI({account, password})
-			console.log('res:', res)
-			// ElMessage.success('登录成功')
-			// router.replace('/')
+      await userStore.getUserInfo({ account, password })
+			ElMessage.success('登录成功')
+			router.replace('/')
 		} else {
       return false
     }
