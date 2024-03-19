@@ -1,4 +1,6 @@
 import axios from 'axios';
+import { ElMessage } from 'element-plus'
+import 'element-plus/theme-chalk/el-message.css'
 
 // Create an instance of Axios with custom configuration
 const httpInstance = axios.create({
@@ -32,6 +34,10 @@ httpInstance.interceptors.response.use(
     (error) => {
         // Do something with response error
         console.error('Response error:', error);
+        ElMessage.error({
+            message: error.message,
+            type: 'error'
+        })
         return Promise.reject(error);
     }
 );
