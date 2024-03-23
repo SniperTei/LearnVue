@@ -2,6 +2,7 @@ import axios from 'axios';
 import { ElMessage } from 'element-plus'
 import 'element-plus/theme-chalk/el-message.css'
 import { useUserStore } from '@/stores/user'
+import { router } from '@/router'
 
 // Create an instance of Axios with custom configuration
 const httpInstance = axios.create({
@@ -36,17 +37,26 @@ httpInstance.interceptors.request.use(
 // Add a response interceptor
 httpInstance.interceptors.response.use(
     (response) => {
-        // Do something with response data
-        return response;
+      // Do something with response data
+      return response;
     },
     (error) => {
-        // Do something with response error
-        console.error('Response error:', error);
-        ElMessage.error({
-            message: error.message,
-            type: 'error'
-        })
-        return Promise.reject(error);
+      // Do something with response error
+      console.error('Response error:', error);
+      ElMessage.error({
+          message: error.message,
+          type: 'error'
+      })
+
+      // 401: token过期
+      if (error.response.status === 401) {
+          // 1. 清除用户信息
+          const userStore = useUserStore()
+          userStore.clearUserInfo()
+          // 2. 跳转到登录页
+          router.push('/login')
+      }
+      return Promise.reject(error);
     }
 );
 
