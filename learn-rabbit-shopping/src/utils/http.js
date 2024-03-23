@@ -2,8 +2,9 @@ import axios from 'axios';
 import { ElMessage } from 'element-plus'
 import 'element-plus/theme-chalk/el-message.css'
 import { useUserStore } from '@/stores/user'
-import { router } from '@/router'
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
 // Create an instance of Axios with custom configuration
 const httpInstance = axios.create({
     baseURL: 'http://pcapi-xiaotuxian-front-devtest.itheima.net/', // Replace with your API base URL
