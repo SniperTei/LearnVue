@@ -19,11 +19,20 @@ export const useCartStore = defineStore('cart', () => {
   const clearCart = () => {
     cartList.value = []
   }
-  // 3. 以对象的格式把state和action都return出去
+  // 删除购物车中的商品
+  const delCart = (skuId) => {
+    const index = cartList.value.findIndex(item => item.skuId === skuId)
+    if (index !== -1) {
+      cartList.value.splice(index, 1)
+    }
+  }
+
+  //  以对象的格式把state和action都return出去
   return {
     cartList,
     addGoodToCart,
-    clearCart
+    clearCart,
+    delCart
   }
 }, {
   persist: true
