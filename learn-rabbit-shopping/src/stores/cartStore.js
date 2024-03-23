@@ -25,4 +25,6 @@ export const useCartStore = defineStore('cart', () => {
     addGoodToCart,
     clearCart
   }
+}, {
+  persist: true
 })
