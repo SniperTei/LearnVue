@@ -18,10 +18,15 @@ export const useUserStore = defineStore('user', () => {
       password: password
     }
   }
+  // 3. 定义清除用户数据的action函数
+  const clearUserInfo = () => {
+    userInfo.value = {}
+  }
   // 3. 以对象的格式把state和action都return出去
   return {
     userInfo,
-    getUserInfo
+    getUserInfo,
+    clearUserInfo
   }
 }, {
   persist: true
