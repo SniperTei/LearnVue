@@ -12,7 +12,7 @@ const cartStore = useCartStore()
     <div class="layer">
       <div class="list">
 
-        <div class="item" v-for="i in cartStore.cartList" :key="i">
+        <div class="item" v-for="i in cartStore.cartList" :key="i.skuId">
           <RouterLink to="">
             <img :src="i.picture" alt="" />
             <div class="center">
@@ -32,8 +32,8 @@ const cartStore = useCartStore()
       </div>
       <div class="foot">
         <div class="total">
-          <p>共 {{ cartStore.allCount }} 件商品</p>
-          <!-- <p>&yen; {{ cartStore.allPrice.toFixed(2) }} </p> -->
+          <p>共 {{ cartStore.totalCount }} 件商品</p>
+          <p>&yen; {{ cartStore.totalPrice.toFixed(2) }} </p>
         </div>
         <el-button size="large" type="primary" @click="$router.push('/cartlist')">去购物车结算</el-button>
       </div>
