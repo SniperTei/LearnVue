@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { ElMessage } from 'element-plus'
 import 'element-plus/theme-chalk/el-message.css'
+import { useUserStore } from '@/stores/user'
 
 // Create an instance of Axios with custom configuration
 const httpInstance = axios.create({
@@ -15,7 +16,14 @@ const httpInstance = axios.create({
 // Add a request interceptor
 httpInstance.interceptors.request.use(
     (config) => {
-        // Do something before request is sent
+        // 1. 从Pinia中获取数据
+        const userStore = useUserStore()
+        const token = userStore.userInfo.token
+        console.log('token:', token)
+        // 2. 将数据添加到请求头中
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`
+        }
         return config;
     },
     (error) => {

@@ -1,7 +1,7 @@
 <script setup>
-// import { useUserStore } from '@/stores/userStore'
+import { useUserStore } from '@/stores/user'
 // import { useRouter } from 'vue-router'
-// const userStore = useUserStore()
+const userStore = useUserStore()
 // const router = useRouter()
 // const confirm = () => {
 //   console.log('用户要退出登录了')
@@ -14,7 +14,7 @@
 </script>
 
 <template>
-  <nav class="app-topnav">
+  <nav class="app-topnav"> 
     <div class="container">
       <ul>
         <!-- 多模版渲染 区分登录状态和非登录状态 -->
