@@ -27,6 +27,11 @@ export const useCartStore = defineStore('cart', () => {
       cartList.value.splice(index, 1)
     }
   }
+  // 单选功能
+  const singleCheck = (skuId) => {
+    const index = cartList.value.findIndex(item => item.skuId === skuId)
+    cartList.value[index].selected = !cartList.value[index].selected
+  }
 
   // 计算属性
   // 总数量
@@ -45,7 +50,8 @@ export const useCartStore = defineStore('cart', () => {
     clearCart,
     delCart,
     totalCount,
-    totalPrice
+    totalPrice,
+    singleCheck
   }
 }, {
   persist: true
