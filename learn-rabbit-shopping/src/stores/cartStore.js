@@ -3,9 +3,11 @@ import { ref } from "vue"
 import { computed } from "vue"
 
 export const useCartStore = defineStore('cart', () => {
-  // 1. 定义管理购物车数据
+  // 定义管理购物车数据
   const cartList = ref([])
-  // 2. 定义添加商品到购物车的action函数
+
+  // actions
+  // 定义添加商品到购物车的action函数
   const addGoodToCart = (good) => {
     // 判断购物车中是否已经有该商品
     const index = cartList.value.findIndex(item => item.skuId === good.skuId)
@@ -16,7 +18,7 @@ export const useCartStore = defineStore('cart', () => {
     }
     console.log('cartList:', cartList.value)
   }
-  // 3. 定义清空购物车的action函数
+  // 定义清空购物车的action函数
   const clearCart = () => {
     cartList.value = []
   }
@@ -32,6 +34,13 @@ export const useCartStore = defineStore('cart', () => {
     const index = cartList.value.findIndex(item => item.skuId === skuId)
     cartList.value[index].selected = !cartList.value[index].selected
   }
+  // 全选功能
+  const allCheck = (selected) => {
+    cartList.value.forEach(item => {
+      item.selected = selected
+    })
+  }
+
 
   // 计算属性
   // 总数量
@@ -43,6 +52,11 @@ export const useCartStore = defineStore('cart', () => {
     return cartList.value.reduce((total, item) => total + item.count * item.price, 0)
   })
 
+  // 是否全选
+  const isAllSelected = computed(() => {
+    return cartList.value.length > 0 && cartList.value.every(item => item.selected)
+  })
+
   //  以对象的格式把state和action都return出去
   return {
     cartList,
@@ -51,7 +65,9 @@ export const useCartStore = defineStore('cart', () => {
     delCart,
     totalCount,
     totalPrice,
-    singleCheck
+    singleCheck,
+    isAllSelected,
+    allCheck
   }
 }, {
   persist: true
