@@ -1,22 +1,17 @@
 // 用户数据相关的store
 import { defineStore } from "pinia";
 import { ref } from "vue";
-// import { loginAPI } from '@/apis/user'
+import { loginAPI } from '@/apis/user'
 
 export const useUserStore = defineStore('user', () => {
   // 1. 定义管理用户数据
   const userInfo = ref({})
   // 2. 定义获取接口数据的aciton函数
   const getUserInfo = async ({account, password}) => {
-    // const res = await loginAPI({account, password})
-    console.log('res in user store', '');
-    // userInfo.value = res.result
-    userInfo.value = {
-      account: account,
-      mobile: '13800138000',
-      token: 'thisisatoken',
-      password: password
-    }
+    const res = await loginAPI({account, password})
+    console.log('res in user store', res)
+    userInfo.value = res.data.result
+    console.log('userInfo.value', userInfo.value)
   }
   // 3. 定义清除用户数据的action函数
   const clearUserInfo = () => {
