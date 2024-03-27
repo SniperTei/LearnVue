@@ -7,16 +7,21 @@ export const useCartStore = defineStore('cart', () => {
   // 定义管理购物车数据
   const cartList = ref([])
   const userStore = useUserStore()
-  const isLogin = computed(() => userStore.userInfo.token !== '')
+  const isLogin = computed(() => userStore.userInfo.token)
   // actions
   // 定义添加商品到购物车的action函数
   const addGoodToCart = async (good) => {
     let { skuId, count } = good
+    console.log('userStore.userInfo:', userStore.userInfo)
+    console.log('userStore.userInfo token: ', userStore.userInfo.token)
+    console.log('cartStore isLogin:', isLogin.value)
     if (isLogin.value) { // 如果用户已经登录，从后端获取购物车数据
+      console.log('is login good:', good)
       await insertCartAPI({ skuId, count })
       updateCartList()
       return
     } 
+    console.log('not login good:', good)
     // 判断购物车中是否已经有该商品
     const index = cartList.value.findIndex(item => item.skuId === good.skuId)
     if (index !== -1) {
@@ -96,7 +101,8 @@ export const useCartStore = defineStore('cart', () => {
     isAllSelected,
     allCheck,
     selectedCount,
-    selectedPrice
+    selectedPrice,
+    updateCartList
   }
 }, {
   persist: true

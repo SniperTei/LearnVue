@@ -2,6 +2,7 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import { loginAPI } from '@/apis/user'
+import { mergeCartAPI } from '@/apis/cart'
 import { useCartStore } from './cartStore'
 
 export const useUserStore = defineStore('user', () => {
@@ -11,9 +12,15 @@ export const useUserStore = defineStore('user', () => {
   // 2. 定义获取接口数据的aciton函数
   const getUserInfo = async ({account, password}) => {
     const res = await loginAPI({account, password})
-    console.log('res in user store', res)
     userInfo.value = res.data.result
-    console.log('userInfo.value', userInfo.value)
+    await mergeCartAPI(cartStore.cartList.map(item => {
+      return {
+        skuId: item.skuId,
+        selected: item.selected,
+        count: item.count
+      }
+    }))
+    cartStore.updateCartList()
   }
   // 3. 定义清除用户数据的action函数
   const clearUserInfo = () => {
