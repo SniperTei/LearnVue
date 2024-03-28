@@ -2,12 +2,16 @@
 import { getOrderAPI } from '@/apis/pay'
 import { onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
+import { useCountDown } from '@/composables/useCountDown'
+const { countDown, start, formatTime } = useCountDown(900)
 // 获取订单数据
 const route = useRoute()
 const payInfo = ref({})
 const getPayInfo = async () => {
-  const res = await getOrderAPI(route.query.id)
-  payInfo.value = res.data.result
+  start()
+  // console.log('countDown : ', countDown);
+  // const res = await getOrderAPI(route.query.id)
+  // payInfo.value = res.data.result
 }
 onMounted(() => getPayInfo())
 
@@ -23,6 +27,8 @@ const payUrl = `${baseURL}pay/aliPay?orderId=${route.query.id}&redirect=${redire
 <template>
   <div class="xtx-pay-page">
     <div class="container">
+      {{ countDown }}
+      {{ formatTime }}
       <!-- 付款信息 -->
       <div class="pay-info">
         <span class="icon iconfont icon-queren2"></span>
