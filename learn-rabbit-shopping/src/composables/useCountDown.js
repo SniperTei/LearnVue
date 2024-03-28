@@ -5,9 +5,9 @@ export const useCountDown = (time) => {
   const countDown = ref(time);
   // 格式化时间
   const formatTime = computed(() => {
-    return dayjs.unix(countDown.value).format('mm:ss')
-  }
-  const formatTime = 1;
+    return dayjs(countDown.value * 1000).format("mm:ss");
+  })
+  
   const timer = ref(null);
 
   const start = () => {
