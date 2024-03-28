@@ -3,7 +3,7 @@
 
 <template>
   <div id="app">
-    Hello World
+    <RouterView />
   </div>
 </template>
 

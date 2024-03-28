@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
-import LoginView from '../views/login/index.vue'
+import LoginView from '@/views/login/index.vue'
+import LayoutView from '@/views/layout/index.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -8,15 +8,31 @@ const router = createRouter({
     {
       path: '/login',
       name: 'login',
-      component: LoginView
+      component: LoginView,
     },
     {
-      path: '/about',
-      name: 'about',
-      // route level code-splitting
-      // this generates a separate chunk (About.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () => import('../views/AboutView.vue')
+      path: '/',
+      name: 'layout',
+      component: LayoutView,
+      // 子路由
+      children: [
+        {
+          path: '/book',
+          name: 'book',
+          component: () => import('@/views/book/index.vue'),
+        },
+        {
+          path: '/movie',
+          name: 'movie',
+          component: () => import('@/views/movie/index.vue'),
+        }
+      ]
+    },
+    // error page
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'not-found',
+      component: () => import('@/views/error/index.vue'),
     }
   ]
 })
