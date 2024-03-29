@@ -45,7 +45,23 @@ const tableData = ref([
 <template>
   <div class="book">
     <!-- Your template content here -->
-    Book Page
+    <!-- page title -->
+    <h4>图书列表</h4>
+    <!-- 查询条件 -->
+    <el-form :inline="true" class="demo-form-inline">
+      <el-form-item label="姓名">
+        <el-input v-model="name" placeholder="请输入姓名"></el-input>
+      </el-form-item>
+      <el-form-item label="作者">
+        <el-input v-model="author" placeholder="请输入作者"></el-input>
+      </el-form-item>
+      <el-form-item label="出版社">
+        <el-input v-model="publisher" placeholder="请输入出版社"></el-input>
+      </el-form-item>
+      <el-form-item>
+        <el-button type="primary">查询</el-button>
+      </el-form-item>
+    </el-form>
     <!-- 图书列表 -->
     <el-table
       stripe
