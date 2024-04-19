@@ -2,7 +2,7 @@
   <div>
     <!-- Your template code goes here -->
     <el-tooltip :content="tooltipValue" size="small" :placement="placement" :effect="effect">
-      <el-select v-model="selectValue" placeholder="请选择">
+      <el-select v-model="selectValue" placeholder="请选择" @change="selectValueChanged">
         <el-option
           v-for="item in options"
           :key="item.value"
@@ -10,19 +10,13 @@
           :value="item.value"
         ></el-option>
       </el-select>
-      <!-- <template slot="content">
-        <div>
-          <span>这是一段内容</span>
-          <el-button size="mini" type="text">按钮</el-button>
-        </div>
-      </template> -->
     </el-tooltip>
   </div>
 </template>
 
 <script>
 export default {
-  name: 'PersonalZoneSelect',
+  name: 'ZNSelect',
   props: {
     // Your component props go here
     options: {
@@ -54,13 +48,24 @@ export default {
         // 获取当前选中的option
         const selectedOption = this.options.find(option => option.value === this.selectValue);
         // 返回选中的option的label
-        return selectedOption ? selectedOption.label : '';
+        return selectedOption ? selectedOption.label + '(' + selectedOption.name + ')' : '';
       }
       return '';
-    }
+    },
+    // currentValue: {
+    //   get() {
+    //     return this.selectValue;
+    //   },
+    //   set(val) {
+    //     this.selectValue = val;
+    //     this.$emit('input', val);
+    //   },
+    // },
   },
   methods: {
-    // Your methods go here
+    selectValueChanged() {
+      this.$emit('input', this.selectValue);
+    },
   },
   mounted() {
     // Code to run when the component is mounted goes here
