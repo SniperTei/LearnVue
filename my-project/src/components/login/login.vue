@@ -1,6 +1,6 @@
 <template>
   <div class="login">
-    <el-form class="login-component">
+    <!-- <el-form class="login-component">
         <el-form-item label="Username">
             <el-input v-model="username"></el-input>
         </el-form-item>
@@ -15,7 +15,7 @@
                 <el-button type="primary" @click="register">Register</el-button>
             </el-form-item>
         </div>
-    </el-form>
+    </el-form> -->
   </div>
 </template>
 <script>

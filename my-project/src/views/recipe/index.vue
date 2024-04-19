@@ -1,12 +1,14 @@
 <template>
   <div class="recipe-container">
     <div class="recipe-header">
+      head
+      <!--
       <div class="recipe-header-left">
         <el-button type="primary" icon="el-icon-plus" @click="handleAdd">添加</el-button>
         <el-button type="primary" icon="el-icon-edit" @click="handleEdit">编辑</el-button>
         <el-button type="primary" icon="el-icon-delete" @click="handleDelete">删除</el-button>
       </div>
-      <div class="recipe-header-right">
+       <div class="recipe-header-right">
         <el-input
           placeholder="请输入内容"
           v-model="inputValue"
@@ -16,9 +18,9 @@
         >
           <el-button slot="append" icon="el-icon-search" @click="handleSearch"></el-button>
         </el-input>
-      </div>
+      </div> -->
     </div>
-    <div class="recipe-content">
+    <!-- <div class="recipe-content">
       <el-table :data="tableData" style="width: 100%">
         <el-table-column type="selection" width="55"></el-table-column>
         <el-table-column prop="name" label="菜谱名称" width="180"></el-table-column>
@@ -37,7 +39,7 @@
         <el-table-column prop="createdAt" label="创建时间" width="180"></el-table-column>
         <el-table-column prop="updatedAt" label="更新时间" width="180"></el-table-column>
       </el-table>
-    </div>
+    </div> -->
   </div>
 </template>
 

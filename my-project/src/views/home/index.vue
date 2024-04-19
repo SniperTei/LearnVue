@@ -1,6 +1,7 @@
 <template>
   <div class="common-layout">
-    <el-container>
+    hello common layout
+    <!-- <el-container>
       <el-header class="home-header">JYP Home</el-header>
       <el-container class="main-container">
         <el-aside class="home-aside">
@@ -31,7 +32,7 @@
           <router-view></router-view>
         </el-main>
       </el-container>
-    </el-container>
+    </el-container> -->
   </div>
 </template>
 
