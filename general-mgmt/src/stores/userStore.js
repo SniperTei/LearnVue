@@ -1,6 +1,7 @@
 // Import any dependencies you need
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue'
+import { loginAPI } from '@/api/accounts/accountsAPI'
 
 // Define a new store
 export const useUserStore = defineStore('user', () => {
@@ -12,14 +13,11 @@ export const useUserStore = defineStore('user', () => {
   })
 
   // Define your actions here
-  const getUserInfo = async ({account, password}) => {
-    // const res = await loginAPI({account, password})
+  const getUserInfo = async ({username, password}) => {
+    const res = await loginAPI({username, password})
+    console.log('res:', res)
+    userInfo.value = res.data
     // userInfo.value = res.data.result
-    userInfo.value = {
-      account: account,
-      password: password,
-      token: 'admin'
-    }
   }
 
   const clearUserInfo = () => {

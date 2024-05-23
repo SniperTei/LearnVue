@@ -1,19 +1,27 @@
 <script setup>
 import { ref } from 'vue'
-// import { useRouter } from 'vue-router'
+import { useRouter } from 'vue-router'
+import { ElMessage, ElButton, ElForm, ElFormItem, ElInput } from 'element-plus'
+// userStore
+import { useUserStore } from '@/stores/userStore'
 const username = ref('')
 const password = ref('')
-// const router = useRouter()
-const login = () => {
-  console.log(username.value, password.value)
-  if (username.value === 'admin' && password.value === 'admin110') {
-    console.log('登录成功')
-    // 登录成功跳到layout页面
-    // router.replace('/')
-  } else {
-    console.log('登录失败')
-  }
+const router = useRouter()
+const userStore = useUserStore()
+const login = async () => {
+  // 登录逻辑
+  await userStore.getUserInfo({ username: username.value, password: password.value})
+  ElMessage.success('登录成功')
+  router.replace('/')
 }
+// const login = async () => {
+//   console.log(username.value, password.value)
+//   // 登录逻辑
+//   await userStore.getUserInfo({ username: username.value, password: password.value})
+//   // await userStore.getUserInfo({ username.value, password.value })
+//   ElMessage.success('登录成功')
+//   router.replace('/')
+// }
 </script>
 
 <template>

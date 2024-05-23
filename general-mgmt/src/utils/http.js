@@ -3,7 +3,8 @@ import { ElMessage } from 'element-plus'
 import 'element-plus/theme-chalk/el-message.css'
 
 const httpInstance = axios.create({
-  baseURL: 'https://api.example.com', // Replace with your API base URL
+  // baseURL: 'https://api.example.com', // Replace with your API base URL
+  baseURL: 'http://127.0.0.1:8000', // Replace with your API base URL
   timeout: 5000, // Set the timeout value in milliseconds
   headers: {
     'Content-Type': 'application/json', // Set the default content type
