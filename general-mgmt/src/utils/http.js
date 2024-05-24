@@ -3,9 +3,11 @@ import { ElMessage } from 'element-plus'
 import 'element-plus/theme-chalk/el-message.css'
 
 const httpInstance = axios.create({
-  // baseURL: 'https://api.example.com', // Replace with your API base URL
-  baseURL: 'http://127.0.0.1:8000', // Replace with your API base URL
-  timeout: 5000, // Set the timeout value in milliseconds
+  // baseURL: 'https://api.example.com/', // Replace with your API base URL
+  // baseURL: 'http://127.0.0.1:8000/', // Replace with your API base URL
+  // env
+  baseURL: import.meta.env.VITE_APP_API_URL,
+  timeout: 50 * 1000, // Set the timeout value in milliseconds
   headers: {
     'Content-Type': 'application/json', // Set the default content type
   },
@@ -18,8 +20,8 @@ httpInstance.interceptors.request.use(
       // 1. 从Pinia中获取数据
       // const userStore = useUserStore()
       // const token = userStore.userInfo.token
-      const token = 'token'
-      console.log('token:', token)
+      const token = ''
+      // console.log('token:', token)
       // 2. 将数据添加到请求头中
       if (token) {
           config.headers.Authorization = `Bearer ${token}`

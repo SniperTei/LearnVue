@@ -52,6 +52,20 @@ const login = async () => {
   display: flex;
   align-items: center;
   justify-content: center;
+  .login-form {
+    width: 300px;
+    padding: 20px;
+    border-radius: 5px;
+    background-color: #304156;
+    h3 {
+      color: white;
+      text-align: center;
+    }
+    // 按钮
+    .el-button {
+      width: 100%;
+    }
+  }
 }
 
 h1 {
