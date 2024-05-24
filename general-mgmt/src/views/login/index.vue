@@ -12,7 +12,7 @@ const login = async () => {
   // 登录逻辑
   await userStore.getUserInfo({ username: username.value, password: password.value})
   ElMessage.success('登录成功')
-  router.replace('/')
+  router.replace('/home')
 }
 // const login = async () => {
 //   console.log(username.value, password.value)

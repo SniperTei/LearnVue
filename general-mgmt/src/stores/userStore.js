@@ -16,7 +16,7 @@ export const useUserStore = defineStore('user', () => {
   const getUserInfo = async ({username, password}) => {
     const res = await loginAPI({username, password})
     console.log('res:', res)
-    userInfo.value = res.data
+    userInfo.value = res.data.data
     // userInfo.value = res.data.result
   }
 
