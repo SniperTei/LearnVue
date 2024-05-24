@@ -7,6 +7,8 @@
   <div class="common-layout">
     <!-- 左侧菜单部分 -->
     <div class="menu-container">
+      <!-- 后台管理系统title -->
+      <div class="menu-title">后台管理系统</div>
       <el-menu
         default-active="1"
         background-color="#324157"
@@ -14,8 +16,8 @@
         active-text-color="#409eff"
         router
       >
-        <el-menu-item index="book">菜单A</el-menu-item>
-        <el-menu-item index="movie">菜单B</el-menu-item>
+        <el-menu-item index="book">图书</el-menu-item>
+        <el-menu-item index="movie">影视</el-menu-item>
         <el-menu-item index="3">菜单C</el-menu-item>
         <el-menu-item index="4">菜单D</el-menu-item>
       </el-menu>
@@ -58,6 +60,12 @@
   .menu-container {
     width: 200px;
     background-color: #324157;
+    .menu-title {
+      color: #fff;
+      font-size: 20px;
+      text-align: center;
+      padding: 20px;
+    }
   }
   // 右侧内容
   .container {
