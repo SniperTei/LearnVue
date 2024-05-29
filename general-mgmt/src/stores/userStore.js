@@ -16,6 +16,10 @@ export const useUserStore = defineStore('user', () => {
   const getUserInfo = async ({username, password}) => {
     const res = await loginAPI({username, password})
     console.log('res:', res)
+    if (res.data.code !== '000000') {
+      // 登录失败
+      return Promise.reject(res.data)
+    }
     userInfo.value = res.data.data
     // userInfo.value = res.data.result
   }

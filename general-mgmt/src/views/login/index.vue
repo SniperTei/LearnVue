@@ -10,9 +10,14 @@ const router = useRouter()
 const userStore = useUserStore()
 const login = async () => {
   // 登录逻辑
-  await userStore.getUserInfo({ username: username.value, password: password.value})
-  ElMessage.success('登录成功')
-  router.replace('/home')
+  userStore.getUserInfo({ username: username.value, password: password.value}).then(() => {
+    ElMessage.success('登录成功')
+    router.replace('/home')
+  }).catch((err) => {
+    console.log(err)
+    let errMsg = err.msg;
+    ElMessage.error('登录失败: ' + errMsg)
+  })
 }
 // const login = async () => {
 //   console.log(username.value, password.value)

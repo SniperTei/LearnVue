@@ -1,10 +1,12 @@
 import axios from 'axios';
 import { ElMessage } from 'element-plus'
 import 'element-plus/theme-chalk/el-message.css'
+import { useUserStore } from '@/stores/userStore'
 
 const httpInstance = axios.create({
   // baseURL: 'https://api.example.com/', // Replace with your API base URL
-  baseURL: 'http://127.0.0.1:8000/', // Replace with your API base URL
+  // baseURL: 'http://127.0.0.1:8000/', // Replace with your API base URL
+  baseURL: 'http://127.0.0.1:3000/', // Replace with your API base URL
   // env
   // baseURL: import.meta.env.VITE_APP_API_URL,
   timeout: 50 * 1000, // Set the timeout value in milliseconds
@@ -18,10 +20,11 @@ const httpInstance = axios.create({
 httpInstance.interceptors.request.use(
   (config) => {
       // 1. 从Pinia中获取数据
-      // const userStore = useUserStore()
-      // const token = userStore.userInfo.token
-      const token = ''
-      // console.log('token:', token)
+      const userStore = useUserStore()
+      console.log('userStore:', userStore)
+      const token = userStore.userInfo.token
+      // const token = ''
+      console.log('token:', token)
       // 2. 将数据添加到请求头中
       if (token) {
           config.headers.Authorization = `Bearer ${token}`
