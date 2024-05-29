@@ -1,12 +1,13 @@
 import httpInstance from "@/utils/http"
 
-export const getBookListAPI = ({page, limit}) => {
+export const getBookListAPI = ({page, limit, book}) => {
   return httpInstance({
     url: '/api/v1/books/book-list/',
     method: 'GET',
     params: {
       page,
-      limit
+      limit,
+      book
     }
   })
 }

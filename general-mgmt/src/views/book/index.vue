@@ -10,7 +10,7 @@ const tableData = ref([])
 const getBookList = async () => {
   console.log('getBookList')
   // 获取图书列表
-  const res = await getBookListAPI({ page: pagination.value.currentPage, limit: pagination.value.pageSize})
+  const res = await getBookListAPI({ page: pagination.value.currentPage, limit: pagination.value.pageSize, book: queryCondition.value})
   console.log('get book list res:', res)
   if (res.data.code === '000000') {
     tableData.value = res.data.data.list
@@ -41,9 +41,14 @@ const handleCurrentChange = (val) => {
   getBookList()
 }
 // 查询条件
-// const title = ref('')
-// const author = ref('')
-// const publisher = ref('')
+const queryCondition = ref({
+  title: '',
+  author: '',
+  publisher: ''
+})
+
+
+
 </script>
 
 <template>
@@ -54,13 +59,13 @@ const handleCurrentChange = (val) => {
     <!-- 查询条件 -->
     <el-form :inline="true" class="demo-form-inline">
       <el-form-item label="书名">
-        <el-input v-model="title" placeholder="请输入姓名"></el-input>
+        <el-input v-model="queryCondition.title" placeholder="请输入姓名"></el-input>
       </el-form-item>
       <el-form-item label="作者">
-        <el-input v-model="author" placeholder="请输入作者"></el-input>
+        <el-input v-model="queryCondition.author" placeholder="请输入作者"></el-input>
       </el-form-item>
       <el-form-item label="出版社">
-        <el-input v-model="publisher" placeholder="请输入出版社"></el-input>
+        <el-input v-model="queryCondition.publisher" placeholder="请输入出版社"></el-input>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="queryBtnClick">查询</el-button>
