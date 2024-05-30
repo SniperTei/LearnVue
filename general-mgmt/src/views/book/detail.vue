@@ -70,7 +70,7 @@ onMounted(() => {
   </div>
 </template>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .book-detail {
   /* Your SCSS styles here */
   width: 100%;

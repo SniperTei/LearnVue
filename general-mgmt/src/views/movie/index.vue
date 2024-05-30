@@ -18,7 +18,7 @@ const queryCondition = ref({
   region: '',
   releaseDate: '',
 })
-// const router = useRouter()
+const router = useRouter()
 const getMovieList = async () => {
   console.log('getMovieList')
   // 获取电影列表
@@ -48,6 +48,11 @@ const handleCurrentChange = (val) => {
   getMovieList()
 }
 
+const detailBtnClick = (movieId) => {
+  console.log('detailBtnClick', movieId)
+  router.push({ path: `/movielist/detail/${movieId}` })
+}
+
 onMounted(() => {
   getMovieList()
 })
@@ -63,9 +68,9 @@ onMounted(() => {
       <!-- <el-form-item label="导演">
         <el-input v-model="queryCondition.director" placeholder="请输入导演"></el-input>
       </el-form-item> -->
-      <el-form-item label="主演">
+      <!-- <el-form-item label="主演">
         <el-input v-model="queryCondition.actors" placeholder="请输入主演"></el-input>
-      </el-form-item>
+      </el-form-item> -->
       <el-form-item label="类型">
         <el-input v-model="queryCondition.type" placeholder="请输入类型"></el-input>
       </el-form-item>
@@ -74,6 +79,14 @@ onMounted(() => {
       </el-form-item>
       <el-form-item label="上映日期">
         <el-input v-model="queryCondition.release_date" placeholder="请输入上映日期"></el-input>
+      </el-form-item>
+      <!-- jyp是否看过 -->
+      <el-form-item label="Sniper是否看过">
+        <el-input v-model="queryCondition.sniper_viewed" placeholder="请输入Sniper是否看过"></el-input>
+      </el-form-item>
+      <!-- sniper是否看过 -->
+      <el-form-item label="JYP是否看过">
+        <el-input v-model="queryCondition.jyp_viewed" placeholder="请输入JYP是否看过"></el-input>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="queryBtnClick">查询</el-button>
@@ -87,6 +100,18 @@ onMounted(() => {
       <el-table-column prop="genre" label="类型"></el-table-column>
       <el-table-column prop="country" label="地区"></el-table-column>
       <el-table-column prop="release_date" label="上映日期"></el-table-column>
+      <el-table-column prop="jyp_viewed" label="JYP是否看过">
+        <template #default="{ row }">
+          <el-tag v-if="row.jyp_viewed === 1" type="success">看过</el-tag>
+          <el-tag v-else type="danger">没看过</el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column prop="sniper_viewed" label="Sniper是否看过">
+        <template #default="{ row }">
+          <el-tag v-if="row.sniper_viewed === 1" type="success">看过</el-tag>
+          <el-tag v-else type="danger">没看过</el-tag>
+        </template>
+      </el-table-column>
       <el-table-column prop="duration" label="时长">
         <template #default="{ row }">
           {{ row.duration }} 分钟
@@ -94,8 +119,8 @@ onMounted(() => {
       </el-table-column>
       <el-table-column label="操作">
         <template #default="{ row }">
-          <el-button type="text" @click="editBtnClick(row.id)">编辑</el-button>
-          <el-button type="text" @click="removeBtnClick(row.id)">删除</el-button>
+          <el-button type="text" @click="detailBtnClick(row.movieId)">详情</el-button>
+          <el-button type="text" @click="removeBtnClick(row.movieId)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>

@@ -23,10 +23,10 @@
           <el-menu-item>影视</el-menu-item>
         </router-link>
         <router-link to="/c" index="">
-          <el-menu-item>菜单C</el-menu-item>
+          <el-menu-item>酒精</el-menu-item>
         </router-link>
         <router-link to="/d" index="">
-          <el-menu-item>菜单D</el-menu-item>
+          <el-menu-item>健身</el-menu-item>
         </router-link>
       </el-menu>
     </div>

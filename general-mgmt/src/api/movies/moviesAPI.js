@@ -20,9 +20,10 @@ export const getMovieDetailAPI = ({movieId}) => {
 }
 
 // 修改movie
-export const updateMovieAPI = ({movieId, params}) => {
+export const updateMovieAPI = (params) => {
+  console.log('params: ', params)
   return httpInstance({
-    url: `/api/v1/movies/movie-detail/${movieId}/`,
+    url: `/api/v1/movies/movie-update/${params.movieId}/`,
     method: 'PUT',
     params
   })
