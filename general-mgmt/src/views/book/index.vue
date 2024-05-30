@@ -74,7 +74,7 @@ const removeBtnClick = (bookId) => {
     <!-- page title -->
     <!-- <h4>图书列表</h4> -->
     <!-- 查询条件 -->
-    <el-form :inline="true" class="demo-form-inline">
+    <el-form :inline="true" class="book-query-condition">
       <el-form-item label="书名">
         <el-input v-model="queryCondition.title" placeholder="请输入姓名"></el-input>
       </el-form-item>
@@ -91,7 +91,7 @@ const removeBtnClick = (bookId) => {
     <!-- 图书列表 -->
     <el-table
       stripe
-      class="table"
+      class="table-data"
       :data="tableData"
       style="width: 100%">
       <el-table-column
@@ -147,6 +147,13 @@ const removeBtnClick = (bookId) => {
 .book {
   /* Your SCSS styles here */
   width: 100%;
-  // background-color: red;
+  .book-query-condition {
+    margin-top: 20px;
+    margin-bottom: 20px;
+  }
+  .table-data {
+    margin-top: 20px;
+    margin-bottom: 20px;
+  }
 }
 </style>

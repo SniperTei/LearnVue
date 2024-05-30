@@ -28,6 +28,14 @@
         <router-link to="/d" index="">
           <el-menu-item>健身</el-menu-item>
         </router-link>
+        <!-- 美食 -->
+        <router-link to="/e" index="">
+          <el-menu-item>美食</el-menu-item>
+        </router-link>
+        <!-- 旅游 -->
+        <router-link to="/f" index="">
+          <el-menu-item>旅游</el-menu-item>
+        </router-link>
       </el-menu>
     </div>
     <!-- 右侧内容 -->
@@ -45,7 +53,7 @@
           <div>退出</div>
         </div>
       </div>
-      <div class="title-container"></div>
+      <!-- <div class="title-container"></div> -->
       <!-- 右侧具体内容 -->
       <div class="content-container">
         <RouterView />
