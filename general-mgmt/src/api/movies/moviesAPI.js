@@ -28,3 +28,17 @@ export const updateMovieAPI = (params) => {
     params
   })
 }
+
+// 删除movie
+// export const deleteMovieAPI = ({movieId}) => {
+//   return httpInstance({
+//     url: `/api/v1/movies/movie-delete/${movieId}/`,
+//     method: 'DELETE'
+//   })
+// }
+export const deleteMovieAPI = ({movieId}) => {
+  return httpInstance({
+    url: `/api/v1/movies/movie-delete/${movieId}/`,
+    method: 'POST'
+  })
+}

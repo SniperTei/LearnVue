@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 // movie api
-import { getMovieListAPI } from '@/api/movies/moviesAPI'
+import { getMovieListAPI, deleteMovieAPI } from '@/api/movies/moviesAPI'
 import { ElTable, ElTableColumn, ElForm, ElFormItem, ElInput, ElButton, ElPagination } from 'element-plus'
 import { useRouter } from 'vue-router'
 const tableData = ref([])
@@ -51,6 +51,15 @@ const handleCurrentChange = (val) => {
 const detailBtnClick = (movieId) => {
   console.log('detailBtnClick', movieId)
   router.push({ path: `/movielist/detail/${movieId}` })
+}
+
+const removeBtnClick = (movieId) => {
+  console.log('removeBtnClick', movieId)
+  // 删除电影
+  deleteMovieAPI({ movieId: movieId }).then(res => {
+    console.log('delete movie res:', res)
+    getMovieList()
+  })
 }
 
 onMounted(() => {
