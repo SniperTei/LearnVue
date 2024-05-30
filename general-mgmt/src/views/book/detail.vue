@@ -57,6 +57,15 @@ onMounted(() => {
         <el-col :span="8">出版日期：</el-col>
         <el-col :span="16">{{ bookDetail.pubdate }}</el-col>
       </el-row>
+      <el-row class="book-info-property">
+        <el-col :span="8">价格:</el-col>
+        <el-col :span="16">{{ bookDetail.price }}元</el-col>
+      </el-row>
+      <!-- 类型 -->
+      <el-row class="book-info-property">
+        <el-col :span="8">类型:</el-col>
+        <el-col :span="16">{{ bookDetail.typeDesc }}</el-col>
+      </el-row>
     </el-card>
   </div>
 </template>
@@ -68,7 +77,7 @@ onMounted(() => {
   height: 100%;
   display: flex;
   .book-img {
-    width: 200px;
+    width: 300px;
     height: 300px;
     margin: 20px;
     // background-color: red;
