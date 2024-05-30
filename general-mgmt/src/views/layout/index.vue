@@ -45,7 +45,7 @@
           <div>退出</div>
         </div>
       </div>
-      <div class="title-container">图书列表</div>
+      <div class="title-container"></div>
       <!-- 右侧具体内容 -->
       <div class="content-container">
         <RouterView />

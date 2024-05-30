@@ -30,29 +30,34 @@ onMounted(() => {
 <template>
   <div class="book-detail">
     <!-- Your template content here -->
-    <el-form :model="bookDetail" label-width="80px">
-      <el-form-item label="书名">
-        <el-input v-model="bookDetail.title" disabled></el-input>
-      </el-form-item>
-      <el-form-item label="作者">
-        <el-input v-model="bookDetail.author" disabled></el-input>
-      </el-form-item>
-      <el-form-item label="出版社">
-        <el-input v-model="bookDetail.publisher" disabled></el-input>
-      </el-form-item>
-      <el-form-item label="出版日期">
-        <el-input v-model="bookDetail.pubdate" disabled></el-input>
-      </el-form-item>
-      <el-form-item label="价格">
-        <el-input v-model="bookDetail.price" disabled></el-input>
-      </el-form-item>
-      <!-- <el-form-item label="库存">
-        <el-input v-model="bookDetail.stock" disabled></el-input>
-      </el-form-item> -->
-      <!-- <el-form-item label="简介">
-        <el-input v-model="bookDetail.introduction" type="textarea" disabled></el-input>
-      </el-form-item> -->
-    </el-form>
+    <!-- 书封面 -->
+    <el-card class="box-card book-img">
+      <img src="https://img3.doubanio.com/view/subject/l/public/s3365739.jpg" class="image" />
+    </el-card>
+    <!-- 书详情 -->
+    <el-card class="box-card book-info">
+      <template v-slot:header>
+        <div  class="clearfix">
+          <span>图书详情</span>
+        </div>
+      </template>
+      <el-row class="book-info-property">
+        <el-col :span="8">书名：</el-col>
+        <el-col :span="16">{{ bookDetail.title }}</el-col>
+      </el-row>
+      <el-row class="book-info-property">
+        <el-col :span="8">作者：</el-col>
+        <el-col :span="16">{{ bookDetail.author }}</el-col>
+      </el-row>
+      <el-row class="book-info-property">
+        <el-col :span="8">出版社：</el-col>
+        <el-col :span="16">{{ bookDetail.publisher }}</el-col>
+      </el-row>
+      <el-row class="book-info-property">
+        <el-col :span="8">出版日期：</el-col>
+        <el-col :span="16">{{ bookDetail.pubdate }}</el-col>
+      </el-row>
+    </el-card>
   </div>
 </template>
 
@@ -60,6 +65,23 @@ onMounted(() => {
 .book-detail {
   /* Your SCSS styles here */
   width: 100%;
+  height: 100%;
+  display: flex;
+  .book-img {
+    width: 200px;
+    height: 300px;
+    margin: 20px;
+    // background-color: red;
+  }
+  .book-info {
+    width: 100%;
+    height: 300px;
+    margin: 20px;
+    // background-color: blue;
+  }
+  .book-info-property {
+    margin: 10px;
+  }
   // background-color: red;
 }
 </style>
