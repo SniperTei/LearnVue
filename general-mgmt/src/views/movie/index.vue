@@ -21,8 +21,9 @@ const queryCondition = ref({
 const router = useRouter()
 const getMovieList = async () => {
   console.log('getMovieList')
+  console.log('query condition:', queryCondition.value)
   // 获取电影列表
-  const res = await getMovieListAPI({ page: pagination.value.currentPage, limit: pagination.value.pageSize, movie: queryCondition.value})
+  const res = await getMovieListAPI({ page: pagination.value.currentPage, limit: pagination.value.pageSize, condition: queryCondition.value})
   console.log('get movie list res:', res)
   if (res.data.code === '000000') {
     tableData.value = res.data.data.list
@@ -74,9 +75,9 @@ onMounted(() => {
       <div>电影列表</div>
     </div> -->
     <!-- query condition -->
-    <el-form :inline="true" :model="queryCondition" class="movie-query-condition">
+    <el-form :inline="true" class="movie-query-condition">
       <el-form-item label="电影名称">
-        <el-input v-model="queryCondition.title" placeholder="请输入电影名称"></el-input>
+        <el-input v-model="queryCondition.title" placeholder="请输入电影名称" clearable></el-input>
       </el-form-item>
       <!-- <el-form-item label="导演">
         <el-input v-model="queryCondition.director" placeholder="请输入导演"></el-input>
@@ -85,10 +86,10 @@ onMounted(() => {
         <el-input v-model="queryCondition.actors" placeholder="请输入主演"></el-input>
       </el-form-item> -->
       <el-form-item label="类型">
-        <el-input v-model="queryCondition.genre" placeholder="请输入类型"></el-input>
+        <el-input v-model="queryCondition.genre" placeholder="请输入类型" clearable></el-input>
       </el-form-item>
       <el-form-item label="地区">
-        <el-input v-model="queryCondition.country" placeholder="请输入地区"></el-input>
+        <el-input v-model="queryCondition.country" placeholder="请输入地区" clearable></el-input>
       </el-form-item>
       <el-form-item label="上映日期">
         <el-input v-model="queryCondition.release_year" placeholder="请输入上映日期"></el-input>

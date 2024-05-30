@@ -12,7 +12,7 @@ const router = useRouter()
 const getBookList = async () => {
   console.log('getBookList')
   // 获取图书列表
-  const res = await getBookListAPI({ page: pagination.value.currentPage, limit: pagination.value.pageSize, book: queryCondition.value})
+  const res = await getBookListAPI({ page: pagination.value.currentPage, limit: pagination.value.pageSize, condition: queryCondition.value})
   console.log('get book list res:', res)
   if (res.data.code === '000000') {
     tableData.value = res.data.data.list
@@ -76,13 +76,13 @@ const removeBtnClick = (bookId) => {
     <!-- 查询条件 -->
     <el-form :inline="true" class="book-query-condition">
       <el-form-item label="书名">
-        <el-input v-model="queryCondition.title" placeholder="请输入姓名"></el-input>
+        <el-input v-model="queryCondition.title" placeholder="请输入姓名" clearable></el-input>
       </el-form-item>
       <el-form-item label="作者">
-        <el-input v-model="queryCondition.author" placeholder="请输入作者"></el-input>
+        <el-input v-model="queryCondition.author" placeholder="请输入作者" clearable></el-input>
       </el-form-item>
       <el-form-item label="出版社">
-        <el-input v-model="queryCondition.publisher" placeholder="请输入出版社"></el-input>
+        <el-input v-model="queryCondition.publisher" placeholder="请输入出版社" clearable></el-input>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="queryBtnClick">查询</el-button>
