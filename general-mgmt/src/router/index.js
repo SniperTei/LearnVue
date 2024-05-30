@@ -17,12 +17,29 @@ const router = createRouter({
       // 子路由
       children: [
         {
-          path: '/book',
+          path: '/booklist',
           name: 'book',
           component: () => import('@/views/book/index.vue'),
+          // children: [
+          //   {
+          //     path: 'list',
+          //     name: 'book-list',
+          //     component: () => import('@/views/book/index.vue'),
+          //   },
+          //   {
+          //     path: '/:bookId',
+          //     name: 'book-detail',
+          //     component: () => import('@/views/book/detail.vue'),
+          //   }
+          // ]
         },
         {
-          path: '/movie',
+          path: '/booklist/detail/:bookId',
+          name: 'book-detail',
+          component: () => import('@/views/book/detail.vue'),
+        },
+        {
+          path: '/movielist',
           name: 'movie',
           component: () => import('@/views/movie/index.vue'),
         }

@@ -3,10 +3,12 @@ import { ref, onMounted } from 'vue'
 // booklistapi
 import { getBookListAPI } from '@/api/books/booksAPI'
 import { ElTable, ElTableColumn, ElForm, ElFormItem, ElInput, ElButton, ElPagination } from 'element-plus'
+import { useRouter } from 'vue-router'
 // userStore
 // import { useUserStore } from '@/stores/userStore'
 // const userStore = useUserStore()
 const tableData = ref([])
+const router = useRouter()
 const getBookList = async () => {
   console.log('getBookList')
   // 获取图书列表
@@ -47,7 +49,22 @@ const queryCondition = ref({
   publisher: ''
 })
 
+const editBtnClick = (bookId) => {
+  console.log('editBtnClick:', bookId)
+  // 跳转到编辑页面
+  router.push({ path: '/booklist/detail/' + bookId })
+}
 
+const removeBtnClick = (bookId) => {
+  console.log('removeBtnClick:', bookId)
+  // 删除图书
+  // const res = await removeBookAPI({ bookId: bookId})
+  // console.log('remove book res:', res)
+  // if (res.data.code === '000000') {
+  //   ElMessage.success('删除成功')
+  //   getBookList()
+  // }
+}
 
 </script>
 
@@ -102,6 +119,15 @@ const queryCondition = ref({
       <el-table-column
         prop="pubdate"
         label="出版时间">
+      </el-table-column>
+      <!-- 操作 -->
+      <el-table-column
+        label="操作"
+        width="180">
+        <template v-slot="scope">
+          <el-button type="text" size="small" @click="editBtnClick(scope.row.bookId)">编辑</el-button>
+          <el-button type="text" size="small" @click="removeBtnClick(scope.row.bookId)">删除</el-button>
+        </template>
       </el-table-column>
     </el-table>
     <!-- 分页 -->

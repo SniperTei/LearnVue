@@ -16,10 +16,18 @@
         active-text-color="#409eff"
         router
       >
-        <el-menu-item index="book">图书</el-menu-item>
-        <el-menu-item index="movie">影视</el-menu-item>
-        <el-menu-item index="3">菜单C</el-menu-item>
-        <el-menu-item index="4">菜单D</el-menu-item>
+        <router-link to="/booklist" index="booklist">
+          <el-menu-item>图书</el-menu-item>
+        </router-link>
+        <router-link to="/movielist" index="movielist">
+          <el-menu-item>影视</el-menu-item>
+        </router-link>
+        <router-link to="/c" index="">
+          <el-menu-item>菜单C</el-menu-item>
+        </router-link>
+        <router-link to="/d" index="">
+          <el-menu-item>菜单D</el-menu-item>
+        </router-link>
       </el-menu>
     </div>
     <!-- 右侧内容 -->

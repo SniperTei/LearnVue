@@ -21,7 +21,8 @@ export const useUserStore = defineStore('user', () => {
       return Promise.reject(res.data)
     }
     userInfo.value = res.data.data
-    // userInfo.value = res.data.result
+    // token存到localStorage中
+    localStorage.setItem('token', res.data.data.token)
   }
 
   const clearUserInfo = () => {
