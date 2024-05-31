@@ -45,63 +45,90 @@ onMounted(() => {
   getMovieDetail()
 })
 
+const comments = [
+  {
+    id: 1,
+    username: 'Sniper',
+    comment: '这是一部好电影',
+  },
+  {
+    id: 2,
+    username: 'JYP',
+    comment: '这是一部好电影2',
+  }
+]
+
+const rate = 4
+
 </script>
 
 <template>
   <div class="movie-detail">
-    <!-- 电影封面 -->
-    <el-card class="box-card movie-img">
-      <img src="https://img3.doubanio.com/view/photo/s_ratio_poster/public/p2561545034.jpg" class="image" />
-    </el-card>
-    <!-- 电影详情 -->
-    <el-card class="box-card movie-info">
-      <template v-slot:header>
-        <div  class="clearfix">
-          <span>电影详情</span>
+    <div class="movie-detail-info">
+      <!-- 电影封面 -->
+      <el-card class="box-card movie-img">
+        <img src="https://img3.doubanio.com/view/photo/s_ratio_poster/public/p2561545034.jpg" class="image" />
+      </el-card>
+      <!-- 描述列表电影详情 -->
+      <el-descriptions
+        class="margin-top"
+        title="电影详情"
+        column="1"
+        size="large"
+        border
+      >
+        <el-descriptions-item label="电影名称">{{ movieDetail.title }}</el-descriptions-item>
+        <el-descriptions-item label="导演">{{ movieDetail.director }}</el-descriptions-item>
+        <el-descriptions-item label="演员">{{ movieDetail.actors }}</el-descriptions-item>
+        <el-descriptions-item label="类型">{{ movieDetail.genre }}</el-descriptions-item>
+        <el-descriptions-item label="地区">{{ movieDetail.country }}</el-descriptions-item>
+        <el-descriptions-item label="上映日期">{{ movieDetail.release_date }}</el-descriptions-item>
+        <el-descriptions-item label="评分">{{ movieDetail.rating }}</el-descriptions-item>
+        <el-descriptions-item label="评分人数">{{ movieDetail.rating_count }}</el-descriptions-item>
+        <el-descriptions-item label="简介">{{ movieDetail.summary }}</el-descriptions-item>
+        <el-descriptions-item label="JYP是否看过">
+          <el-button :type="movieDetail.jyp_viewed ? 'primary' : 'danger'" @click="jypViewedBtnClick">{{ movieDetail.jyp_viewed ? 'JYP看过' : 'JYP没看过' }}</el-button>
+        </el-descriptions-item>
+        <el-descriptions-item label="Sniper是否看过">
+          <el-button :type="movieDetail.sniper_viewed ? 'primary' : 'danger'" @click="snpViewedBtnClick">{{ movieDetail.sniper_viewed ? 'Sniper看过' : 'Sniper没看过' }}</el-button>
+        </el-descriptions-item>
+      </el-descriptions>
+    </div>
+    <!-- 评论 -->
+    <div class="movie-comments">
+      <div class="movie-comments-info">
+        <!-- 用户头像 -->
+        <div class="movie-comments-avatar">
+          <el-avatar
+            shape="square"
+            size="large"
+            src="https://img3.doubanio.com/view/photo/s_ratio_poster/public/p2561545034.jpg"
+          ></el-avatar>
+          <!-- 用户昵称 -->
+          <div class="movie-comments-nickname">Sniper</div>
         </div>
-      </template>
-      <el-row class="movie-info-property">
-        <el-col :span="8">电影名称：</el-col>
-        <el-col :span="16">{{ movieDetail.title }}</el-col>
-      </el-row>
-      <el-row class="movie-info-property">
-        <el-col :span="8">导演：</el-col>
-        <el-col :span="16">{{ movieDetail.director }}</el-col>
-      </el-row>
-      <el-row class="movie-info-property">
-        <el-col :span="8">演员：</el-col>
-        <el-col :span="16">{{ movieDetail.actors }}</el-col>
-      </el-row>
-      <el-row class="movie-info-property">
-        <el-col :span="8">类型：</el-col>
-        <el-col :span="16">{{ movieDetail.genre }}</el-col>
-      </el-row>
-      <el-row class="movie-info-property">
-        <el-col :span="8">地区：</el-col>
-        <el-col :span="16">{{ movieDetail.country }}</el-col>
-      </el-row>
-      <el-row class="movie-info-property">
-        <el-col :span="8">上映日期：</el-col>
-        <el-col :span="16">{{ movieDetail.release_date }}</el-col>
-      </el-row>
-      <el-row class="movie-info-property">
-        <el-col :span="8">评分:</el-col>
-        <el-col :span="16">{{ movieDetail.rating }}</el-col>
-      </el-row>
-      <!-- JYP是否看过 el-button按钮 -->
-      <el-button :type="movieDetail.jyp_viewed ? 'primary' : 'danger'" @click="jypViewedBtnClick">{{ movieDetail.jyp_viewed ? 'JYP看过' : 'JYP没看过' }}</el-button>
-      <!-- Sniper是否看过 -->
-      <el-button :type="movieDetail.sniper_viewed ? 'primary' : 'danger'" @click="snpViewedBtnClick">{{ movieDetail.sniper_viewed ? 'Sniper看过' : 'Sniper没看过' }}</el-button>
-      <!-- <el-row class="movie-info-property">
-        <el-col :span="8">是否看过:</el-col>
-        <el-col :span="16">{{ movieDetail.jyp_viewed ? '看过' : '没看过' }}</el-col>
-      </el-row> -->
-      <!-- Sniper是否看过 -->
-      <el-row class="movie-info-property">
-        <el-col :span="8">是否看过:</el-col>
-        <el-col :span="16">{{ movieDetail.sniper_viewed ? '看过' : '没看过' }}</el-col>
-      </el-row>
-
+        <!-- 评论内容 -->
+        <div class="movie-comments-content">
+          <el-card class="box-card movie-comment">
+            <p>{{ comments[0].comment }}</p>
+          </el-card>
+        </div>
+      </div>
+      <!-- 时间 & 评分 -->
+      <div class="movie-comments-time-rate">
+        <el-tag type="info">2021-09-01 12:00:00</el-tag>
+        <el-rate v-model="rate" disabled></el-rate>
+      </div>
+    </div>
+    <!-- 快速发布评论 -->
+    <el-card class="box-card movie-comment-write">
+      <el-input
+        type="textarea"
+        autosize
+        placeholder="请输入评论"
+        v-model="comment"
+      ></el-input>
+      <el-button type="primary" @click="commentBtnClick">评论</el-button>
     </el-card>
   </div>
 </template>
@@ -109,20 +136,56 @@ onMounted(() => {
 <style lang="scss" scoped>
 .movie-detail {
   width: 100%;
-  height: 100%;
-  display: flex;
-  .movie-img {
-    width: 30%;
-    margin: 20px;
-    .image {
-      width: 100%;
+  .movie-detail-info {
+    width: 100%;
+    display: flex;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    .movie-img {
+      width: 30%;
+      margin: 20px;
+      .image {
+        width: 100%;
+      }
+    }
+    .movie-info {
+      width: 60%;
+      margin: 20px;
+      .movie-info-property {
+        margin: 10px 0;
+      }
     }
   }
-  .movie-info {
-    width: 60%;
-    margin: 20px;
-    .movie-info-property {
-      margin: 10px 0;
+  .movie-comments {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    background-color: aqua;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    .movie-comments-info {
+      width: 100%;
+      display: flex;
+      background-color: blueviolet;
+      .movie-comments-avatar {
+        margin: 10px;
+        background-color: chartreuse;
+        width: 100px;
+        .movie-comments-nickname {
+          margin-top: 5px;
+        }
+      }
+      .movie-comments-content {
+        margin: 20px;
+        .movie-comment {
+          width: 100%;
+        }
+      }
+    }
+    .movie-comments-time-rate {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
     }
   }
 }
