@@ -96,7 +96,7 @@ onMounted(() => {
       </el-form-item>
       <!-- jyp是否看过 -->
       <el-form-item label="jyp看过日期" style="width: 240px;">
-        <el-select v-model="queryCondition.jyp_viewed">
+        <el-select v-model="queryCondition.jyp_viewed" clearable>
           <el-option label="看过" value="1"></el-option>
           <el-option label="没看过" value="0"></el-option>
         </el-select>
@@ -106,7 +106,7 @@ onMounted(() => {
       </el-form-item> -->
       <!-- sniper是否看过 -->
       <el-form-item label="sniper看过日期" style="width: 240px;">
-        <el-select v-model="queryCondition.sniper_viewed">
+        <el-select v-model="queryCondition.sniper_viewed" clearable>
           <el-option label="看过" value="1"></el-option>
           <el-option label="没看过" value="0"></el-option>
         </el-select>
@@ -150,6 +150,7 @@ onMounted(() => {
         </template>
       </el-table-column>
     </el-table>
+    <!-- pagination -->
     <el-pagination
       @size-change="handleSizeChange"
       @current-change="handleCurrentChange"
