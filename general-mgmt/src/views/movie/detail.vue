@@ -96,28 +96,29 @@ const rate = 4
     </div>
     <!-- 评论 -->
     <div class="movie-comments">
-      <div class="movie-comments-info">
-        <!-- 用户头像 -->
-        <div class="movie-comments-avatar">
+      <div class="movie-comment-up">
+        <div class="movie-comment-left">
+          <!-- 头像 -->
           <el-avatar
-            shape="square"
             size="large"
             src="https://img3.doubanio.com/view/photo/s_ratio_poster/public/p2561545034.jpg"
           ></el-avatar>
-          <!-- 用户昵称 -->
-          <div class="movie-comments-nickname">Sniper</div>
+          <!-- 昵称 -->
+          <div>Sniper</div>
         </div>
-        <!-- 评论内容 -->
-        <div class="movie-comments-content">
-          <el-card class="box-card movie-comment">
-            <p>{{ comments[0].comment }}</p>
-          </el-card>
+        <div class="movie-comment-right">
+          <!-- 评论内容 -->
+          <div class="movie-comment-content">
+            <div>This is a good movie
+            </div>
+          </div>
         </div>
       </div>
-      <!-- 时间 & 评分 -->
-      <div class="movie-comments-time-rate">
-        <el-tag type="info">2021-09-01 12:00:00</el-tag>
-        <el-rate v-model="rate" disabled></el-rate>
+      <div class="movie-comment-bottom">
+        <!-- 时间 -->
+        <div>2021-09-01</div>
+        <!-- 评分 -->
+        <el-rate v-model="rate" show-text></el-rate>
       </div>
     </div>
     <!-- 快速发布评论 -->
@@ -160,32 +161,48 @@ const rate = 4
     width: 100%;
     display: flex;
     flex-direction: column;
-    background-color: aqua;
-    margin-top: 10px;
-    margin-bottom: 10px;
-    .movie-comments-info {
+    // 边框
+    border: 1px solid #ebeef5;
+    margin-bottom: 15px;
+    .movie-comment-up {
       width: 100%;
       display: flex;
-      background-color: blueviolet;
-      .movie-comments-avatar {
-        margin: 10px;
-        background-color: chartreuse;
-        width: 100px;
-        .movie-comments-nickname {
-          margin-top: 5px;
-        }
+      .movie-comment-left {
+        width: 120px;
+        // height: 100px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-around;
+        // 左右padding 10px
+        // padding: 10px;
+        // background-color: yellow;
       }
-      .movie-comments-content {
-        margin: 20px;
-        .movie-comment {
-          width: 100%;
+      .movie-comment-right {
+        flex-grow: 1;
+        // background-color: green;
+        .movie-comment-content {
+          // width: 100%;
+          margin: 20px;
+          padding: 10px;
+          background-color: #f5f7fa;
+          // 最大高度130px 超过就滚动条
+          height: 70px;
+          overflow: auto;
         }
       }
     }
-    .movie-comments-time-rate {
-      width: 100%;
+    .movie-comment-bottom {
+      // width: 100%;
       display: flex;
+      padding: 0 10px;
       justify-content: space-between;
+      // background-color: red;
+      // div 上下居中
+      div {
+        display: flex;
+        align-items: center;
+      }
     }
   }
 }
