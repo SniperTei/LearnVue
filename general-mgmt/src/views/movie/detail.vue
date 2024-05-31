@@ -7,6 +7,8 @@ import { useRoute } from 'vue-router'
 const route = useRoute()
 
 const movieDetail = ref({})
+const comments = ref([])
+// const rating = 4
 const getMovieDetail = async () => {
   console.log('getMovieDetail')
   let movieId = route.params.movieId
@@ -14,7 +16,12 @@ const getMovieDetail = async () => {
   // 获取电影详情
   const res = await getMovieDetailAPI({ movieId: movieId})
   console.log('get movie detail res:', res)
-  movieDetail.value = res.data.data
+  movieDetail.value = res.data.data.movie
+  comments.value = res.data.data.movieComment.list
+  // 遍历comments.value 把rating变成数字
+  comments.value.forEach(comment => {
+    comment.rating = parseFloat(comment.rating) * 0.5
+  })
 }
 
 const updateMovie = async (movieDetailParam) => {
@@ -44,21 +51,6 @@ onMounted(() => {
   // 获取电影详情
   getMovieDetail()
 })
-
-const comments = [
-  {
-    id: 1,
-    username: 'Sniper',
-    comment: '这是一部好电影',
-  },
-  {
-    id: 2,
-    username: 'JYP',
-    comment: '这是一部好电影2',
-  }
-]
-
-const rate = 4
 
 </script>
 
@@ -96,41 +88,60 @@ const rate = 4
     </div>
     <!-- 评论 -->
     <div class="movie-comments">
-      <div class="movie-comment-up">
-        <div class="movie-comment-left">
-          <!-- 头像 -->
-          <el-avatar
-            size="large"
-            src="https://img3.doubanio.com/view/photo/s_ratio_poster/public/p2561545034.jpg"
-          ></el-avatar>
-          <!-- 昵称 -->
-          <div>Sniper</div>
-        </div>
-        <div class="movie-comment-right">
-          <!-- 评论内容 -->
-          <div class="movie-comment-content">
-            <div>This is a good movie
+      <!-- 边框 -->
+      <div v-for="comment in comments" :key="comment.id" class="movie-comment-list">
+        <div class="movie-comment-up">
+          <div class="movie-comment-left">
+            <!-- 头像 -->
+            <el-avatar
+              size="large"
+              src="https://img3.doubanio.com/view/photo/s_ratio_poster/public/p2561545034.jpg"
+            ></el-avatar>
+            <!-- 昵称 -->
+            <div>{{ comment.username }}</div>
+          </div>
+          <div class="movie-comment-right">
+            <!-- 评论内容 -->
+            <div class="movie-comment-content">
+              <div>{{ comment.comment }}</div>
             </div>
           </div>
         </div>
+        <div class="movie-comment-bottom">
+          <!-- 时间 -->
+          <div>{{ comment.updated_at }}</div>
+          <!-- 评分 -->
+          <el-rate
+            v-model="comment.rating"
+            allow-half="true"
+            disabled
+            show-score
+            text-color="#ff9900"
+            score-template="{value} points"
+          >
+          </el-rate>
+        </div>
       </div>
-      <div class="movie-comment-bottom">
-        <!-- 时间 -->
-        <div>2021-09-01</div>
-        <!-- 评分 -->
-        <el-rate v-model="rate" show-text></el-rate>
+      <!-- 快速发布评论 -->
+      <div class="movie-comment-write">
+        <el-input
+          type="textarea"
+          autosize
+          placeholder="请输入评论"
+          v-model="comment"
+        ></el-input>
+        <el-button type="primary" @click="commentBtnClick">评论</el-button>
       </div>
+      <!-- <el-card class="box-card movie-comment-write">
+        <el-input
+          type="textarea"
+          autosize
+          placeholder="请输入评论"
+          v-model="comment"
+        ></el-input>
+        <el-button type="primary" @click="commentBtnClick">评论</el-button>
+      </el-card> -->
     </div>
-    <!-- 快速发布评论 -->
-    <el-card class="box-card movie-comment-write">
-      <el-input
-        type="textarea"
-        autosize
-        placeholder="请输入评论"
-        v-model="comment"
-      ></el-input>
-      <el-button type="primary" @click="commentBtnClick">评论</el-button>
-    </el-card>
   </div>
 </template>
 
@@ -163,45 +174,49 @@ const rate = 4
     flex-direction: column;
     // 边框
     border: 1px solid #ebeef5;
-    margin-bottom: 15px;
-    .movie-comment-up {
-      width: 100%;
-      display: flex;
-      .movie-comment-left {
-        width: 120px;
-        // height: 100px;
+    .movie-comment-list {
+      // 边框
+      border-bottom: 1px solid #ebeef5;
+      margin-bottom: 20px;
+      .movie-comment-up {
+        width: 100%;
         display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: space-around;
-        // 左右padding 10px
-        // padding: 10px;
-        // background-color: yellow;
-      }
-      .movie-comment-right {
-        flex-grow: 1;
-        // background-color: green;
-        .movie-comment-content {
-          // width: 100%;
-          margin: 20px;
-          padding: 10px;
-          background-color: #f5f7fa;
-          // 最大高度130px 超过就滚动条
-          height: 70px;
-          overflow: auto;
+        .movie-comment-left {
+          width: 120px;
+          // height: 100px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: space-around;
+          // 左右padding 10px
+          // padding: 10px;
+          // background-color: yellow;
+        }
+        .movie-comment-right {
+          flex-grow: 1;
+          // background-color: green;
+          .movie-comment-content {
+            // width: 100%;
+            margin: 20px;
+            padding: 10px;
+            background-color: #f5f7fa;
+            // 最大高度130px 超过就滚动条
+            height: 70px;
+            overflow: auto;
+          }
         }
       }
-    }
-    .movie-comment-bottom {
-      // width: 100%;
-      display: flex;
-      padding: 0 10px;
-      justify-content: space-between;
-      // background-color: red;
-      // div 上下居中
-      div {
+      .movie-comment-bottom {
+        // width: 100%;
         display: flex;
-        align-items: center;
+        padding: 0 10px;
+        justify-content: space-between;
+        // background-color: red;
+        // div 上下居中
+        div {
+          display: flex;
+          align-items: center;
+        }
       }
     }
   }
