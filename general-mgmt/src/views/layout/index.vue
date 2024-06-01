@@ -1,7 +1,14 @@
 <script setup>
-// import { ref } from 'vue'
-// import { useUserStore } from '@/stores/userStore'
-// const userStore = useUserStore()
+import { useRouter } from 'vue-router'
+import { useUserStore } from '@/stores/userStore';
+const router = useRouter()
+const userStore = useUserStore()
+const userInfo = userStore.userInfo
+const logoutBtnClick = () => {
+  console.log('logoutBtnClick')
+  userStore.clearUserInfo()
+  router.push({ path: '/' })
+}
 </script>
 <template>
   <div class="common-layout">
@@ -48,9 +55,9 @@
         </div>
         <!-- info -->
         <div class="header-container-navi">
-          <div>Sniper</div>
+          <div>{{ userInfo.username }}</div>
           <div>设置</div>
-          <div>退出</div>
+          <div @click="logoutBtnClick">退出</div>
         </div>
       </div>
       <!-- <div class="title-container"></div> -->
