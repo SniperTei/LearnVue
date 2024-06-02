@@ -6,9 +6,17 @@ const userStore = useUserStore()
 const userInfo = userStore.userInfo
 const logoutBtnClick = () => {
   console.log('logoutBtnClick')
-  userStore.clearUserInfo()
-  router.push({ path: '/' })
+  ElMessageBox.alert('是否确认退出登录?', '提示', {
+    confirmButtonText: '确定',
+    callback: action => {
+      if (action === 'confirm') {
+        userStore.clearUserInfo()
+        router.push({ path: '/' })
+      } 
+    }
+  })
 }
+
 </script>
 <template>
   <div class="common-layout">
