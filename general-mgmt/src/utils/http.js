@@ -25,9 +25,9 @@ httpInstance.interceptors.request.use(
       console.log('userStore:', userStore)
       let token = userStore.userInfo.token
       // 如果token是空的，从localStorage中获取
-      if (!token) {
-        token = localStorage.getItem('token')
-      }
+      // if (!token) {
+      //   token = localStorage.getItem('token')
+      // }
       // const token = ''
       console.log('token:', token)
       // 2. 将数据添加到请求头中

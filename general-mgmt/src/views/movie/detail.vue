@@ -1,14 +1,21 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 // movie api
-import { getMovieDetailAPI, updateMovieAPI } from '@/api/movies/moviesAPI'
+import { getMovieDetailAPI, updateMovieAPI, createCommentAPI } from '@/api/movies/moviesAPI'
 import { useRoute } from 'vue-router'
+import { useUserStore } from '@/stores/userStore';
+import { ElMessage } from 'element-plus'
+const userStore = useUserStore()
+const myInfo = userStore.userInfo
 
 const route = useRoute()
 
 const movieDetail = ref({})
 const comments = ref([])
 // const rating = 4
+// 我的评论
+const myComment = ref('')
+// 详情
 const getMovieDetail = async () => {
   console.log('getMovieDetail')
   let movieId = route.params.movieId
@@ -23,7 +30,7 @@ const getMovieDetail = async () => {
     comment.rating = parseFloat(comment.rating) * 0.5
   })
 }
-
+// 更新电影
 const updateMovie = async (movieDetailParam) => {
   // console.log('updateMovie : movieDetail.value:', movieDetailParam)
   // 更新电影
@@ -31,7 +38,7 @@ const updateMovie = async (movieDetailParam) => {
   console.log('update movie res:', res)
   getMovieDetail()
 }
-
+//点击jyp看过
 const jypViewedBtnClick = () => {
   console.log('jypViewedBtnClick')
   let movieDetailParam = JSON.parse(JSON.stringify(movieDetail.value))
@@ -39,12 +46,34 @@ const jypViewedBtnClick = () => {
   movieDetailParam.jyp_viewed = movieDetailParam.jyp_viewed ? 0 : 1;
   updateMovie(movieDetailParam)
 }
-
+// 点击sniper看过
 const snpViewedBtnClick = () => {
   console.log('snpViewedBtnClick')
   let movieDetailParam = JSON.parse(JSON.stringify(movieDetail.value))
   movieDetailParam.sniper_viewed = movieDetailParam.sniper_viewed ? 0 : 1;
   updateMovie(movieDetailParam)
+}
+// 我的评论
+const commentBtnClick = () => {
+  console.log('commentBtnClick')
+  console.log('myComment:', myComment.value)
+  let movieId = movieDetail.value.movieId
+  let commentParam = {
+    movieId: movieId,
+    username: myInfo.username,
+    comment: myComment.value,
+    rating: 4
+  }
+  createCommentAPI(commentParam)
+  // 提示评论成功
+  ElMessage.success('评论成功')
+  // ELMessage({
+  //   type: 'success',
+  //   message: '评论成功'
+  // })
+  // 清空评论框
+  myComment.value = ''
+  getMovieDetail()
 }
 
 onMounted(() => {
@@ -128,7 +157,7 @@ onMounted(() => {
           type="textarea"
           autosize
           placeholder="请输入评论"
-          v-model="comment"
+          v-model="myComment"
         ></el-input>
         <el-button type="primary" @click="commentBtnClick">评论</el-button>
       </div>

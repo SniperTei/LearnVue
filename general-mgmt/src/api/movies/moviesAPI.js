@@ -42,3 +42,12 @@ export const deleteMovieAPI = ({movieId}) => {
     method: 'POST'
   })
 }
+
+// 发表影评
+export const createCommentAPI = (params) => {
+  return httpInstance({
+    url: '/api/v1/movies/movie-comment-add/',
+    method: 'POST',
+    params
+  })
+}
