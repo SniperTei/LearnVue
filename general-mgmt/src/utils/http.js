@@ -2,7 +2,7 @@ import axios from 'axios';
 import { ElMessage } from 'element-plus'
 import 'element-plus/theme-chalk/el-message.css'
 import { useUserStore } from '@/stores/userStore'
-import { useRouter } from 'vue-router'
+import router from '@/router'
 
 const httpInstance = axios.create({
   // baseURL: 'https://api.example.com/', // Replace with your API base URL
@@ -43,19 +43,21 @@ httpInstance.interceptors.request.use(
   }
 );
 
-const router = useRouter()
-
 // Add a response interceptor
 httpInstance.interceptors.response.use(
   (response) => {
     // Do something with response data
     // 如果code是200000, 说明token过期
-    if (response.data.code === 200000) {
+    if (response.data.code === '200000') {
       // 1. 清除用户信息
       const userStore = useUserStore()
       userStore.clearUserInfo()
+      ElMessage.error({
+          message: response.data.msg,
+          type: 'error'
+      })
       // 2. 跳转到登录页
-      router.push('/login')
+      router.push({ path: '/' })
     }
     return response;
   },
@@ -67,14 +69,6 @@ httpInstance.interceptors.response.use(
         type: 'error'
     })
 
-    // 401: token过期
-    // if (error.response.status === 401) {
-    //     // 1. 清除用户信息
-    //     const userStore = useUserStore()
-    //     userStore.clearUserInfo()
-    //     // 2. 跳转到登录页
-    //     router.push('/login')
-    // }
     return Promise.reject(error);
   }
 );

@@ -132,15 +132,6 @@ onMounted(() => {
         ></el-input>
         <el-button type="primary" @click="commentBtnClick">评论</el-button>
       </div>
-      <!-- <el-card class="box-card movie-comment-write">
-        <el-input
-          type="textarea"
-          autosize
-          placeholder="请输入评论"
-          v-model="comment"
-        ></el-input>
-        <el-button type="primary" @click="commentBtnClick">评论</el-button>
-      </el-card> -->
     </div>
   </div>
 </template>
@@ -217,6 +208,18 @@ onMounted(() => {
           display: flex;
           align-items: center;
         }
+      }
+    }
+    .movie-comment-write {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      .el-input {
+        margin: 10px;
+      }
+      .el-button {
+        margin: 10px;
+        width: 100px;
       }
     }
   }
