@@ -37,7 +37,7 @@ const logoutBtnClick = () => {
         <router-link to="/movielist" index="movielist">
           <el-menu-item>影视</el-menu-item>
         </router-link>
-        <router-link to="/c" index="">
+        <router-link to="/alcohol" index="">
           <el-menu-item>酒精</el-menu-item>
         </router-link>
         <router-link to="/d" index="">

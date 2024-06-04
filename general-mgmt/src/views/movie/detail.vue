@@ -85,6 +85,8 @@ onMounted(() => {
 
 <template>
   <div class="movie-detail">
+    <!-- 右上角返回按钮 -->
+    <el-button type="primary" @click="$router.go(-1)">返回</el-button>
     <div class="movie-detail-info">
       <!-- 电影封面 -->
       <el-card class="box-card movie-img">

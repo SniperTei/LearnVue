@@ -20,18 +20,6 @@ const router = createRouter({
           path: '/booklist',
           name: 'book',
           component: () => import('@/views/book/index.vue'),
-          // children: [
-          //   {
-          //     path: 'list',
-          //     name: 'book-list',
-          //     component: () => import('@/views/book/index.vue'),
-          //   },
-          //   {
-          //     path: '/:bookId',
-          //     name: 'book-detail',
-          //     component: () => import('@/views/book/detail.vue'),
-          //   }
-          // ]
         },
         {
           path: '/booklist/detail/:bookId',
@@ -47,6 +35,11 @@ const router = createRouter({
           path: '/movielist/detail/:movieId',
           name: 'movie-detail',
           component: () => import('@/views/movie/detail.vue'),
+        },
+        {
+          path: '/alcohol',
+          name: 'alcohol',
+          component: () => import('@/views/alcohol/index.vue'),
         }
       ]
     },

@@ -163,7 +163,7 @@ onMounted(() => {
   </div>
 </template>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .movie {
   /* Your SCSS styles here */
   width: 100%;
