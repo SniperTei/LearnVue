@@ -40,6 +40,11 @@ const router = createRouter({
           path: '/alcohol',
           name: 'alcohol',
           component: () => import('@/views/alcohol/index.vue'),
+        },
+        {
+          path: '/drink',
+          name: 'drink',
+          component: () => import('@/views/drink/index.vue'),
         }
       ]
     },

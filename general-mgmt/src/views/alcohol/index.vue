@@ -4,15 +4,11 @@ import { ref } from 'vue'
 
 <template>
   <div class="alcohol">
+    hello alcohol
     <div class="alcohol-calendar">
-      <el-calendar>
-        <template #date-cell="{ data }">
-          <p :class="data.isSelected ? 'is-selected' : ''">
-            {{ data.day.split('-').slice(1).join('-') }}
-            {{ data.isSelected ? '✔️' : '' }}
-          </p>
-        </template>
-      </el-calendar>
+      <!-- <el-table>
+
+      </el-table> -->
     </div>
     <div class="alcohol-datalist"></div>
   </div>
