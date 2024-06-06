@@ -7,7 +7,8 @@ const tableData = ref([])
 const alcoholTypeList = [
   { label: '白酒', value: 'baijiu' },
   { label: '啤酒', value: 'beer' },
-  { label: '红酒', value: 'wine' }
+  { label: '红酒', value: 'wine' },
+  { label: '洋酒', value: 'spirits' }
 ]
 
 const getAlcohosList = async () => {
@@ -15,6 +16,7 @@ const getAlcohosList = async () => {
   console.log('get alcohol list res:', res)
   if (res.data.code === '000000') {
     tableData.value = res.data.data.list
+    pagination.value.total = res.data.data.total
   }
 }
 
@@ -78,6 +80,15 @@ onMounted(() => {
       <el-table
         :data="tableData"
         style="width: 100%">
+        <el-table-column
+        prop="id"
+        label="序号"
+        width="90">
+        <!-- index -->
+        <template v-slot="scope">
+          <span>{{ (pagination.currentPage - 1) * 10 + scope.$index + 1 }}</span>
+        </template>
+      </el-table-column>
         <el-table-column
           prop="alcohol_name"
           label="酒名"

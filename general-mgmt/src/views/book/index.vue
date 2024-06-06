@@ -97,7 +97,7 @@ const removeBtnClick = (bookId) => {
       <el-table-column
         prop="id"
         label="序号"
-        width="180">
+        width="90">
         <!-- index -->
         <template v-slot="scope">
           <span>{{ (pagination.currentPage - 1) * 10 + scope.$index + 1 }}</span>

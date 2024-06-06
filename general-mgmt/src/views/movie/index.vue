@@ -120,6 +120,15 @@ onMounted(() => {
     </el-form>
     <!-- Your template content here -->
     <el-table :data="tableData" style="width: 100%" class="table-data">
+      <el-table-column
+        prop="id"
+        label="序号"
+        width="90">
+        <!-- index -->
+        <template v-slot="scope">
+          <span>{{ (pagination.currentPage - 1) * 10 + scope.$index + 1 }}</span>
+        </template>
+      </el-table-column>
       <el-table-column prop="title" label="电影名称"></el-table-column>
       <!-- <el-table-column prop="director" label="导演"></el-table-column> -->
       <el-table-column prop="actors" label="主演"></el-table-column>
