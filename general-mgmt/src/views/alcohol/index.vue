@@ -81,14 +81,14 @@ onMounted(() => {
         :data="tableData"
         style="width: 100%">
         <el-table-column
-        prop="id"
-        label="序号"
-        width="90">
-        <!-- index -->
-        <template v-slot="scope">
-          <span>{{ (pagination.currentPage - 1) * 10 + scope.$index + 1 }}</span>
-        </template>
-      </el-table-column>
+          prop="id"
+          label="序号"
+          width="90">
+          <!-- index -->
+          <template v-slot="scope">
+            <span>{{ (pagination.currentPage - 1) * 10 + scope.$index + 1 }}</span>
+          </template>
+        </el-table-column>
         <el-table-column
           prop="alcohol_name"
           label="酒名"
