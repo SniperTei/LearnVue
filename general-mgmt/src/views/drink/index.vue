@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { getDrinkListAPI } from '@/api/drinks/drinksAPI'
 import { ElCalendar } from 'element-plus'
 
@@ -40,24 +40,64 @@ const queryCondition = ref({
 onMounted(() => {
   getDrinkList()
 })
+
+// 计算属性
+const drinkDict = computed(() => {
+  // 3层字典， key是日期， value是字典， key是人， value是饮品列表
+  const dict = {}
+  drinkList.value.forEach(item => {
+    if (!dict[item.drink_date]) {
+      dict[item.drink_date] = {}
+    }
+    if (!dict[item.drink_date][item.drinker_username]) {
+      dict[item.drink_date][item.drinker_username] = []
+    }
+    let value = item.drink_name + ' ' + item.drink_amount + item.drink_unit
+    dict[item.drink_date][item.drinker_username].push(value)
+  })
+  return dict
+})
 </script>
 
 <template>
   <div class="alcohol">
-    <div class="alcohol-calendar">
-      <el-calendar>
+    <div>
+      <el-calendar class="alcohol-canendar">
         <template #date-cell="{ data }">
-          <p :class="data.isSelected ? 'is-selected' : ''">
-            {{ data.day.split('-').slice(1).join('-') }}
-            {{ data.isSelected ? '✔️' : '' }}
-          </p>
+          <div>
+            <div>{{ data.day.split('-').slice(1).join('-') }}</div>
+            <div v-for="(value, key) in drinkDict[data.day]" :key="key" class="drink-date-item">
+              <el-tag>{{ key }}</el-tag>
+            </div>
+          </div>
+          <!-- <div>
+            <div>{{ data.day.split('-').slice(1).join('-') }}</div>
+            <div v-for="(drinkItem, index) in drinkList" :key="index" class="drink-date-item">
+              <el-tag v-if="drinkItem.drink_date===data.day">{{ drinkItem.drinker_username }}</el-tag>
+            </div>
+          </div> -->
         </template>
       </el-calendar>
     </div>
-    <div class="alcohol-datalist"></div>
+    <div class="alcohol-datalist">
+    </div>
   </div>
 </template>
 
 <style lang="scss" scoped>
-
+.alcohol {
+  display: flex;
+  .alcohol-calendar {
+    width: 100%;
+    margin-right: 10px;
+    .drink-date-item {
+      display: flex;
+      flex-direction: row;
+      // margin-top: 5px;
+    }
+    .is-selected {
+      background-color: #f0f0f0;
+    }
+  }
+}
 </style>
