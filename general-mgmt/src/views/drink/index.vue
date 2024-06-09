@@ -52,11 +52,13 @@ const drinkDict = computed(() => {
     if (!dict[item.drink_date][item.drinker_username]) {
       dict[item.drink_date][item.drinker_username] = []
     }
-    let value = item.drink_name + ' ' + item.drink_amount + item.drink_unit
+    let value = item.drink_location + ' ' + item.alcohol_name + ' ' + item.drink_amount + item.drink_unit
     dict[item.drink_date][item.drinker_username].push(value)
   })
   return dict
 })
+
+
 </script>
 
 <template>
@@ -66,9 +68,11 @@ const drinkDict = computed(() => {
         <template #date-cell="{ data }">
           <div>
             <div>{{ data.day.split('-').slice(1).join('-') }}</div>
-            <div v-for="(value, key) in drinkDict[data.day]" :key="key" class="drink-date-item">
-              <el-tag>{{ key }}</el-tag>
-            </div>
+              <div v-for="(value, key) in drinkDict[data.day]" :key="key" class="drink-date-item">
+                <el-tooltip :content="drinkDict[data.day][key]">
+                  <el-tag>{{ key }}</el-tag>
+                </el-tooltip>
+              </div>
           </div>
           <!-- <div>
             <div>{{ data.day.split('-').slice(1).join('-') }}</div>
