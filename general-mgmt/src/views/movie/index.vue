@@ -31,10 +31,13 @@ const getMovieList = async () => {
   }
 }
 
+const visibleFlag = ref(false)
+
 const queryBtnClick = () => {
   console.log('queryBtnClick')
   pagination.value.currentPage = 1
-  getMovieList()
+  // getMovieList()
+  visibleFlag.value = true
 }
 
 const handleSizeChange = (val) => {
