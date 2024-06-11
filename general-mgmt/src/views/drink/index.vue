@@ -1,9 +1,12 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
-import { getDrinkListAPI } from '@/api/drinks/drinksAPI'
+import { getDrinkListAPI, addDrinkAPI } from '@/api/drinks/drinksAPI'
 import { getAlcoholListAPI } from '@/api/alcohols/alcoholsAPI';
 import { ElCalendar } from 'element-plus'
-
+// user store
+import { useUserStore } from '@/stores/userStore'
+const userStore = useUserStore()
+console.log('userStore:', userStore)
 const drinkList = ref([])
 const getDrinkList = async () => {
   const res = await getDrinkListAPI({ page: pagination.value.currentPage, limit: pagination.value.pageSize, condition: queryCondition.value})
@@ -13,7 +16,7 @@ const getDrinkList = async () => {
 }
 const alcoholList = ref([])
 const getAlcohosList = async () => {
-const res = await getAlcoholListAPI({page: 1, limit: 20, condition: {}})
+  const res = await getAlcoholListAPI({page: 1, limit: 20, condition: {}})
   if (res.data.code === '000000') {
     alcoholList.value = res.data.data.list
   }
@@ -28,13 +31,15 @@ const pagination = ref({
 const firstDay = new Date(new Date().setDate(1))
 // 本月最后一日
 const lastDay = new Date(new Date(firstDay).setMonth(firstDay.getMonth() + 1) - 1)
-// const drinkDialogVisible = ref(false)
+const drinkDialogVisible = ref(false)
 const drinkForm = ref({
   drinker_username: '',
-  alcohol_name: '',
+  alcohol_id: '',
   drink_amount: '',
   drink_unit: '',
-  visible: false
+  drink_location: '',
+  drink_date: '',
+  created_by: userStore.userInfo.username
 })
 
 // const handleSizeChange = (val) => {
@@ -78,14 +83,26 @@ const drinkDict = computed(() => {
 // 点击日期事件
 const dateClick0 = (data) => {
   console.log('dateClick:', data)
+  drinkForm.value.drink_date = data.day
   // 弹窗
-  drinkForm.value.visible = true
+  drinkDialogVisible.value = true
 }
 
 const handleClose = (() =>  {
   console.log('handleClose')
   // dialogVisible.value = false
-  drinkForm.value.visible = false
+  drinkDialogVisible.value = false
+})
+
+const drinkSubmit = (() => {
+  console.log('drinkSubmit')
+  // dialogVisible.value = false
+  console.log('drinkForm:', drinkForm.value)
+  addDrinkAPI(drinkForm.value).then(res => {
+    console.log('add drink res:', res)
+    getDrinkList()
+  })
+  drinkDialogVisible.value = false
 })
 
 </script>
@@ -116,7 +133,7 @@ const handleClose = (() =>  {
     <div class="alcohol-datalist">
     </div>
   </div>
-  <el-dialog title="喝酒事件" v-model="drinkForm.visible" width="400px" :before-close="handleClose">
+  <el-dialog title="喝酒事件" v-model="drinkDialogVisible" width="400px" :before-close="handleClose">
     <!-- 喝酒人，喝的酒名， 喝的数量，喝的单位 -->
     <el-form>
       <el-form-item label="喝酒人">
@@ -125,8 +142,17 @@ const handleClose = (() =>  {
           <el-option label="朴金燕" value="jinyan"></el-option>
         </el-select>
       </el-form-item>
+      <el-form-item label="日期">
+        <el-date-picker v-model="drinkForm.drink_date" type="date" placeholder="选择日期"></el-date-picker>
+      </el-form-item>
+      <el-form-item label="地点">
+        <el-input v-model="drinkForm.drink_location"></el-input>
+      </el-form-item>
       <el-form-item label="酒名">
-        <el-input v-model="drinkForm.alcohol_name"></el-input>
+        <!-- <el-input v-model="drinkForm.alcohol_name"></el-input> -->
+        <el-select v-model="drinkForm.alcohol_id">
+          <el-option v-for="item in alcoholList" :key="item.alcoholId" :label="item.alcohol_name" :value="item.alcoholId"></el-option>
+        </el-select>
       </el-form-item>
       <el-form-item label="数量">
         <el-input v-model="drinkForm.drink_amount"></el-input>
@@ -137,8 +163,8 @@ const handleClose = (() =>  {
     </el-form>
     <template #footer>
       <div class="dialog-footer">
-        <el-button @click="dialogVisible = false">Cancel</el-button>
-        <el-button type="primary" @click="dialogVisible = false">
+        <el-button @click="handleClose">Cancel</el-button>
+        <el-button type="primary" @click="drinkSubmit">
           Confirm
         </el-button>
       </div>

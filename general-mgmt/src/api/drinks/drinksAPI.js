@@ -11,3 +11,11 @@ export const getDrinkListAPI = ({page, limit, condition}) => {
     }
   })
 }
+
+export const addDrinkAPI = (data) => {
+  return httpInstance({
+    url: '/api/v1/drinks/add-drink/',
+    method: 'POST',
+    data
+  })
+}
