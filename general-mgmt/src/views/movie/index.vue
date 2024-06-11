@@ -28,10 +28,20 @@ const getMovieList = async () => {
   if (res.data.code === '000000') {
     tableData.value = res.data.data.list
     pagination.value.total = res.data.data.total
+    getMovieListTags()
   }
 }
 
 const visibleFlag = ref(false)
+const eTag = ref(false)
+// 遍历电影列表，电影列表中一个电影有tags就显示eTag
+const getMovieListTags = () => {
+  tableData.value.forEach(item => {
+    if (item.tags) {
+      eTag.value = true
+    }
+  })
+}
 
 const queryBtnClick = () => {
   console.log('queryBtnClick')
@@ -82,14 +92,17 @@ onMounted(() => {
       <el-form-item label="电影名称">
         <el-input v-model="queryCondition.title" placeholder="请输入电影名称" clearable></el-input>
       </el-form-item>
-      <!-- <el-form-item label="导演">
+      <el-form-item label="导演" v-if="eTag">
         <el-input v-model="queryCondition.director" placeholder="请输入导演"></el-input>
-      </el-form-item> -->
-      <!-- <el-form-item label="主演">
+      </el-form-item>
+      <el-form-item label="主演" v-if="eTag">
         <el-input v-model="queryCondition.actors" placeholder="请输入主演"></el-input>
-      </el-form-item> -->
-      <el-form-item label="类型">
+      </el-form-item>
+      <el-form-item label="类型" v-if="!eTag">
         <el-input v-model="queryCondition.genre" placeholder="请输入类型" clearable></el-input>
+      </el-form-item>
+      <el-form-item label="标签" v-if="eTag">
+        <el-input v-model="queryCondition.tags" placeholder="请输入标签" clearable></el-input>
       </el-form-item>
       <el-form-item label="地区">
         <el-input v-model="queryCondition.country" placeholder="请输入地区" clearable></el-input>
@@ -98,7 +111,7 @@ onMounted(() => {
         <el-input v-model="queryCondition.release_year" placeholder="请输入上映日期"></el-input>
       </el-form-item>
       <!-- jyp是否看过 -->
-      <el-form-item label="jyp看过日期" style="width: 240px;">
+      <el-form-item label="jyp看过日期" style="width: 240px;" v-if="!eTag">
         <el-select v-model="queryCondition.jyp_viewed" clearable>
           <el-option label="看过" value="1"></el-option>
           <el-option label="没看过" value="0"></el-option>
@@ -108,7 +121,7 @@ onMounted(() => {
         <el-input v-model="queryCondition.sniper_viewed" placeholder="请输入Sniper是否看过"></el-input>
       </el-form-item> -->
       <!-- sniper是否看过 -->
-      <el-form-item label="sniper看过日期" style="width: 240px;">
+      <el-form-item label="sniper看过日期" style="width: 240px;" v-if="!eTag">
         <el-select v-model="queryCondition.sniper_viewed" clearable>
           <el-option label="看过" value="1"></el-option>
           <el-option label="没看过" value="0"></el-option>
@@ -133,24 +146,26 @@ onMounted(() => {
         </template>
       </el-table-column>
       <el-table-column prop="title" label="电影名称"></el-table-column>
-      <!-- <el-table-column prop="director" label="导演"></el-table-column> -->
+      <el-table-column prop="director" label="导演" v-if="eTag"></el-table-column>
       <el-table-column prop="actors" label="主演"></el-table-column>
-      <el-table-column prop="genre" label="类型"></el-table-column>
+      <el-table-column prop="tags" label="标签" v-if="eTag"></el-table-column>
+      <el-table-column prop="genre" label="类型" v-if="!eTag"></el-table-column>
+      <el-table-column prop="maker" label="制作" v-if="eTag"></el-table-column>
       <el-table-column prop="country" label="地区"></el-table-column>
       <el-table-column prop="release_date" label="上映日期"></el-table-column>
-      <el-table-column prop="jyp_viewed" label="JYP是否看过">
+      <el-table-column prop="jyp_viewed" label="JYP是否看过" v-if="!eTag">
         <template #default="{ row }">
           <el-tag v-if="row.jyp_viewed === 1" type="success">看过</el-tag>
           <el-tag v-else type="danger">没看过</el-tag>
         </template>
       </el-table-column>
-      <el-table-column prop="sniper_viewed" label="Sniper是否看过">
+      <el-table-column prop="sniper_viewed" label="Sniper是否看过" v-if="!eTag">
         <template #default="{ row }">
           <el-tag v-if="row.sniper_viewed === 1" type="success">看过</el-tag>
           <el-tag v-else type="danger">没看过</el-tag>
         </template>
       </el-table-column>
-      <el-table-column prop="duration" label="时长">
+      <el-table-column prop="duration" label="时长" v-if="!eTag">
         <template #default="{ row }">
           {{ row.duration }} 分钟
         </template>
