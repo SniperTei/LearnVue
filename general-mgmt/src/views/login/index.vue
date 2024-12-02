@@ -35,7 +35,7 @@ const login = async () => {
 <template>
   <div class="login-container">
     <el-form class="login-form">
-      <h3>后台管理系统</h3>
+      <h3>YOLO系统</h3>
       <div>
         <el-form-item >
           <el-input v-model="username"></el-input>

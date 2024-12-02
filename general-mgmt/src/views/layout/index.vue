@@ -23,7 +23,7 @@ const logoutBtnClick = () => {
     <!-- 左侧菜单部分 -->
     <div class="menu-container">
       <!-- 后台管理系统title -->
-      <div class="menu-title">后台管理系统</div>
+      <div class="menu-title">YOLO系统</div>
       <el-menu
         default-active="1"
         background-color="#324157"

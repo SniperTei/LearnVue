@@ -2,7 +2,7 @@ import httpInstance from "@/utils/http"
 
 export const getMovieListAPI = ({page, limit, condition}) => {
   return httpInstance({
-    url: '/api/v1/movies/movie-list/',
+    url: '/api/v1/movie/list/',
     method: 'GET',
     params: {
       page,
