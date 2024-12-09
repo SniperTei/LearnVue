@@ -71,11 +71,14 @@ const drinkDict = computed(() => {
     if (!dict[item.drink_date]) {
       dict[item.drink_date] = {}
     }
-    if (!dict[item.drink_date][item.drinker_username]) {
-      dict[item.drink_date][item.drinker_username] = []
+    if (!dict[item.drink_date][item.drinker_nickname]) {
+      // console.log('drink date:', item.drink_date)
+      // console.log('drink nickname:', item.drinker_nickname)
+      dict[item.drink_date][item.drinker_nickname] = []
     }
     let value = item.drink_location + ' ' + item.alcohol_name + ' ' + item.drink_amount + item.drink_unit
-    dict[item.drink_date][item.drinker_username].push(value)
+    // console.log('drink value : ', value)
+    dict[item.drink_date][item.drinker_nickname].push(value)
   })
   return dict
 })
@@ -151,7 +154,7 @@ const drinkSubmit = (() => {
       <el-form-item label="酒名">
         <!-- <el-input v-model="drinkForm.alcohol_name"></el-input> -->
         <el-select v-model="drinkForm.alcohol_id">
-          <el-option v-for="item in alcoholList" :key="item.alcoholId" :label="item.alcohol_name" :value="item.alcoholId"></el-option>
+          <el-option v-for="item in alcoholList" :key="item._id" :label="item.alcohol_name" :value="item._id"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="数量">

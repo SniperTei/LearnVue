@@ -32,7 +32,8 @@ httpInstance.interceptors.request.use(
       console.log('token:', token)
       // 2. 将数据添加到请求头中
       if (token) {
-          config.headers.Authorization = `Bearer ${token}`
+          // config.headers.Authorization = `Bearer ${token}`
+          config.headers.Authorization = token
       }
       return config;
   },
