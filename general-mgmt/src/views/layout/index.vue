@@ -37,11 +37,11 @@ const logoutBtnClick = () => {
         <router-link to="/movielist" index="movielist">
           <el-menu-item>影视</el-menu-item>
         </router-link>
-        <router-link to="/d" index="">
+        <!-- <router-link to="/d" index="">
           <el-menu-item>健身</el-menu-item>
-        </router-link>
+        </router-link> -->
         <!-- 美食 -->
-        <router-link to="/e" index="">
+        <router-link to="/foodlist" index="">
           <el-menu-item>美食</el-menu-item>
         </router-link>
         <router-link to="/alcohol" index="">
@@ -51,9 +51,9 @@ const logoutBtnClick = () => {
           <el-menu-item>饮酒</el-menu-item>
         </router-link>
         <!-- 旅游 -->
-        <router-link to="/f" index="">
+        <!-- <router-link to="/f" index="">
           <el-menu-item>旅游</el-menu-item>
-        </router-link>
+        </router-link> -->
       </el-menu>
     </div>
     <!-- 右侧内容 -->

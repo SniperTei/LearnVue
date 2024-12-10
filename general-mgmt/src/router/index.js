@@ -43,6 +43,11 @@ const router = createRouter({
           component: () => import('@/views/movie/detail.vue'),
         },
         {
+          path: '/foodlist',
+          name: 'food',
+          component: () => import('@/views/food/index.vue'),
+        },
+        {
           path: '/alcohol',
           name: 'alcohol',
           component: () => import('@/views/alcohol/index.vue'),
