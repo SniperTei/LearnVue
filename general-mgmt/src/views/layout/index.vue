@@ -88,8 +88,8 @@ const logoutBtnClick = () => {
 <style lang="scss" scoped>
 .common-layout {
   display: flex;
-  flex: 1;
-  // height: 100vh;
+  // flex: 1;
+  height: 100vh;
   
   // 左侧菜单部分
   .menu-container {
@@ -132,7 +132,8 @@ const logoutBtnClick = () => {
     }
     // 右侧具体内容
     .content-container {
-      flex: 0;
+      // flex: 1;
+      height: 100vh;
       padding: 20px;
     }
     // 底部页脚
