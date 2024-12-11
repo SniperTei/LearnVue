@@ -46,7 +46,7 @@ const getMovieListTags = () => {
 const queryBtnClick = () => {
   console.log('queryBtnClick')
   pagination.value.currentPage = 1
-  // getMovieList()
+  getMovieList()
   visibleFlag.value = true
 }
 
@@ -88,7 +88,7 @@ onMounted(() => {
       <div>电影列表</div>
     </div> -->
     <!-- query condition -->
-    <el-form :inline="true" class="movie-query-condition">
+    <el-form :inline="true" :model="queryCondition" class="movie-query-condition">
       <el-form-item label="电影名称">
         <el-input v-model="queryCondition.title" placeholder="请输入电影名称" clearable></el-input>
       </el-form-item>
