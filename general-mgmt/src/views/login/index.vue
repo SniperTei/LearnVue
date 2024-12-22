@@ -5,7 +5,7 @@ import { ElMessage, ElButton, ElForm, ElFormItem, ElInput } from 'element-plus'
 // 引入md5
 import md5 from 'js-md5'
 // userStore
-import { useUserStore } from '@/stores/userStore'
+import { useUserStore } from '@/stores/user'
 const username = ref('')
 const password = ref('')
 const router = useRouter()

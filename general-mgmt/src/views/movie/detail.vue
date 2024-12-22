@@ -3,7 +3,7 @@ import { ref, onMounted } from 'vue'
 // movie api
 import { getMovieDetailAPI, updateMovieAPI, createCommentAPI } from '@/api/movies/moviesAPI'
 import { useRoute } from 'vue-router'
-import { useUserStore } from '@/stores/userStore';
+import { useUserStore } from '@/stores/user';
 import { ElMessage } from 'element-plus'
 const userStore = useUserStore()
 const myInfo = userStore.userInfo

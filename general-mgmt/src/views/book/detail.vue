@@ -3,6 +3,8 @@ import { ref, onMounted } from 'vue'
 // booklistapi
 import { getBookDetailAPI } from '@/api/books/booksAPI'
 import { useRoute } from 'vue-router'
+// 常量
+import constant from '@/config/constant'
 
 const route = useRoute()
 // const bookId = ref($route.params.bookId)
@@ -10,6 +12,8 @@ const route = useRoute()
 const params = ref(route.params)
 // console.log('detail params:', params)
 const bookDetail = ref({})
+
+const editType = ref(constant.editType.READ_ONLY);
 
 const getBookDetail = async () => {
   console.log('getBookDetail')

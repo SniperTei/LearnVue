@@ -1,11 +1,11 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 // booklistapi
-import { getBookListAPI } from '@/api/books/booksAPI'
+import { getBookListAPI, deleteBookAPI } from '@/api/books/booksAPI'
 import { ElTable, ElTableColumn, ElForm, ElFormItem, ElInput, ElButton, ElPagination } from 'element-plus'
 import { useRouter } from 'vue-router'
 // userStore
-// import { useUserStore } from '@/stores/userStore'
+// import { useUserStore } from '@/stores/user'
 // const userStore = useUserStore()
 const tableData = ref([])
 const router = useRouter()
@@ -22,9 +22,16 @@ const getBookList = async () => {
 onMounted(() => {
   getBookList()
 })
+// 查询
 const queryBtnClick = () => {
   // 查询按钮点击事件
   getBookList()
+}
+// 新增
+const addBtnClick = () => {
+  // 弹窗新增
+
+
 }
 // 分页
 const pagination = ref({
@@ -49,16 +56,39 @@ const queryCondition = ref({
   publisher: ''
 })
 
-const editBtnClick = (bookId) => {
-  console.log('editBtnClick:', bookId)
+const editBtnClick = (_id) => {
+  console.log('editBtnClick:', _id)
   // 跳转到编辑页面
-  router.push({ path: '/booklist/detail/' + bookId })
+  router.push({ path: '/booklist/detail/' + _id })
 }
 
-const removeBtnClick = (bookId) => {
-  console.log('removeBtnClick:', bookId)
+const removeBtnClick = async (_id) => {
+  console.log('removeBtnClick:', _id)
+  // 弹窗确认是否真的删除
+  const res = await ElMessageBox.confirm('此操作将永久删除该文件, 是否继续?', '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning'
+  })
+  console.log('remove confirm res:', res)
+  if (res === 'cancel') {
+    return
+  }
+  if (res === 'confirm') { // 确定删除图书
+    // 删除图书
+    const res = await deleteBookAPI({ bookId: _id})
+    console.log('remove book res:', res)
+    if (res.data.code !== '000000') { // 失败
+      ElMessage.error(res.data.msg)
+      return 
+    }
+    // 成功
+    ElMessage.success('删除成功')
+    getBookList()
+  }
+  
   // 删除图书
-  // const res = await removeBookAPI({ bookId: bookId})
+  // const res = await deleteBookAPI({ bookId: _id})
   // console.log('remove book res:', res)
   // if (res.data.code === '000000') {
   //   ElMessage.success('删除成功')
@@ -86,6 +116,7 @@ const removeBtnClick = (bookId) => {
       </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="queryBtnClick">查询</el-button>
+        <el-button type="primary" @click="addBtnClick">新增</el-button>
       </el-form-item>
     </el-form>
     <!-- 图书列表 -->
@@ -125,8 +156,8 @@ const removeBtnClick = (bookId) => {
         label="操作"
         width="180">
         <template v-slot="scope">
-          <el-button type="text" size="small" @click="editBtnClick(scope.row.bookId)">编辑</el-button>
-          <el-button type="text" size="small" @click="removeBtnClick(scope.row.bookId)">删除</el-button>
+          <el-button type="text" size="small" @click="editBtnClick(scope.row._id)">编辑</el-button>
+          <el-button type="text" size="small" @click="removeBtnClick(scope.row._id)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>

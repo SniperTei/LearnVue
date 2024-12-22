@@ -98,11 +98,11 @@ onMounted(() => {
           prop="alcohol_type"
           label="酒种类"
           width="180">
-          <template #default="{ row }">
+          <!-- <template #default="{ row }">
             <span v-if="row.alcohol_type === 'baijiu'">白酒</span>
             <span v-else-if="row.alcohol_type === 'beer'">啤酒</span>
             <span v-else>红酒</span>
-          </template>
+          </template> -->
         </el-table-column>
         <el-table-column
           prop="alcohol_subtype"

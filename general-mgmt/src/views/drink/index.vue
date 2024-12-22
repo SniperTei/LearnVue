@@ -4,7 +4,7 @@ import { getDrinkListAPI, addDrinkAPI } from '@/api/drinks/drinksAPI'
 import { getAlcoholListAPI } from '@/api/alcohols/alcoholsAPI';
 import { ElCalendar } from 'element-plus'
 // user store
-import { useUserStore } from '@/stores/userStore'
+import { useUserStore } from '@/stores/user'
 const userStore = useUserStore()
 console.log('userStore:', userStore)
 const drinkList = ref([])
