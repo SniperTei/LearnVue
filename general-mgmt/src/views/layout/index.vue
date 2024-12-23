@@ -27,6 +27,7 @@ import Sidebar from '@/components/layout/sidebar.vue'
     <div class="main">
       <Sidebar class="sidebar" />
       <div class="content">
+        <!-- <Tabs class="tabs" /> -->
         <router-view />
       </div>
     </div>
@@ -36,8 +37,12 @@ import Sidebar from '@/components/layout/sidebar.vue'
 .wrapper {
   .main {
     display: flex;
+    .tabs {
+      flex: 1;
+    }
     .content {
       flex: 1;
+      padding: 20px;
     }
   }
 }

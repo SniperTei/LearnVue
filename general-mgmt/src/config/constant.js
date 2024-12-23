@@ -6,6 +6,6 @@ const EDIT_TYPE = {
   READ_ONLY: 'read_only',
 };
 
-export {
+export default {
   EDIT_TYPE
 };

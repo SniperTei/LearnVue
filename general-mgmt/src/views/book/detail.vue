@@ -13,7 +13,7 @@ const params = ref(route.params)
 // console.log('detail params:', params)
 const bookDetail = ref({})
 
-const editType = ref(constant.editType.READ_ONLY);
+const editType = ref(constant.EDIT_TYPE.EDIT);
 
 const getBookDetail = async () => {
   console.log('getBookDetail')
@@ -35,11 +35,11 @@ onMounted(() => {
   <div class="book-detail">
     <!-- Your template content here -->
     <!-- 书封面 -->
-    <el-card class="box-card book-img">
+    <el-card class="box-card book-img" v-if="editType === constant.EDIT_TYPE.READ_ONLY">
       <img src="https://img3.doubanio.com/view/subject/l/public/s3365739.jpg" class="image" />
     </el-card>
     <!-- 书详情 -->
-    <el-card class="box-card book-info">
+    <el-card class="box-card book-info" v-if="editType === constant.EDIT_TYPE.READ_ONLY">
       <template v-slot:header>
         <div  class="clearfix">
           <span>图书详情</span>
@@ -49,6 +49,54 @@ onMounted(() => {
         <el-col :span="8">书名：</el-col>
         <el-col :span="16">{{ bookDetail.title }}</el-col>
       </el-row>
+      <el-row class="book-info-property">
+        <el-col :span="8">作者：</el-col>
+        <el-col :span="16">{{ bookDetail.author }}</el-col>
+      </el-row>
+      <el-row class="book-info-property">
+        <el-col :span="8">出版社：</el-col>
+        <el-col :span="16">{{ bookDetail.publisher }}</el-col>
+      </el-row>
+      <el-row class="book-info-property">
+        <el-col :span="8">出版日期：</el-col>
+        <el-col :span="16">{{ bookDetail.pubdate }}</el-col>
+      </el-row>
+      <el-row class="book-info-property">
+        <el-col :span="8">价格:</el-col>
+        <el-col :span="16">{{ bookDetail.price }}元</el-col>
+      </el-row>
+      <!-- 类型 -->
+      <el-row class="book-info-property">
+        <el-col :span="8">类型:</el-col>
+        <el-col :span="16">{{ bookDetail.typeDesc }}</el-col>
+      </el-row>
+    </el-card>
+    <el-card class="box-card book-img" v-if="editType === constant.EDIT_TYPE.EDIT">
+      <!-- 上传 -->
+      <el-upload
+        class="upload-demo"
+        list-type="picture-card">
+        <i class="el-icon-plus"></i>
+        <!-- action="https://jsonplaceholder.typicode.com/posts/"
+        :on-preview="handlePictureCardPreview"
+        :onRemove="handleRemove"
+        :onSuccess="handleSuccess"
+        :file-list="fileList" -->
+      </el-upload>
+    </el-card>
+    <el-card class="box-card book-info" v-if="editType === constant.EDIT_TYPE.EDIT">
+      <template v-slot:header>
+        <div  class="clearfix">
+          <span>图书详情</span>
+        </div>
+      </template>
+      <el-row class="book-info-property">
+        <el-col :span="8">书名：</el-col>
+        <el-col :span="16">{{ bookDetail.title }}</el-col>
+      </el-row>
+      <!-- <el-row>
+        <el-input class="condition-input" placeholder="请输入姓名" clearable></el-input>
+      </el-row> -->
       <el-row class="book-info-property">
         <el-col :span="8">作者：</el-col>
         <el-col :span="16">{{ bookDetail.author }}</el-col>

@@ -106,13 +106,13 @@ const removeBtnClick = async (_id) => {
     <!-- 查询条件 -->
     <el-form :inline="true" class="book-query-condition">
       <el-form-item label="书名">
-        <el-input v-model="queryCondition.title" placeholder="请输入姓名" clearable></el-input>
+        <el-input class="condition-input" v-model="queryCondition.title" placeholder="请输入姓名" clearable></el-input>
       </el-form-item>
       <el-form-item label="作者">
-        <el-input v-model="queryCondition.author" placeholder="请输入作者" clearable></el-input>
+        <el-input class="condition-input" v-model="queryCondition.author" placeholder="请输入作者" clearable></el-input>
       </el-form-item>
       <el-form-item label="出版社">
-        <el-input v-model="queryCondition.publisher" placeholder="请输入出版社" clearable></el-input>
+        <el-input class="condition-input" v-model="queryCondition.publisher" placeholder="请输入出版社" clearable></el-input>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="queryBtnClick">查询</el-button>
@@ -181,6 +181,9 @@ const removeBtnClick = async (_id) => {
   .book-query-condition {
     margin-top: 20px;
     margin-bottom: 20px;
+    .condition-input {
+      width: 200px;
+    }
   }
   .table-data {
     margin-top: 20px;
