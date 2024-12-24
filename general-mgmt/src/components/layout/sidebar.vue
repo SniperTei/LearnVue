@@ -48,7 +48,7 @@
               </el-menu-item>
           </template>
       </template>
-  </el-menu>
+    </el-menu>
   </div>
 </template>
 
@@ -333,7 +333,7 @@ const sidebar = useSidebarStore();
 console.log('sidebar : ', sidebar)
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .sidebar {
   display: flex;
 }
