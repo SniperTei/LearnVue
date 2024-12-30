@@ -9,6 +9,8 @@ import { useRouter } from 'vue-router'
 // const userStore = useUserStore()
 const tableData = ref([])
 const router = useRouter()
+console.log('router : ', router)
+console.log('router.matched : ', router.matched)
 const getBookList = async () => {
   console.log('getBookList')
   // 获取图书列表
@@ -100,6 +102,13 @@ const removeBtnClick = async (_id) => {
 
 <template>
   <div class="book">
+    <!-- 面包屑 -->
+    <el-breadcrumb separator=">>">
+      <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
+      <el-breadcrumb-item v-for="item in router.matched" :key="item.path">
+        <span v-if="item.meta.breadcrumb">{{ item.meta.breadcrumb }}</span>
+      </el-breadcrumb-item>
+    </el-breadcrumb>
     <!-- Your template content here -->
     <!-- page title -->
     <!-- <h4>图书列表</h4> -->

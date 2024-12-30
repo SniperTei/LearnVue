@@ -19,7 +19,6 @@ onMounted(() => {
   <header class="header">
     <div class="header-left">
       <!-- <img src="@/assets/logo.png" alt="Logo" class="logo" /> -->
-      <h1 class="title">YOLO系统</h1>
       <div class="collapse-btn" @click="collapseChage"></div>
     </div>
     <div class="header-right">
@@ -39,7 +38,7 @@ onMounted(() => {
   align-items: center;
   box-sizing: border-box;
   // TODO var color
-  background-color: #242f42;
+  background-color: lightgray;
   color: #ffffff;
   width: 100%;
   height: 70px;

@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import LoginView from '@/views/login/index.vue'
 import LayoutView from '@/views/layout/index.vue'
 import TestView from '@/views/test/index.vue'
+// import HomeView from '@/views/home/index.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -16,6 +17,11 @@ const router = createRouter({
       name: 'test01',
       component: TestView,
     },
+    // {
+    //   path: '/home',
+    //   name: 'home',
+    //   component: HomeView,
+    // },
     {
       path: '/home',
       name: 'layout',
@@ -23,37 +29,42 @@ const router = createRouter({
       // 子路由
       children: [
         {
-          path: '/booklist',
+          path: '',
+          name: 'home',
+          component: () => import('@/views/home/index.vue'),
+        },
+        {
+          path: 'booklist',
           name: 'book',
           component: () => import('@/views/book/index.vue'),
         },
         {
-          path: '/booklist/detail/:bookId',
+          path: 'booklist/detail/:bookId',
           name: 'book-detail',
           component: () => import('@/views/book/detail.vue'),
         },
         {
-          path: '/movielist',
+          path: 'movielist',
           name: 'movie',
           component: () => import('@/views/movie/index.vue'),
         },
         {
-          path: '/movielist/detail/:movieId',
+          path: 'movielist/detail/:movieId',
           name: 'movie-detail',
           component: () => import('@/views/movie/detail.vue'),
         },
         {
-          path: '/foodlist',
+          path: 'foodlist',
           name: 'food',
           component: () => import('@/views/food/index.vue'),
         },
         {
-          path: '/alcohol',
+          path: 'alcohol',
           name: 'alcohol',
           component: () => import('@/views/alcohol/index.vue'),
         },
         {
-          path: '/drink',
+          path: 'drink',
           name: 'drink',
           component: () => import('@/views/drink/index.vue'),
         }

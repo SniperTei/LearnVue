@@ -1,11 +1,13 @@
 <script setup>
-// import { useRouter } from 'vue-router'
+import { useRouter } from 'vue-router'
 // import { useUserStore } from '@/stores/user';
 // 导入header和sidebar
 import Header from '@/components/layout/header.vue'
 import Sidebar from '@/components/layout/sidebar.vue'
-// const router = useRouter()
+const router = useRouter()
 // const userStore = useUserStore()
+console.log('router : ', router)
+console.log('router.matched : ', router.matched)
 // const userInfo = userStore.userInfo
 // const logoutBtnClick = () => {
 //   console.log('logoutBtnClick')
@@ -23,11 +25,11 @@ import Sidebar from '@/components/layout/sidebar.vue'
 </script>
 <template>
   <div class="wrapper">
-    <Header class="head"/>
+    <!-- 左右结构，左边sidebar， 右边上下结构，上面header， 下面内容 -->
+    <Sidebar />
     <div class="main">
-      <Sidebar class="sidebar" />
+      <Header />
       <div class="content">
-        <!-- <Tabs class="tabs" /> -->
         <router-view />
       </div>
     </div>
@@ -35,11 +37,10 @@ import Sidebar from '@/components/layout/sidebar.vue'
 </template>
 <style lang="scss" scoped>
 .wrapper {
+  display: flex;
   .main {
     display: flex;
-    .tabs {
-      flex: 1;
-    }
+    flex-direction: column;
     .content {
       flex: 1;
       padding: 20px;

@@ -1,5 +1,8 @@
 <template>
   <div class="sidebar">
+    <div class="logo-wrap">
+        <h1>YOLO系统</h1>
+    </div>
     <el-menu
       class="sidebar-el-menu"
       :default-active="onRoutes"
@@ -282,19 +285,19 @@ const menuData = [
     {
         id: '0',
         title: '系统首页',
-        index: '/dashboard',
+        index: 'home',
         icon: 'Odometer',
     },
     {
         id: '1',
         title: '图书',
-        index: '/booklist',
+        index: 'booklist',
         icon: 'Odometer',
     },
     {
         id: '2',
         title: '影视',
-        index: '/movielist',
+        index: 'movielist',
         icon: 'Odometer',
     },
     // {
@@ -323,6 +326,95 @@ const menuData = [
     },
 ]
 
+const menuData2 = [{
+    title: '首页',
+    name: 'home',
+    icon: 'icon_url',
+    subMenu: [
+        {
+        title: '子菜单1',
+        name: 'submenu1',
+        icon: 'icon_url1'
+        },
+        {
+        title: '子菜单2',
+        name: 'submenu2',
+        icon: 'icon_url2'
+        }
+    ]},
+    {
+        title: '美食',
+        name: 'food',
+        icon: 'food-icon',
+        submenu: [
+            {
+            title: '酒精',
+            name: 'alcohol',
+            icon: 'alcohol-icon'
+            },
+            {
+            title: '菜单',
+            name: 'menu',
+            icon: 'menu-icon'
+            },
+            {
+            title: '食谱',
+            name: 'recipe',
+            icon: 'recipe-icon'
+            },
+            {
+            title: '推荐餐厅',
+            name: 'recommended_restaurants',
+            icon: 'restaurant-icon'
+            }
+        ]
+    },
+    {
+        title: '娱乐',
+        name: 'entertainment',
+        icon: 'entertainment-icon',
+        submenu: [
+            {
+            title: '影视',
+            name: 'film_and_tv',
+            icon: 'film-icon'
+            },
+            {
+            title: '游戏',
+            name: 'games',
+            icon: 'game-icon'
+            },
+            {
+            title: '音乐',
+            name: 'music',
+            icon: 'music-icon'
+            },
+            {
+            title: '小说',
+            name: 'novels',
+            icon: 'novel-icon'
+            }
+        ]
+    },
+    {
+        title: '自律',
+        name: 'discipline',
+        icon: 'self-discipline-icon',
+        submenu: [
+            {
+            title: '饮酒',
+            name: 'drinking',
+            icon: 'drinking-icon'
+            },
+            {
+            title: '健身',
+            name: 'fitness',
+            icon: 'fitness-icon'
+            }
+        ]
+    }
+]
+
 const route = useRoute();
 const onRoutes = computed(() => {
     return route.path;
@@ -336,6 +428,16 @@ console.log('sidebar : ', sidebar)
 <style lang="scss" scoped>
 .sidebar {
   display: flex;
+  flex-direction: column;
+  .logo-wrap {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 60px;
+    background-color: #304156;
+    color: #ffffff;
+    font-size: 20px;
+  }
 }
 
 .sidebar::-webkit-scrollbar {
