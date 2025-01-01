@@ -6,6 +6,7 @@ import App from './App.vue'
 import router from './router'
 
 import 'element-plus/dist/index.css'
+import '@/styles/index.scss'  // 导入全局样式
 
 const app = createApp(App)
 

@@ -57,8 +57,10 @@ const login = async () => {
 </template>
 
 <style lang="scss" scoped>
+@import '@/styles/variables.scss';
+
 .login-container {
-  background-color: #2d3a4b;
+  background-color: $bg-color-primary;
   min-height: 100vh;
   display: flex;
   align-items: center;
@@ -66,21 +68,21 @@ const login = async () => {
   
   .login-form {
     width: 400px;
-    padding: 35px;
-    border-radius: 8px;
-    background-color: #304156;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    padding: $spacing-extra-large;
+    border-radius: $border-radius-large;
+    background-color: $bg-color-secondary;
+    box-shadow: $box-shadow-dark;
     
     .title {
-      color: #fff;
+      color: $text-color-light;
       text-align: center;
-      font-size: 26px;
-      font-weight: bold;
-      margin-bottom: 35px;
+      font-size: $font-size-extra-large;
+      font-weight: $font-weight-primary;
+      margin-bottom: $spacing-extra-large;
     }
 
     .form-item {
-      margin-bottom: 25px;
+      margin-bottom: $spacing-large;
 
       &:last-child {
         margin-bottom: 0;
@@ -88,26 +90,26 @@ const login = async () => {
 
       :deep(.el-input) {
         .el-input__wrapper {
-          background-color: rgba(255, 255, 255, 0.1);
-          border: 1px solid rgba(255, 255, 255, 0.1);
+          background-color: $bg-color-light;
+          border: 1px solid $border-color-light;
           box-shadow: none;
           
           &:hover, &:focus {
-            border-color: #409EFF;
+            border-color: $primary-color;
           }
         }
 
         input {
-          color: #fff;
+          color: $text-color-light;
           height: 40px;
           
           &::placeholder {
-            color: rgba(255, 255, 255, 0.7);
+            color: $text-color-placeholder;
           }
         }
 
         .el-input__prefix-inner {
-          color: rgba(255, 255, 255, 0.7);
+          color: $text-color-placeholder;
         }
       }
     }
@@ -115,7 +117,7 @@ const login = async () => {
     .login-button {
       width: 100%;
       height: 40px;
-      font-size: 16px;
+      font-size: $font-size-medium;
     }
   }
 }
