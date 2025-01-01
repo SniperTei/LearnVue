@@ -1,27 +1,31 @@
 <script setup>
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { ElMessage, ElButton, ElForm, ElFormItem, ElInput } from 'element-plus'
 import { User, Lock } from '@element-plus/icons-vue'
 // 引入md5
 import md5 from 'js-md5'
 // userStore
 import { useUserStore } from '@/stores/user'
+
 const username = ref('')
 const password = ref('')
 const router = useRouter()
+const route = useRoute()
 const userStore = useUserStore()
+
 const login = async () => {
-  let passwordMD5 = md5(password.value).toUpperCase()
-  // 登录逻辑
-  userStore.getUserInfo({ username: username.value, password: passwordMD5}).then(() => {
+  try {
+    const passwordMD5 = md5(password.value).toUpperCase()
+    await userStore.getUserInfo({ username: username.value, password: passwordMD5})
     ElMessage.success('登录成功')
-    router.replace('/home')
-  }).catch((err) => {
-    console.log(err)
-    let errMsg = err.msg;
+    const redirect = route.query.redirect || '/home'
+    router.replace(redirect)
+  } catch (err) {
+    console.error(err)
+    const errMsg = err.msg || '未知错误'
     ElMessage.error('登录失败: ' + errMsg)
-  })
+  }
 }
 </script>
 

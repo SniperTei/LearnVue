@@ -1,98 +1,103 @@
 <script setup>
-import { onMounted } from 'vue';
-import { useSidebarStore } from '@/stores/sidebar';
-import { useRouter } from 'vue-router';
-const sidebar = useSidebarStore();
-// 侧边栏折叠
-const collapseChage = () => {
-    sidebar.handleCollapse();
-};
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { useUserStore } from '@/stores/user'
+import { ElMessageBox } from 'element-plus'
+import { Expand, Fold } from '@element-plus/icons-vue'
+import defaultAvatar from '@/assets/default-avatar.svg'
 
-onMounted(() => {
-    if (document.body.clientWidth < 1500) {
-        collapseChage();
-    }
-});
+const router = useRouter()
+const userStore = useUserStore()
+const isCollapse = ref(false)
+
+const toggleSidebar = () => {
+  isCollapse.value = !isCollapse.value
+}
+
+const handleCommand = async (command) => {
+  if (command === 'logout') {
+    await ElMessageBox.confirm('确认退出登录吗？', '提示', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    })
+    userStore.logout()
+    router.push('/login')
+  }
+}
 </script>
 
 <template>
-  <header class="header">
-    <div class="header-left">
-      <!-- <img src="@/assets/logo.png" alt="Logo" class="logo" /> -->
-      <div class="collapse-btn" @click="collapseChage"></div>
+  <div class="header">
+    <div class="left">
+      <el-icon class="toggle-button" @click="toggleSidebar">
+        <Expand v-if="isCollapse" />
+        <Fold v-else />
+      </el-icon>
+      <el-breadcrumb separator="/">
+        <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
+        <el-breadcrumb-item>活动管理</el-breadcrumb-item>
+      </el-breadcrumb>
     </div>
-    <div class="header-right">
-      <div class="header-right-icon">消息</div>
-      <div class="header-right-icon">设置</div>
-      <el-avatar class="user-avator" :size="30" />
-      <!-- 再来个下拉菜单 -->
-      
+    <div class="right">
+      <el-dropdown @command="handleCommand">
+        <span class="user-wrapper">
+          <img :src="defaultAvatar" class="avatar">
+          <span class="username">{{ userStore.username }}</span>
+        </span>
+        <template #dropdown>
+          <el-dropdown-menu>
+            <el-dropdown-item command="logout">退出登录</el-dropdown-item>
+          </el-dropdown-menu>
+        </template>
+      </el-dropdown>
     </div>
-  </header>
+  </div>
 </template>
 
 <style lang="scss" scoped>
 .header {
+  height: 50px;
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(0,21,41,.08);
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  align-items: center;
-  box-sizing: border-box;
-  // TODO var color
-  background-color: lightgray;
-  color: #ffffff;
-  width: 100%;
-  height: 70px;
-}
-
-.header-left {
-  display: flex;
-  align-items: center;
-}
-
-.logo {
-  height: 40px;
-  margin-right: 10px;
-}
-
-.title {
-  font-size: 24px;
-  font-weight: bold;
-}
-
-.collapse-btn {
+  padding: 0 15px;
+  
+  .left {
     display: flex;
-    justify-content: center;
     align-items: center;
-    height: 100%;
-    padding: 0 10px;
-    cursor: pointer;
-    opacity: 0.8;
-    font-size: 22px;
-}
-
-.collapse-btn:hover {
-    opacity: 1;
-}
-
-.header-right {
-  display: flex;
-  align-items: center;
-  .header-right-icon {
-    margin: 0 5px;
-    font-size: 14px;
+    
+    .toggle-button {
+      padding: 0 15px;
+      cursor: pointer;
+      font-size: 16px;
+      
+      &:hover {
+        color: #409EFF;
+      }
+    }
   }
-}
-
-.icon-settings {
-  font-size: 24px;
-  margin-right: 20px;
-  cursor: pointer;
-}
-
-.user-portrait {
-  height: 40px;
-  width: 40px;
-  border-radius: 50%;
-  cursor: pointer;
+  
+  .right {
+    .user-wrapper {
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      
+      .avatar {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        margin-right: 8px;
+      }
+      
+      .username {
+        font-size: 14px;
+        color: #606266;
+      }
+    }
+  }
 }
 </style>

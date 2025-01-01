@@ -1,21 +1,24 @@
-import { defineStore } from "pinia";
+import { defineStore } from "pinia"
+import { ref } from 'vue'
 
 export const useSidebarStore = defineStore('sidebar', () => {
   // 是否折叠
-  let collapse = false
-  let bgColor = '#324157'
-  let textColor = '#bfcbd9'
+  const collapse = ref(false)
+  const bgColor = ref('#324157')
+  const textColor = ref('#bfcbd9')
 
   const handleCollapse = () => {
-    collapse = !collapse;
+    collapse.value = !collapse.value
   }
+
   // 设置背景色
-  const setBgColor = (bgColor) => {
-    this.bgColor = bgColor
+  const setBgColor = (color) => {
+    bgColor.value = color
   }
+
   // 设置文字颜色
-  const setTextColor = (textColor) => {
-    this.textColor = textColor
+  const setTextColor = (color) => {
+    textColor.value = color
   }
 
   return {
