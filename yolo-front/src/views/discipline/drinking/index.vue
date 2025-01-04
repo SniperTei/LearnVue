@@ -48,8 +48,8 @@
                   :show-after="200"
                 >
                   <div class="record-content">
-                    <span class="drink-name">{{ record.drinkName }}</span>
-                    <span class="drink-amount">{{ record.unit }}</span>
+                    <span class="drink-name">{{ record.alcoholId.name }}</span>
+                    <span class="drink-amount">{{ record.amount }}{{ record.unit }}</span>
                   </div>
                 </el-tooltip>
                 <el-button 
@@ -79,12 +79,8 @@
         :rules="rules"
         label-width="100px"
       >
-        <el-form-item label="饮品名称" prop="drinkName">
-          <el-input v-model="form.drinkName" placeholder="请输入饮品名称" />
-        </el-form-item>
-        
-        <el-form-item label="酒精类型" prop="alcoholType">
-          <el-select v-model="form.alcoholType" placeholder="请选择酒精类型" style="width: 100%">
+        <el-form-item label="酒精名称" prop="alcoholId">
+          <el-select v-model="form.alcoholId" placeholder="请选择酒精名称" style="width: 100%">
             <el-option
               v-for="type in alcoholTypes"
               :key="type.value"
@@ -102,6 +98,10 @@
           </el-select>
         </el-form-item>
         
+        <el-form-item label="数量" prop="amount">
+          <el-input v-model="form.amount" placeholder="请输入数量" />
+        </el-form-item>
+        
         <el-form-item label="饮酒时间" prop="drinkTime">
           <el-date-picker
             v-model="form.drinkTime"
@@ -114,12 +114,28 @@
           />
         </el-form-item>
         
-        <el-form-item label="原因" prop="reason">
+        <el-form-item label="心情" prop="mood">
+          <el-input v-model="form.mood" placeholder="请输入心情" />
+        </el-form-item>
+        
+        <el-form-item label="场合" prop="occasion">
+          <el-input v-model="form.occasion" placeholder="请输入场合" />
+        </el-form-item>
+        
+        <el-form-item label="地点" prop="location">
+          <el-input v-model="form.location" placeholder="请输入地点" />
+        </el-form-item>
+        
+        <el-form-item label="同饮" prop="companions">
+          <el-input v-model="form.companions" placeholder="请输入同饮" />
+        </el-form-item>
+        
+        <el-form-item label="备注" prop="note">
           <el-input
-            v-model="form.reason"
+            v-model="form.note"
             type="textarea"
             :rows="3"
-            placeholder="请输入饮酒原因"
+            placeholder="请输入备注"
           />
         </el-form-item>
       </el-form>
@@ -164,24 +180,27 @@ const alcoholTypes = [
 
 // 表单数据
 const form = ref({
-  drinkName: '',
-  alcoholType: '',
+  alcoholId: '',
   unit: '瓶',
+  amount: '',
   drinkTime: '',
-  reason: ''
+  mood: '',
+  occasion: '',
+  location: '',
+  companions: '',
+  note: ''
 })
 
 // 表单规则
 const rules = {
-  drinkName: [
-    { required: true, message: '请输入饮品名称', trigger: 'blur' },
-    { min: 2, max: 50, message: '长度在 2 到 50 个字符', trigger: 'blur' }
-  ],
-  alcoholType: [
-    { required: true, message: '请选择酒精类型', trigger: 'change' }
+  alcoholId: [
+    { required: true, message: '请选择酒精名称', trigger: 'change' }
   ],
   unit: [
     { required: true, message: '请选择单位', trigger: 'change' }
+  ],
+  amount: [
+    { required: true, message: '请输入数量', trigger: 'blur' }
   ],
   drinkTime: [
     { required: true, message: '请选择时间', trigger: 'change' }
@@ -226,7 +245,13 @@ const formatRecordTooltip = (record) => {
     hour: '2-digit',
     minute: '2-digit'
   })
-  return `${time}\n${record.drinkName} (${record.unit})\n原因: ${record.reason || '无'}`
+  return `${time}
+${record.alcoholId.name} ${record.amount}${record.unit}
+场合: ${record.occasion}
+心情: ${record.mood}
+地点: ${record.location}
+${record.companions?.length ? `同饮: ${record.companions.join(', ')}` : ''}
+${record.note ? `备注: ${record.note}` : ''}`
 }
 
 // 选择上个月
@@ -266,11 +291,15 @@ const openEditDialog = (record) => {
   isEditing.value = true
   editingId.value = record._id
   form.value = {
-    drinkName: record.drinkName,
-    alcoholType: record.alcoholType,
+    alcoholId: record.alcoholId._id,
     unit: record.unit,
+    amount: record.amount,
     drinkTime: record.drinkTime,
-    reason: record.reason
+    mood: record.mood,
+    occasion: record.occasion,
+    location: record.location,
+    companions: record.companions,
+    note: record.note
   }
   dialogVisible.value = true
 }
