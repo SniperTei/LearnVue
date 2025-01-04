@@ -1,3 +1,16 @@
+<script setup>
+import { ref } from 'vue'
+import Navbar from '@/components/layout/Navbar.vue'
+import Sidebar from '@/components/layout/Sidebar.vue'
+import Breadcrumb from '@/components/layout/Breadcrumb.vue'
+
+const isCollapse = ref(false)
+
+const toggleSidebar = () => {
+  isCollapse.value = !isCollapse.value
+}
+</script>
+
 <template>
   <div class="app-wrapper" :class="{ collapsed: isCollapse }">
     <!-- 侧边栏 -->
@@ -19,19 +32,6 @@
     </div>
   </div>
 </template>
-
-<script setup>
-import { ref } from 'vue'
-import Navbar from '@/components/layout/Navbar.vue'
-import Sidebar from '@/components/layout/Sidebar.vue'
-import Breadcrumb from '@/components/layout/Breadcrumb.vue'
-
-const isCollapse = ref(false)
-
-const toggleSidebar = () => {
-  isCollapse.value = !isCollapse.value
-}
-</script>
 
 <style lang="scss" scoped>
 .app-wrapper {

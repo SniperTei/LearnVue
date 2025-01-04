@@ -1,3 +1,55 @@
+<script setup>
+import { ref } from 'vue'
+import { ElMessage } from 'element-plus'
+
+const queryParams = ref({
+  name: '',
+  platform: '',
+  page: 1,
+  pageSize: 10
+})
+
+const gameList = ref([
+  {
+    name: '塞尔达传说：王国之泪',
+    platform: 'Switch',
+    genre: '动作冒险',
+    releaseDate: '2023-05-12',
+    price: 398,
+    rating: 4.9
+  },
+  {
+    name: '最终幻想16',
+    platform: 'PS5',
+    genre: '角色扮演',
+    releaseDate: '2023-06-22',
+    price: 498,
+    rating: 4.7
+  }
+])
+const total = ref(2)
+
+const getPlatformTagType = (platform) => {
+  const types = {
+    'PC': '',
+    'PS5': 'success',
+    'Xbox': 'warning',
+    'Switch': 'danger'
+  }
+  return types[platform] || 'info'
+}
+
+const handleQuery = () => {
+  // TODO: 调用查询接口
+  ElMessage.success('查询成功')
+}
+
+const handlePageChange = (page) => {
+  queryParams.value.page = page
+  handleQuery()
+}
+</script>
+
 <template>
   <div class="game-container">
     <div class="filter-container">
@@ -52,58 +104,6 @@
     />
   </div>
 </template>
-
-<script setup>
-import { ref } from 'vue'
-import { ElMessage } from 'element-plus'
-
-const queryParams = ref({
-  name: '',
-  platform: '',
-  page: 1,
-  pageSize: 10
-})
-
-const gameList = ref([
-  {
-    name: '塞尔达传说：王国之泪',
-    platform: 'Switch',
-    genre: '动作冒险',
-    releaseDate: '2023-05-12',
-    price: 398,
-    rating: 4.9
-  },
-  {
-    name: '最终幻想16',
-    platform: 'PS5',
-    genre: '角色扮演',
-    releaseDate: '2023-06-22',
-    price: 498,
-    rating: 4.7
-  }
-])
-const total = ref(2)
-
-const getPlatformTagType = (platform) => {
-  const types = {
-    'PC': '',
-    'PS5': 'success',
-    'Xbox': 'warning',
-    'Switch': 'danger'
-  }
-  return types[platform] || 'info'
-}
-
-const handleQuery = () => {
-  // TODO: 调用查询接口
-  ElMessage.success('查询成功')
-}
-
-const handlePageChange = (page) => {
-  queryParams.value.page = page
-  handleQuery()
-}
-</script>
 
 <style lang="scss" scoped>
 .game-container {

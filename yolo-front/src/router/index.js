@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import Layout from '@/views/layout/index.vue';
 import Login from '@/views/user/Login.vue';
-import Register from '@/views/user/Register.vue';
+import NotFound from '@/views/error/404.vue';
 
 const routes = [
   {
@@ -61,19 +61,47 @@ const routes = [
     path: '/login',
     name: 'Login',
     component: Login,
-    meta: { hidden: true }
+    meta: { title: '登录' }
   },
   {
-    path: '/register',
-    name: 'Register',
-    component: Register,
-    meta: { hidden: true }
+    path: '/404',
+    name: 'NotFound',
+    component: NotFound,
+    meta: { title: '404' }
+  },
+  // 将匹配所有内容并将其重定向到 404 页面
+  {
+    path: '/:pathMatch(.*)*',
+    redirect: '/404'
   }
 ];
 
 const router = createRouter({
   history: createWebHistory(),
-  routes,
+  routes
+});
+
+// 路由守卫
+router.beforeEach((to, from, next) => {
+  // 设置页面标题
+  document.title = to.meta.title ? `${to.meta.title} - YOLO系统` : 'YOLO系统';
+
+  // 获取token
+  const token = localStorage.getItem('token');
+  
+  // 如果是访问登录页且已登录，重定向到首页
+  if (to.path === '/login' && token) {
+    next('/');
+    return;
+  }
+  
+  // 如果不是登录页，检查是否已登录
+  if (to.path !== '/login' && !token) {
+    next('/login');
+    return;
+  }
+  
+  next();
 });
 
 export default router;

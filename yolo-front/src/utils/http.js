@@ -14,10 +14,24 @@ class Http {
     // 请求拦截器
     this.instance.interceptors.request.use(
       config => {
-        console.log('请求参数:', config);
+        console.log('发送请求:', {
+          url: config.url,
+          method: config.method,
+          data: config.data,
+          params: config.params,
+          headers: config.headers
+        });
+        
+        // 从 localStorage 获取 token
+        const token = localStorage.getItem('token');
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+        }
+        
         return config;
       },
       error => {
+        console.error('请求错误:', error);
         return Promise.reject(error);
       }
     );
@@ -25,27 +39,44 @@ class Http {
     // 响应拦截器
     this.instance.interceptors.response.use(
       response => {
+        console.log('收到响应:', {
+          status: response.status,
+          data: response.data,
+          headers: response.headers
+        });
+        
         const res = response.data;
+        
         // 支持多个成功响应码
         if (!['000000', '200', 200].includes(res.code)) {
+          console.warn('响应码异常:', res.code);
           // 如果配置了自动提示，则显示错误信息
           if (response.config.showError !== false) {
             ElMessage.error(res.msg || '请求失败');
           }
           return Promise.reject(res);
         }
+        
         return res;
       },
       error => {
+        console.error('响应错误:', {
+          message: error.message,
+          status: error.response?.status,
+          data: error.response?.data
+        });
+        
         const res = {
           code: 'A00500',
           msg: error.message || '网络请求失败',
           statusCode: error.response?.status || 500
         };
+        
         // 如果配置了自动提示，则显示错误信息
         if (error.config?.showError !== false) {
           ElMessage.error(res.msg);
         }
+        
         return Promise.reject(res);
       }
     );
@@ -55,20 +86,20 @@ class Http {
     return import.meta.env.VITE_API_BASE_URL || '/api';
   }
 
-  get(url, params, config = {}) {
+  get(url, params = {}, config = {}) {
     return this.instance.get(url, { params, ...config });
   }
 
-  post(url, data, config = {}) {
+  post(url, data = {}, config = {}) {
     return this.instance.post(url, data, config);
   }
 
-  put(url, data, config = {}) {
+  put(url, data = {}, config = {}) {
     return this.instance.put(url, data, config);
   }
 
-  delete(url, params, config = {}) {
-    return this.instance.delete(url, { params, ...config });
+  delete(url, config = {}) {
+    return this.instance.delete(url, config);
   }
 }
 

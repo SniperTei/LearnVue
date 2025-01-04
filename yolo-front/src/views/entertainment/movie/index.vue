@@ -1,3 +1,45 @@
+<script setup>
+import { ref } from 'vue'
+import { ElMessage } from 'element-plus'
+
+const queryParams = ref({
+  name: '',
+  type: '',
+  page: 1,
+  pageSize: 8
+})
+
+const movieList = ref([
+  {
+    id: 1,
+    name: '盗梦空间',
+    poster: 'https://via.placeholder.com/300x400',
+    rating: 4.5,
+    year: '2010',
+    description: '在这部精彩绝伦的科幻动作片中，莱昂纳多·迪卡普里奥饰演的柯布是一位技术高超的盗梦者...'
+  },
+  {
+    id: 2,
+    name: '星际穿越',
+    poster: 'https://via.placeholder.com/300x400',
+    rating: 4.8,
+    year: '2014',
+    description: '一部关于爱、生存与希望的史诗级科幻电影...'
+  }
+])
+const total = ref(2)
+
+const handleQuery = () => {
+  // TODO: 调用查询接口
+  ElMessage.success('查询成功')
+}
+
+const handlePageChange = (page) => {
+  queryParams.value.page = page
+  handleQuery()
+}
+</script>
+
 <template>
   <div class="movie-container">
     <div class="filter-container">
@@ -44,48 +86,6 @@
     />
   </div>
 </template>
-
-<script setup>
-import { ref } from 'vue'
-import { ElMessage } from 'element-plus'
-
-const queryParams = ref({
-  name: '',
-  type: '',
-  page: 1,
-  pageSize: 8
-})
-
-const movieList = ref([
-  {
-    id: 1,
-    name: '盗梦空间',
-    poster: 'https://via.placeholder.com/300x400',
-    rating: 4.5,
-    year: '2010',
-    description: '在这部精彩绝伦的科幻动作片中，莱昂纳多·迪卡普里奥饰演的柯布是一位技术高超的盗梦者...'
-  },
-  {
-    id: 2,
-    name: '星际穿越',
-    poster: 'https://via.placeholder.com/300x400',
-    rating: 4.8,
-    year: '2014',
-    description: '一部关于爱、生存与希望的史诗级科幻电影...'
-  }
-])
-const total = ref(2)
-
-const handleQuery = () => {
-  // TODO: 调用查询接口
-  ElMessage.success('查询成功')
-}
-
-const handlePageChange = (page) => {
-  queryParams.value.page = page
-  handleQuery()
-}
-</script>
 
 <style lang="scss" scoped>
 .movie-container {

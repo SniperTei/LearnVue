@@ -1,3 +1,31 @@
+<script setup>
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
+import * as ElementPlusIconsVue from '@element-plus/icons-vue'
+import { Platform } from '@element-plus/icons-vue'
+import { useUserStore } from '@/stores/user'
+
+// 注册所有图标
+const icons = {}
+for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
+  icons[key] = component
+}
+
+const props = defineProps({
+  isCollapse: {
+    type: Boolean,
+    default: false
+  }
+})
+
+const route = useRoute()
+const userStore = useUserStore()
+const activeMenu = computed(() => route.path)
+
+// 从 store 中获取菜单数据
+const menus = computed(() => userStore.menus)
+</script>
+
 <template>
   <div class="sidebar">
     <div class="logo" :class="{ 'is-collapse': isCollapse }">
@@ -45,34 +73,6 @@
     </el-scrollbar>
   </div>
 </template>
-
-<script setup>
-import { computed } from 'vue'
-import { useRoute } from 'vue-router'
-import * as ElementPlusIconsVue from '@element-plus/icons-vue'
-import { Platform } from '@element-plus/icons-vue'
-import { useUserStore } from '@/stores/user'
-
-// 注册所有图标
-const icons = {}
-for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
-  icons[key] = component
-}
-
-const props = defineProps({
-  isCollapse: {
-    type: Boolean,
-    default: false
-  }
-})
-
-const route = useRoute()
-const userStore = useUserStore()
-const activeMenu = computed(() => route.path)
-
-// 从 store 中获取菜单数据
-const menus = computed(() => userStore.menus)
-</script>
 
 <style lang="scss" scoped>
 .sidebar {

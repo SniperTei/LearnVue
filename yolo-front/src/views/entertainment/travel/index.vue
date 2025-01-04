@@ -1,3 +1,57 @@
+<script setup>
+import { ref } from 'vue'
+import { ElMessage } from 'element-plus'
+
+const queryParams = ref({
+  destination: '',
+  season: '',
+  page: 1,
+  pageSize: 6
+})
+
+const travelSpots = ref([
+  {
+    id: 1,
+    name: '日本富士山',
+    images: [
+      'https://via.placeholder.com/400x200',
+      'https://via.placeholder.com/400x200'
+    ],
+    season: '春季',
+    type: '自然风光',
+    description: '富士山是日本的象征，也是日本的最高峰。春季樱花盛开，景色尤为壮美...',
+    price: 5999
+  },
+  {
+    id: 2,
+    name: '马尔代夫',
+    images: [
+      'https://via.placeholder.com/400x200',
+      'https://via.placeholder.com/400x200'
+    ],
+    season: '冬季',
+    type: '海岛度假',
+    description: '马尔代夫是世界著名的度假胜地，拥有洁白的沙滩、清澈的海水和丰富的海洋生态...',
+    price: 12999
+  }
+])
+const total = ref(2)
+
+const handleQuery = () => {
+  // TODO: 调用查询接口
+  ElMessage.success('查询成功')
+}
+
+const handleViewDetail = (spot) => {
+  ElMessage.info('查看详情功能开发中...')
+}
+
+const handlePageChange = (page) => {
+  queryParams.value.page = page
+  handleQuery()
+}
+</script>
+
 <template>
   <div class="travel-container">
     <div class="filter-container">
@@ -53,60 +107,6 @@
     />
   </div>
 </template>
-
-<script setup>
-import { ref } from 'vue'
-import { ElMessage } from 'element-plus'
-
-const queryParams = ref({
-  destination: '',
-  season: '',
-  page: 1,
-  pageSize: 6
-})
-
-const travelSpots = ref([
-  {
-    id: 1,
-    name: '日本富士山',
-    images: [
-      'https://via.placeholder.com/400x200',
-      'https://via.placeholder.com/400x200'
-    ],
-    season: '春季',
-    type: '自然风光',
-    description: '富士山是日本的象征，也是日本的最高峰。春季樱花盛开，景色尤为壮美...',
-    price: 5999
-  },
-  {
-    id: 2,
-    name: '马尔代夫',
-    images: [
-      'https://via.placeholder.com/400x200',
-      'https://via.placeholder.com/400x200'
-    ],
-    season: '冬季',
-    type: '海岛度假',
-    description: '马尔代夫是世界著名的度假胜地，拥有洁白的沙滩、清澈的海水和丰富的海洋生态...',
-    price: 12999
-  }
-])
-const total = ref(2)
-
-const handleQuery = () => {
-  // TODO: 调用查询接口
-  ElMessage.success('查询成功')
-}
-
-const handleViewDetail = (spot) => {
-  ElMessage.info('查看详情功能开发中...')
-}
-
-const handlePageChange = (page) => {
-  queryParams.value.page = page
-  handleQuery()
-}
-</script>
 
 <style lang="scss" scoped>
 .travel-container {

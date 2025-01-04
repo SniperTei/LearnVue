@@ -1,3 +1,7 @@
+<script setup>
+import { User, View, Message, Loading } from '@element-plus/icons-vue'
+</script>
+
 <template>
   <div class="dashboard-container">
     <h2>仪表盘</h2>
@@ -66,10 +70,6 @@
     </div>
   </div>
 </template>
-
-<script setup>
-import { User, View, Message, Loading } from '@element-plus/icons-vue'
-</script>
 
 <style lang="scss" scoped>
 .dashboard-container {

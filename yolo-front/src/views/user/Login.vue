@@ -1,39 +1,3 @@
-<template>
-  <div class="login-container">
-    <el-form class="login-form" ref="formRef">
-      <h3 class="title">YOLO系统</h3>
-      <div class="form-item">
-        <el-form-item prop="username">
-          <el-input 
-            v-model="form.username"
-            placeholder="请输入用户名"
-            :prefix-icon="User"
-          ></el-input>
-        </el-form-item>
-      </div>
-      <div class="form-item">
-        <el-form-item prop="password">
-          <el-input 
-            type="password" 
-            v-model="form.password"
-            placeholder="请输入密码"
-            :prefix-icon="Lock"
-            @keyup.enter="handleLogin"
-          ></el-input>
-        </el-form-item>
-      </div>
-      <div class="form-item">
-        <el-button type="primary" @click="handleLogin" class="login-button">登录</el-button>
-      </div>
-      <div class="form-item">
-        <router-link to="/register">
-          <el-button type="text" class="register-button">没有账号？去注册</el-button>
-        </router-link>
-      </div>
-    </el-form>
-  </div>
-</template>
-
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
@@ -44,38 +8,110 @@ import { useUserStore } from '@/stores/user';
 import '@/styles/variables.scss';
 
 const router = useRouter();
+const userStore = useUserStore();
+
 const form = ref({
   username: '',
   password: '',
 });
+
+const rules = {
+  username: [
+    { required: true, message: '请输入用户名', trigger: 'blur' }
+  ],
+  password: [
+    { required: true, message: '请输入密码', trigger: 'blur' }
+  ]
+};
+
 const formRef = ref(null);
 const loading = ref(false);
 
 const handleLogin = async () => {
-  if (!formRef.value) return;
+  console.log('开始登录流程');
+  console.log('表单数据:', form.value);
+  
+  if (!formRef.value) {
+    console.warn('表单引用未找到');
+    return;
+  }
   
   try {
+    console.log('开始表单验证');
     await formRef.value.validate();
+    console.log('表单验证通过');
     
     loading.value = true;
+    console.log('发送登录请求');
     const res = await login(form.value);
+    console.log('登录响应:', res);
     
     // 保存用户信息和token
-    const userStore = useUserStore();
+    console.log('保存用户信息到 store');
     userStore.setToken(res.data.token);
     userStore.setUserInfo(res.data.userInfo);
     userStore.setMenus(res.data.menus || []);
     
+    console.log('Store 中的用户信息:', userStore.userInfo);
+    console.log('Store 中的 token:', userStore.token);
+    
     ElMessage.success('登录成功');
+    console.log('准备跳转到首页');
     router.push('/');
   } catch (error) {
-    ElMessage.error(error.msg || '登录失败，请稍后重试');
     console.error('登录失败:', error);
+    ElMessage.error(error.msg || '登录失败，请稍后重试');
   } finally {
     loading.value = false;
   }
 };
 </script>
+
+<template>
+  <div class="login-container">
+    <el-form 
+      class="login-form" 
+      ref="formRef"
+      :model="form"
+      :rules="rules"
+    >
+      <h3 class="title">YOLO系统</h3>
+      <div class="form-item">
+        <el-form-item prop="username">
+          <el-input 
+            v-model="form.username"
+            placeholder="用户名" 
+            :prefix-icon="User"
+          />
+        </el-form-item>
+      </div>
+      <div class="form-item">
+        <el-form-item prop="password">
+          <el-input
+            v-model="form.password"
+            type="password"
+            placeholder="密码"
+            :prefix-icon="Lock"
+            @keyup.enter="handleLogin"
+          />
+        </el-form-item>
+      </div>
+      <el-button 
+        :loading="loading" 
+        type="primary" 
+        class="login-button"
+        @click="handleLogin"
+      >
+        登录
+      </el-button>
+      <div class="form-item">
+        <router-link to="/register">
+          <el-button type="text" class="register-button">没有账号？去注册</el-button>
+        </router-link>
+      </div>
+    </el-form>
+  </div>
+</template>
 
 <style lang="scss" scoped>
 @use '@/styles/variables' as *;
