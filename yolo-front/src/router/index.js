@@ -84,6 +84,31 @@ const routes = [
     ]
   },
   {
+    path: '/food',
+    component: Layout,
+    meta: { title: '美食管理', icon: 'food' },
+    children: [
+      {
+        path: 'recipe',
+        name: 'Recipe',
+        component: () => import('@/views/food/recipe/index.vue'),
+        meta: { title: '菜谱管理' }
+      },
+      {
+        path: 'menu',
+        name: 'Menu',
+        component: () => import('@/views/food/menu/index.vue'),
+        meta: { title: '菜单管理' }
+      },
+      {
+        path: 'wine',
+        name: 'Wine',
+        component: () => import('@/views/food/wine/index.vue'),
+        meta: { title: '酒类管理' }
+      }
+    ]
+  },
+  {
     path: '/login',
     name: 'Login',
     component: Login,

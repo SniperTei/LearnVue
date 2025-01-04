@@ -45,26 +45,35 @@ class Http {
           headers: response.headers
         });
         
+        // 如果响应已经被转换过，直接返回
+        if (response.data?.success !== undefined) {
+          return response.data;
+        }
+        
         const res = response.data;
         
         // 支持多个成功响应码，包括删除操作的204状态码
-        if (!['000000', '200', 200, '204', 204].includes(res.code) && response.status !== 204) {
-          // 如果是401，说明token过期或无效
-          if (res.code === 'A00401' || response.status === 401) {
-            // 清除token并跳转到登录页
-            localStorage.removeItem('token');
-            window.location.href = '/login';
-          }
-          
-          // 显示错误信息
-          if (response.config?.showError !== false) {
-            ElMessage.error(res.msg || '操作失败');
-          }
-          
-          return Promise.reject(new Error(res.msg || '操作失败'));
+        if (response.status === 204) {
+          return {
+            success: true,
+            data: null,
+            message: 'Operation successful'
+          };
         }
         
-        return res;
+        // 检查响应状态
+        if (response.status >= 200 && response.status < 300) {
+          return {
+            success: true,
+            data: res.data || res,
+            message: res.message || 'Success'
+          };
+        }
+        
+        // 处理错误响应
+        const error = new Error(res.message || 'Request failed');
+        error.response = response;
+        return Promise.reject(error);
       },
       error => {
         console.error('响应错误:', error);
