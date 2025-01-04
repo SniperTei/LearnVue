@@ -58,6 +58,32 @@ const routes = [
     ]
   },
   {
+    path: '/discipline',
+    component: Layout,
+    name: 'Discipline',
+    meta: { title: '自律', icon: 'fa-solid fa-clock' },
+    children: [
+      {
+        path: 'drinking',
+        name: 'Drinking',
+        component: () => import('@/views/discipline/drinking/index.vue'),
+        meta: { title: '饮酒记录', icon: 'fa-solid fa-wine-glass' }
+      },
+      {
+        path: 'reading',
+        name: 'Reading',
+        component: () => import('@/views/discipline/reading/index.vue'),
+        meta: { title: '阅读记录', icon: 'fa-solid fa-book' }
+      },
+      {
+        path: 'fitness',
+        name: 'Fitness',
+        component: () => import('@/views/discipline/fitness/index.vue'),
+        meta: { title: '健身记录', icon: 'fa-solid fa-dumbbell' }
+      }
+    ]
+  },
+  {
     path: '/login',
     name: 'Login',
     component: Login,
