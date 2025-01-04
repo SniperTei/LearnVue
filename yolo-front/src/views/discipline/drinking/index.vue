@@ -249,10 +249,10 @@ const selectNextMonth = () => {
 const loadDrinkingRecords = async () => {
   try {
     const response = await getDrinkList()
-    if (response.code === '000000') {
-      drinkingRecords.value = response.data
+    if (response.success && response.data) {
+      drinkingRecords.value = response.data.drinks
     } else {
-      ElMessage.error(response.msg || '获取数据失败')
+      ElMessage.error(response.message || '获取数据失败')
     }
   } catch (error) {
     console.error('加载饮酒记录失败:', error)
@@ -289,12 +289,12 @@ const submitForm = async () => {
       response = await createDrink(form.value)
     }
     
-    if (response.code === '000000') {
+    if (response.success) {
       ElMessage.success(isEditing.value ? '修改成功' : '添加成功')
       dialogVisible.value = false
       loadDrinkingRecords()
     } else {
-      ElMessage.error(response.msg || (isEditing.value ? '修改失败' : '添加失败'))
+      ElMessage.error(response.message || (isEditing.value ? '修改失败' : '添加失败'))
     }
   } catch (error) {
     console.error('提交表单失败:', error)
@@ -312,11 +312,11 @@ const handleDelete = async (id) => {
     })
     
     const response = await deleteDrink(id)
-    if (response.code === '000000') {
+    if (response.success) {
       ElMessage.success('删除成功')
       loadDrinkingRecords()
     } else {
-      ElMessage.error(response.msg || '删除失败')
+      ElMessage.error(response.message || '删除失败')
     }
   } catch (error) {
     if (error !== 'cancel') {
