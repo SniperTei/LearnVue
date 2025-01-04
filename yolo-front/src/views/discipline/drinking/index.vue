@@ -2,60 +2,48 @@
 import { ref, onMounted, computed } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Delete, Edit, Plus } from '@element-plus/icons-vue'
+import { createDrink, getDrinkList, updateDrink, deleteDrink } from '@/api/drinkAPI'
 
-// 饮酒记录数据结构
+// 饮酒记录数据
 const drinkingRecords = ref([])
 const dialogVisible = ref(false)
 const dialogTitle = ref('新增记录')
 const isEditing = ref(false)
-const editingIndex = ref(-1)
+const editingId = ref(null)
+const formRef = ref(null)
 
 // 表单数据
 const form = ref({
-  date: '',
-  wine: '',
-  amount: '',
-  mood: '',
-  notes: ''
+  drinkName: '',
+  alcoholType: '',
+  unit: '瓶',
+  drinkTime: '',
+  reason: ''
 })
 
 // 表单规则
 const rules = {
-  date: [{ required: true, message: '请选择日期', trigger: 'change' }],
-  wine: [{ required: true, message: '请输入酒名', trigger: 'blur' }],
-  amount: [{ required: true, message: '请输入饮酒量', trigger: 'blur' }]
+  drinkName: [{ required: true, message: '请输入饮品名称', trigger: 'blur' }],
+  alcoholType: [{ required: true, message: '请选择酒类', trigger: 'change' }],
+  drinkTime: [{ required: true, message: '请选择饮酒时间', trigger: 'change' }],
+  unit: [{ required: true, message: '请输入单位', trigger: 'blur' }]
 }
 
-// 心情选项（扩展）
-const moodOptions = [
-  { label: '开心', value: '开心', icon: '😊', color: '#67C23A' },
-  { label: '放松', value: '放松', icon: '😌', color: '#409EFF' },
-  { label: '平静', value: '平静', icon: '😐', color: '#909399' },
-  { label: '疲惫', value: '疲惫', icon: '😫', color: '#E6A23C' },
-  { label: '压力', value: '压力', icon: '😰', color: '#F56C6C' },
-  { label: '兴奋', value: '兴奋', icon: '🤩', color: '#8E44AD' },
-  { label: '社交', value: '社交', icon: '🤝', color: '#3498DB' },
-  { label: '庆祝', value: '庆祝', icon: '🎉', color: '#E74C3C' },
-  { label: '无聊', value: '无聊', icon: '🥱', color: '#95A5A6' },
-  { label: '失落', value: '失落', icon: '😢', color: '#34495E' }
-]
-
-// 常见酒类选项（带颜色）
-const wineTypes = [
-  { name: '啤酒', color: '#F7B733' },
-  { name: '红葡萄酒', color: '#C0392B' },
-  { name: '白葡萄酒', color: '#F1C40F' },
-  { name: '威士忌', color: '#D35400' },
-  { name: '伏特加', color: '#3498DB' },
-  { name: '白酒', color: '#ECF0F1' },
-  { name: '清酒', color: '#BDC3C7' },
-  { name: '其他', color: '#95A5A6' }
+// 常见酒类选项
+const alcoholTypes = [
+  { label: '啤酒', value: '啤酒', color: '#F7B733' },
+  { label: '红葡萄酒', value: '红葡萄酒', color: '#C0392B' },
+  { label: '白葡萄酒', value: '白葡萄酒', color: '#F1C40F' },
+  { label: '威士忌', value: '威士忌', color: '#D35400' },
+  { label: '伏特加', value: '伏特加', color: '#3498DB' },
+  { label: '白酒', value: '白酒', color: '#ECF0F1' },
+  { label: '清酒', value: '清酒', color: '#BDC3C7' }
 ]
 
 // 获取酒类颜色
-const getWineColor = (wineName) => {
-  const wineType = wineTypes.find(type => type.name === wineName)
-  return wineType ? wineType.color : '#95A5A6'
+const getAlcoholTypeColor = (type) => {
+  const alcoholType = alcoholTypes.find(item => item.value === type)
+  return alcoholType ? alcoholType.color : '#95A5A6'
 }
 
 // 统计数据
@@ -66,91 +54,132 @@ const statistics = computed(() => {
   return {
     total: drinkingRecords.value.length,
     thisMonth: drinkingRecords.value.filter(record => {
-      const recordDate = new Date(record.date)
+      const recordDate = new Date(record.drinkTime)
       return recordDate >= thirtyDaysAgo
-    }).length,
-    byType: Object.fromEntries(
-      wineTypes.map(type => [
-        type.name,
-        drinkingRecords.value.filter(record => record.wine === type.name).length
-      ])
-    ),
-    byMood: Object.fromEntries(
-      moodOptions.map(mood => [
-        mood.value,
-        drinkingRecords.value.filter(record => record.mood === mood.value).length
-      ])
-    )
+    }).length
   }
 })
 
-// 从 localStorage 加载数据
-onMounted(() => {
-  const savedRecords = localStorage.getItem('drinkingRecords')
-  if (savedRecords) {
-    drinkingRecords.value = JSON.parse(savedRecords)
+// 加载数据
+const loadDrinkingRecords = async () => {
+  try {
+    const response = await getDrinkList()
+    if (response.code === '000000') {
+      drinkingRecords.value = response.data
+    } else {
+      ElMessage.error(response.msg || '获取记录失败')
+    }
+  } catch (error) {
+    console.error('获取记录失败:', error)
+    ElMessage.error('获取记录失败，请重试')
   }
-})
-
-// 保存数据到 localStorage
-const saveToLocalStorage = () => {
-  localStorage.setItem('drinkingRecords', JSON.stringify(drinkingRecords.value))
 }
+
+// 初始化加载数据
+onMounted(() => {
+  loadDrinkingRecords()
+})
 
 // 打开新增对话框
 const openAddDialog = () => {
   dialogTitle.value = '新增记录'
   isEditing.value = false
+  editingId.value = null
   form.value = {
-    date: new Date().toISOString().split('T')[0],
-    wine: '',
-    amount: '',
-    mood: '',
-    notes: ''
+    drinkName: '',
+    alcoholType: '',
+    unit: '瓶',
+    drinkTime: new Date().toISOString().slice(0, 16),
+    reason: ''
   }
   dialogVisible.value = true
 }
 
 // 打开编辑对话框
-const openEditDialog = (index) => {
+const openEditDialog = (record) => {
   dialogTitle.value = '编辑记录'
   isEditing.value = true
-  editingIndex.value = index
-  const record = drinkingRecords.value[index]
-  form.value = { ...record }
+  editingId.value = record._id
+  form.value = {
+    drinkName: record.drinkName,
+    alcoholType: record.alcoholType,
+    unit: record.unit,
+    drinkTime: record.drinkTime.slice(0, 16),
+    reason: record.reason
+  }
   dialogVisible.value = true
 }
 
 // 删除记录
-const deleteRecord = (index) => {
-  ElMessageBox.confirm('确定要删除这条记录吗？', '提示', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
-    type: 'warning'
-  }).then(() => {
-    drinkingRecords.value.splice(index, 1)
-    saveToLocalStorage()
-    ElMessage.success('删除成功')
-  }).catch(() => {})
+const handleDelete = async (id) => {
+  try {
+    await ElMessageBox.confirm('确定要删除这条记录吗？', '提示', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    })
+    
+    console.log('正在删除记录:', id)
+    const response = await deleteDrink(id)
+    console.log('删除响应:', response)
+    
+    if (response?.code === '000000') {
+      ElMessage.success('删除成功')
+      await loadDrinkingRecords()
+    } else {
+      ElMessage.error(response?.msg || '删除失败')
+    }
+  } catch (error) {
+    if (error !== 'cancel') {
+      console.error('删除失败:', error)
+      ElMessage.error(error.response?.data?.msg || '删除失败，请重试')
+    }
+  }
 }
 
 // 提交表单
-const submitForm = async (formEl) => {
-  if (!formEl) return
+const submitForm = async () => {
+  if (!formRef.value) {
+    console.error('表单引用不存在')
+    return
+  }
   
-  await formEl.validate((valid) => {
-    if (valid) {
-      if (isEditing.value) {
-        drinkingRecords.value[editingIndex.value] = { ...form.value }
-        ElMessage.success('修改成功')
-      } else {
-        drinkingRecords.value.unshift({ ...form.value })
-        ElMessage.success('添加成功')
-      }
-      saveToLocalStorage()
-      dialogVisible.value = false
+  try {
+    // 先进行表单验证
+    await formRef.value.validate()
+    
+    const data = {
+      drinkName: form.value.drinkName,
+      alcoholType: form.value.alcoholType,
+      unit: form.value.unit,
+      drinkTime: new Date(form.value.drinkTime).toISOString(),
+      reason: form.value.reason
     }
-  })
+    
+    console.log('提交的数据:', data)
+    
+    let response
+    if (isEditing.value) {
+      response = await updateDrink(editingId.value, data)
+    } else {
+      response = await createDrink(data)
+    }
+    
+    console.log('API响应:', response)
+    
+    if (response.code === '000000') {
+      ElMessage.success(isEditing.value ? '修改成功' : '添加成功')
+      dialogVisible.value = false
+      loadDrinkingRecords()
+    } else {
+      ElMessage.error(response.msg || (isEditing.value ? '修改失败' : '添加失败'))
+    }
+  } catch (error) {
+    console.error('提交表单时发生错误:', error)
+    if (error.message) {
+      ElMessage.error(error.response?.data?.msg || (isEditing.value ? '修改失败，请重试' : '添加失败，请重试'))
+    }
+  }
 }
 </script>
 
@@ -172,35 +201,31 @@ const submitForm = async (formEl) => {
     <!-- 记录列表 -->
     <div class="records-list">
       <el-empty v-if="drinkingRecords.length === 0" description="暂无记录" />
-      <el-card v-else v-for="(record, index) in drinkingRecords" :key="index" class="record-card">
+      <el-card v-else v-for="record in drinkingRecords" :key="record.id" class="record-card">
         <div class="record-header">
-          <div class="date-mood">
-            <span class="date">{{ record.date }}</span>
-            <span v-if="record.mood" class="mood" :style="{ color: moodOptions.find(m => m.value === record.mood)?.color }">
-              {{ moodOptions.find(m => m.value === record.mood)?.icon }}
-              {{ record.mood }}
-            </span>
+          <div class="date-info">
+            <span class="date">{{ new Date(record.drinkTime).toLocaleString() }}</span>
           </div>
           <div class="actions">
-            <el-button type="primary" link @click="openEditDialog(index)">
+            <el-button type="primary" link @click="openEditDialog(record)">
               <el-icon><Edit /></el-icon>
             </el-button>
-            <el-button type="danger" link @click="deleteRecord(index)">
+            <el-button type="danger" link @click="handleDelete(record._id)">
               <el-icon><Delete /></el-icon>
             </el-button>
           </div>
         </div>
         <div class="record-content">
-          <div class="wine-info">
-            <el-tag :color="getWineColor(record.wine)" effect="dark">
+          <div class="drink-info">
+            <el-tag :color="getAlcoholTypeColor(record.alcoholType)" effect="dark">
               <font-awesome-icon icon="fa-solid fa-wine-glass" />
-              {{ record.wine }}
+              {{ record.alcoholType }}
             </el-tag>
-            <span class="amount">{{ record.amount }}</span>
+            <span class="drink-name">{{ record.drinkName }}</span>
+            <span class="unit">{{ record.unit }}</span>
           </div>
-          <div v-if="record.notes" class="notes">
-            <font-awesome-icon icon="fa-solid fa-comment" />
-            {{ record.notes }}
+          <div v-if="record.reason" class="reason">
+            原因：{{ record.reason }}
           </div>
         </div>
       </el-card>
@@ -216,70 +241,50 @@ const submitForm = async (formEl) => {
         ref="formRef"
         :model="form"
         :rules="rules"
-        label-width="80px"
+        label-width="100px"
       >
-        <el-form-item label="日期" prop="date">
+        <el-form-item label="饮品名称" prop="drinkName">
+          <el-input v-model="form.drinkName" placeholder="请输入饮品名称" />
+        </el-form-item>
+        
+        <el-form-item label="酒类" prop="alcoholType">
+          <el-select v-model="form.alcoholType" placeholder="请选择酒类" style="width: 100%">
+            <el-option
+              v-for="type in alcoholTypes"
+              :key="type.value"
+              :label="type.label"
+              :value="type.value"
+            />
+          </el-select>
+        </el-form-item>
+        
+        <el-form-item label="单位" prop="unit">
+          <el-input v-model="form.unit" placeholder="请输入单位" />
+        </el-form-item>
+        
+        <el-form-item label="饮酒时间" prop="drinkTime">
           <el-date-picker
-            v-model="form.date"
-            type="date"
-            placeholder="选择日期"
+            v-model="form.drinkTime"
+            type="datetime"
+            placeholder="请选择饮酒时间"
             style="width: 100%"
-            value-format="YYYY-MM-DD"
           />
         </el-form-item>
         
-        <el-form-item label="酒名" prop="wine">
-          <el-select
-            v-model="form.wine"
-            filterable
-            allow-create
-            placeholder="选择或输入酒名"
-            style="width: 100%"
-          >
-            <el-option
-              v-for="type in wineTypes"
-              :key="type.name"
-              :label="type.name"
-              :value="type.name"
-            >
-              <el-tag :color="type.color" effect="dark">{{ type.name }}</el-tag>
-            </el-option>
-          </el-select>
-        </el-form-item>
-        
-        <el-form-item label="饮酒量" prop="amount">
-          <el-input v-model="form.amount" placeholder="例如：2瓶、300ml" />
-        </el-form-item>
-        
-        <el-form-item label="心情" prop="mood">
-          <el-select v-model="form.mood" placeholder="选择心情" style="width: 100%">
-            <el-option
-              v-for="option in moodOptions"
-              :key="option.value"
-              :label="option.label"
-              :value="option.value"
-            >
-              <span :style="{ color: option.color }">
-                {{ option.icon }} {{ option.label }}
-              </span>
-            </el-option>
-          </el-select>
-        </el-form-item>
-        
-        <el-form-item label="备注" prop="notes">
+        <el-form-item label="原因" prop="reason">
           <el-input
-            v-model="form.notes"
+            v-model="form.reason"
             type="textarea"
-            rows="3"
-            placeholder="记录一下此刻的想法..."
+            placeholder="请输入饮酒原因"
+            :rows="3"
           />
         </el-form-item>
       </el-form>
       
       <template #footer>
         <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="submitForm(formRef)">
-          {{ isEditing ? '保存' : '添加' }}
+        <el-button type="primary" @click="submitForm">
+          {{ isEditing ? '保存' : '创建' }}
         </el-button>
       </template>
     </el-dialog>
@@ -303,7 +308,6 @@ const submitForm = async (formEl) => {
       
       h2 {
         margin: 0;
-        color: #303133;
       }
       
       .stats {
@@ -314,70 +318,48 @@ const submitForm = async (formEl) => {
   }
   
   .records-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
     
     .record-card {
-      transition: transform 0.3s;
-      
-      &:hover {
-        transform: translateY(-5px);
-      }
-      
       .record-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
         margin-bottom: 12px;
         
-        .date-mood {
+        .date-info {
           .date {
-            font-weight: bold;
-            color: #303133;
-          }
-          
-          .mood {
-            margin-left: 10px;
+            font-size: 14px;
+            color: #606266;
           }
         }
       }
       
       .record-content {
-        .wine-info {
+        .drink-info {
           display: flex;
           align-items: center;
+          gap: 12px;
           margin-bottom: 8px;
           
-          .amount {
-            margin-left: 10px;
+          .drink-name {
+            font-size: 16px;
+            font-weight: 500;
+          }
+          
+          .unit {
             color: #606266;
           }
         }
         
-        .notes {
+        .reason {
           color: #606266;
           font-size: 14px;
-          margin-top: 8px;
-          
-          .svg-inline--fa {
-            margin-right: 6px;
-          }
         }
       }
     }
-  }
-}
-
-.el-dialog {
-  .el-select {
-    width: 100%;
-  }
-}
-
-:deep(.el-tag) {
-  .svg-inline--fa {
-    margin-right: 5px;
   }
 }
 </style>

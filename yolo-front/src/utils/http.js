@@ -47,37 +47,43 @@ class Http {
         
         const res = response.data;
         
-        // 支持多个成功响应码
-        if (!['000000', '200', 200].includes(res.code)) {
-          console.warn('响应码异常:', res.code);
-          // 如果配置了自动提示，则显示错误信息
-          if (response.config.showError !== false) {
-            ElMessage.error(res.msg || '请求失败');
+        // 支持多个成功响应码，包括删除操作的204状态码
+        if (!['000000', '200', 200, '204', 204].includes(res.code) && response.status !== 204) {
+          // 如果是401，说明token过期或无效
+          if (res.code === 'A00401' || response.status === 401) {
+            // 清除token并跳转到登录页
+            localStorage.removeItem('token');
+            window.location.href = '/login';
           }
-          return Promise.reject(res);
+          
+          // 显示错误信息
+          if (response.config?.showError !== false) {
+            ElMessage.error(res.msg || '操作失败');
+          }
+          
+          return Promise.reject(new Error(res.msg || '操作失败'));
         }
         
         return res;
       },
       error => {
-        console.error('响应错误:', {
-          message: error.message,
+        console.error('响应错误:', error);
+        console.error('错误详情:', {
           status: error.response?.status,
-          data: error.response?.data
+          data: error.response?.data,
+          config: error.config
         });
         
-        const res = {
-          code: 'A00500',
-          msg: error.message || '网络请求失败',
-          statusCode: error.response?.status || 500
-        };
-        
-        // 如果配置了自动提示，则显示错误信息
-        if (error.config?.showError !== false) {
-          ElMessage.error(res.msg);
+        if (error.response?.status === 401) {
+          localStorage.removeItem('token');
+          window.location.href = '/login';
         }
         
-        return Promise.reject(res);
+        if (error.config?.showError !== false) {
+          ElMessage.error(error.response?.data?.msg || '网络请求失败');
+        }
+        
+        return Promise.reject(error);
       }
     );
   }
