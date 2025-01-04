@@ -1,0 +1,74 @@
+@forward 'variables';
+
+// 重置默认样式
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  font-size: $font-size-base;
+  font-weight: $font-weight-secondary;
+  color: $text-color-primary;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+// Element Plus 主题覆盖
+:root {
+  --el-color-primary: #{$primary-color};
+  --el-color-success: #{$success-color};
+  --el-color-warning: #{$warning-color};
+  --el-color-danger: #{$danger-color};
+  --el-color-info: #{$info-color};
+  
+  --el-border-radius-base: #{$border-radius-base};
+  --el-font-size-base: #{$font-size-base};
+}
+
+// 通用样式类
+.text-primary {
+  color: $text-color-primary;
+}
+
+.text-regular {
+  color: $text-color-regular;
+}
+
+.text-secondary {
+  color: $text-color-secondary;
+}
+
+.bg-primary {
+  background-color: $bg-color-primary;
+}
+
+.bg-secondary {
+  background-color: $bg-color-secondary;
+}
+
+// 布局相关
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+// 间距类
+.m-mini { margin: $spacing-mini; }
+.m-small { margin: $spacing-small; }
+.m-base { margin: $spacing-base; }
+.m-large { margin: $spacing-large; }
+
+.p-mini { padding: $spacing-mini; }
+.p-small { padding: $spacing-small; }
+.p-base { padding: $spacing-base; }
+.p-large { padding: $spacing-large; }
