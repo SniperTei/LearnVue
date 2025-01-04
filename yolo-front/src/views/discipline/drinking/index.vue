@@ -1,196 +1,10 @@
-<script setup>
-import { ref, onMounted, computed } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { Delete, Edit, Plus } from '@element-plus/icons-vue'
-import { createDrink, getDrinkList, updateDrink, deleteDrink } from '@/api/drinkAPI'
-
-// 饮酒记录数据
-const drinkingRecords = ref([])
-const dialogVisible = ref(false)
-const dialogTitle = ref('新增记录')
-const isEditing = ref(false)
-const editingId = ref(null)
-const formRef = ref(null)
-
-// 表单数据
-const form = ref({
-  drinkName: '',
-  alcoholType: '',
-  unit: '瓶',
-  drinkTime: '',
-  reason: ''
-})
-
-// 表单规则
-const rules = {
-  drinkName: [{ required: true, message: '请输入饮品名称', trigger: 'blur' }],
-  alcoholType: [{ required: true, message: '请选择酒类', trigger: 'change' }],
-  drinkTime: [{ required: true, message: '请选择饮酒时间', trigger: 'change' }],
-  unit: [{ required: true, message: '请输入单位', trigger: 'blur' }]
-}
-
-// 常见酒类选项
-const alcoholTypes = [
-  { label: '啤酒', value: '啤酒', color: '#F7B733' },
-  { label: '红葡萄酒', value: '红葡萄酒', color: '#C0392B' },
-  { label: '白葡萄酒', value: '白葡萄酒', color: '#F1C40F' },
-  { label: '威士忌', value: '威士忌', color: '#D35400' },
-  { label: '伏特加', value: '伏特加', color: '#3498DB' },
-  { label: '白酒', value: '白酒', color: '#ECF0F1' },
-  { label: '清酒', value: '清酒', color: '#BDC3C7' }
-]
-
-// 获取酒类颜色
-const getAlcoholTypeColor = (type) => {
-  const alcoholType = alcoholTypes.find(item => item.value === type)
-  return alcoholType ? alcoholType.color : '#95A5A6'
-}
-
-// 统计数据
-const statistics = computed(() => {
-  const now = new Date()
-  const thirtyDaysAgo = new Date(now.setDate(now.getDate() - 30))
-  
-  return {
-    total: drinkingRecords.value.length,
-    thisMonth: drinkingRecords.value.filter(record => {
-      const recordDate = new Date(record.drinkTime)
-      return recordDate >= thirtyDaysAgo
-    }).length
-  }
-})
-
-// 加载数据
-const loadDrinkingRecords = async () => {
-  try {
-    const response = await getDrinkList()
-    if (response.code === '000000') {
-      drinkingRecords.value = response.data
-    } else {
-      ElMessage.error(response.msg || '获取记录失败')
-    }
-  } catch (error) {
-    console.error('获取记录失败:', error)
-    ElMessage.error('获取记录失败，请重试')
-  }
-}
-
-// 初始化加载数据
-onMounted(() => {
-  loadDrinkingRecords()
-})
-
-// 打开新增对话框
-const openAddDialog = () => {
-  dialogTitle.value = '新增记录'
-  isEditing.value = false
-  editingId.value = null
-  form.value = {
-    drinkName: '',
-    alcoholType: '',
-    unit: '瓶',
-    drinkTime: new Date().toISOString().slice(0, 16),
-    reason: ''
-  }
-  dialogVisible.value = true
-}
-
-// 打开编辑对话框
-const openEditDialog = (record) => {
-  dialogTitle.value = '编辑记录'
-  isEditing.value = true
-  editingId.value = record._id
-  form.value = {
-    drinkName: record.drinkName,
-    alcoholType: record.alcoholType,
-    unit: record.unit,
-    drinkTime: record.drinkTime.slice(0, 16),
-    reason: record.reason
-  }
-  dialogVisible.value = true
-}
-
-// 删除记录
-const handleDelete = async (id) => {
-  try {
-    await ElMessageBox.confirm('确定要删除这条记录吗？', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
-    })
-    
-    console.log('正在删除记录:', id)
-    const response = await deleteDrink(id)
-    console.log('删除响应:', response)
-    
-    if (response?.code === '000000') {
-      ElMessage.success('删除成功')
-      await loadDrinkingRecords()
-    } else {
-      ElMessage.error(response?.msg || '删除失败')
-    }
-  } catch (error) {
-    if (error !== 'cancel') {
-      console.error('删除失败:', error)
-      ElMessage.error(error.response?.data?.msg || '删除失败，请重试')
-    }
-  }
-}
-
-// 提交表单
-const submitForm = async () => {
-  if (!formRef.value) {
-    console.error('表单引用不存在')
-    return
-  }
-  
-  try {
-    // 先进行表单验证
-    await formRef.value.validate()
-    
-    const data = {
-      drinkName: form.value.drinkName,
-      alcoholType: form.value.alcoholType,
-      unit: form.value.unit,
-      drinkTime: new Date(form.value.drinkTime).toISOString(),
-      reason: form.value.reason
-    }
-    
-    console.log('提交的数据:', data)
-    
-    let response
-    if (isEditing.value) {
-      response = await updateDrink(editingId.value, data)
-    } else {
-      response = await createDrink(data)
-    }
-    
-    console.log('API响应:', response)
-    
-    if (response.code === '000000') {
-      ElMessage.success(isEditing.value ? '修改成功' : '添加成功')
-      dialogVisible.value = false
-      loadDrinkingRecords()
-    } else {
-      ElMessage.error(response.msg || (isEditing.value ? '修改失败' : '添加失败'))
-    }
-  } catch (error) {
-    console.error('提交表单时发生错误:', error)
-    if (error.message) {
-      ElMessage.error(error.response?.data?.msg || (isEditing.value ? '修改失败，请重试' : '添加失败，请重试'))
-    }
-  }
-}
-</script>
-
 <template>
-  <div class="drinking-records">
+  <div class="drinking-container">
     <div class="page-header">
       <div class="title-stats">
         <h2>饮酒记录</h2>
         <div class="stats">
-          <el-tag type="info">总记录: {{ statistics.total }}</el-tag>
-          <el-tag type="success">本月记录: {{ statistics.thisMonth }}</el-tag>
+          <el-tag type="info">本月记录: {{ monthlyRecords.length }}</el-tag>
         </div>
       </div>
       <el-button type="primary" @click="openAddDialog">
@@ -198,37 +12,59 @@ const submitForm = async () => {
       </el-button>
     </div>
 
-    <!-- 记录列表 -->
-    <div class="records-list">
-      <el-empty v-if="drinkingRecords.length === 0" description="暂无记录" />
-      <el-card v-else v-for="record in drinkingRecords" :key="record.id" class="record-card">
-        <div class="record-header">
-          <div class="date-info">
-            <span class="date">{{ new Date(record.drinkTime).toLocaleString() }}</span>
-          </div>
-          <div class="actions">
-            <el-button type="primary" link @click="openEditDialog(record)">
-              <el-icon><Edit /></el-icon>
+    <!-- 日历视图 -->
+    <div class="calendar-view">
+      <el-calendar v-model="currentDate">
+        <template #header="{ date }">
+          <div class="calendar-header">
+            <el-button-group>
+              <el-button size="small" @click="selectPrevMonth">
+                <el-icon><ArrowLeft /></el-icon>
+              </el-button>
+              <el-button size="small" @click="selectNextMonth">
+                <el-icon><ArrowRight /></el-icon>
+              </el-button>
+            </el-button-group>
+            <span class="current-month">{{ formatMonth(date) }}</span>
+            <el-button size="small" @click="currentDate = new Date()">
+              今天
             </el-button>
-            <el-button type="danger" link @click="handleDelete(record._id)">
-              <el-icon><Delete /></el-icon>
-            </el-button>
           </div>
-        </div>
-        <div class="record-content">
-          <div class="drink-info">
-            <el-tag :color="getAlcoholTypeColor(record.alcoholType)" effect="dark">
-              <font-awesome-icon icon="fa-solid fa-wine-glass" />
-              {{ record.alcoholType }}
-            </el-tag>
-            <span class="drink-name">{{ record.drinkName }}</span>
-            <span class="unit">{{ record.unit }}</span>
+        </template>
+        
+        <template #date-cell="{ data }">
+          <div class="calendar-cell" :class="{ 'has-records': hasRecords(data) }">
+            <div class="date-number">{{ data.day.split('-')[2] }}</div>
+            <div class="records-list" v-if="hasRecords(data)">
+              <div 
+                v-for="record in getRecordsByDate(data)" 
+                :key="record._id"
+                class="record-item"
+                @click.stop="openEditDialog(record)"
+              >
+                <el-tooltip 
+                  :content="formatRecordTooltip(record)" 
+                  placement="top" 
+                  :show-after="200"
+                >
+                  <div class="record-content">
+                    <span class="drink-name">{{ record.drinkName }}</span>
+                    <span class="drink-amount">{{ record.unit }}</span>
+                  </div>
+                </el-tooltip>
+                <el-button 
+                  type="danger" 
+                  link 
+                  size="small"
+                  @click.stop="handleDelete(record._id)"
+                >
+                  <el-icon><Delete /></el-icon>
+                </el-button>
+              </div>
+            </div>
           </div>
-          <div v-if="record.reason" class="reason">
-            原因：{{ record.reason }}
-          </div>
-        </div>
-      </el-card>
+        </template>
+      </el-calendar>
     </div>
 
     <!-- 新增/编辑对话框 -->
@@ -247,8 +83,8 @@ const submitForm = async () => {
           <el-input v-model="form.drinkName" placeholder="请输入饮品名称" />
         </el-form-item>
         
-        <el-form-item label="酒类" prop="alcoholType">
-          <el-select v-model="form.alcoholType" placeholder="请选择酒类" style="width: 100%">
+        <el-form-item label="酒精类型" prop="alcoholType">
+          <el-select v-model="form.alcoholType" placeholder="请选择酒精类型" style="width: 100%">
             <el-option
               v-for="type in alcoholTypes"
               :key="type.value"
@@ -259,14 +95,21 @@ const submitForm = async () => {
         </el-form-item>
         
         <el-form-item label="单位" prop="unit">
-          <el-input v-model="form.unit" placeholder="请输入单位" />
+          <el-select v-model="form.unit" placeholder="请选择单位" style="width: 100%">
+            <el-option label="瓶" value="瓶" />
+            <el-option label="杯" value="杯" />
+            <el-option label="罐" value="罐" />
+          </el-select>
         </el-form-item>
         
         <el-form-item label="饮酒时间" prop="drinkTime">
           <el-date-picker
             v-model="form.drinkTime"
             type="datetime"
-            placeholder="请选择饮酒时间"
+            placeholder="请选择时间"
+            format="YYYY-MM-DD HH:mm"
+            value-format="YYYY-MM-DD HH:mm:ss"
+            :default-time="new Date(2000, 1, 1, 20, 0, 0)"
             style="width: 100%"
           />
         </el-form-item>
@@ -275,8 +118,8 @@ const submitForm = async () => {
           <el-input
             v-model="form.reason"
             type="textarea"
-            placeholder="请输入饮酒原因"
             :rows="3"
+            placeholder="请输入饮酒原因"
           />
         </el-form-item>
       </el-form>
@@ -291,8 +134,216 @@ const submitForm = async () => {
   </div>
 </template>
 
+<script setup>
+import { ref, computed } from 'vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import { Delete, Edit, Plus, ArrowLeft, ArrowRight } from '@element-plus/icons-vue'
+import { createDrink, getDrinkList, updateDrink, deleteDrink } from '@/api/drinkAPI'
+
+// 数据
+const drinkingRecords = ref([])
+const dialogVisible = ref(false)
+const dialogTitle = ref('新增记录')
+const isEditing = ref(false)
+const editingId = ref(null)
+const formRef = ref(null)
+const currentDate = ref(new Date())
+
+// 酒精类型选项
+const alcoholTypes = [
+  { label: '啤酒', value: 'beer' },
+  { label: '白酒', value: 'baijiu' },
+  { label: '红酒', value: 'red_wine' },
+  { label: '洋酒', value: 'foreign_wine' },
+  { label: '清酒', value: 'sake' },
+  { label: '烧酒', value: 'shochu' }
+]
+
+// 表单数据
+const form = ref({
+  drinkName: '',
+  alcoholType: '',
+  unit: '瓶',
+  drinkTime: '',
+  reason: ''
+})
+
+// 表单规则
+const rules = {
+  drinkName: [
+    { required: true, message: '请输入饮品名称', trigger: 'blur' },
+    { min: 2, max: 50, message: '长度在 2 到 50 个字符', trigger: 'blur' }
+  ],
+  alcoholType: [
+    { required: true, message: '请选择酒精类型', trigger: 'change' }
+  ],
+  unit: [
+    { required: true, message: '请选择单位', trigger: 'change' }
+  ],
+  drinkTime: [
+    { required: true, message: '请选择时间', trigger: 'change' }
+  ]
+}
+
+// 计算当月记录
+const monthlyRecords = computed(() => {
+  const currentMonth = currentDate.value.getMonth()
+  const currentYear = currentDate.value.getFullYear()
+  return drinkingRecords.value.filter(record => {
+    const recordDate = new Date(record.drinkTime)
+    return recordDate.getMonth() === currentMonth && 
+           recordDate.getFullYear() === currentYear
+  })
+})
+
+// 检查日期是否有记录
+const hasRecords = (data) => {
+  const date = data.day
+  return drinkingRecords.value.some(record => 
+    record.drinkTime.startsWith(date)
+  )
+}
+
+// 获取指定日期的记录
+const getRecordsByDate = (data) => {
+  const date = data.day
+  return drinkingRecords.value.filter(record => 
+    record.drinkTime.startsWith(date)
+  ).sort((a, b) => new Date(b.drinkTime) - new Date(a.drinkTime))
+}
+
+// 格式化月份显示
+const formatMonth = (date) => {
+  return new Date(date).toLocaleString('zh-CN', { year: 'numeric', month: 'long' })
+}
+
+// 格式化记录提示
+const formatRecordTooltip = (record) => {
+  const time = new Date(record.drinkTime).toLocaleString('zh-CN', {
+    hour: '2-digit',
+    minute: '2-digit'
+  })
+  return `${time}\n${record.drinkName} (${record.unit})\n原因: ${record.reason || '无'}`
+}
+
+// 选择上个月
+const selectPrevMonth = () => {
+  const date = new Date(currentDate.value)
+  date.setMonth(date.getMonth() - 1)
+  currentDate.value = date
+  loadDrinkingRecords()
+}
+
+// 选择下个月
+const selectNextMonth = () => {
+  const date = new Date(currentDate.value)
+  date.setMonth(date.getMonth() + 1)
+  currentDate.value = date
+  loadDrinkingRecords()
+}
+
+// 加载饮酒记录
+const loadDrinkingRecords = async () => {
+  try {
+    const response = await getDrinkList()
+    if (response.code === '000000') {
+      drinkingRecords.value = response.data
+    } else {
+      ElMessage.error(response.msg || '获取数据失败')
+    }
+  } catch (error) {
+    console.error('加载饮酒记录失败:', error)
+    ElMessage.error('加载数据失败，请重试')
+  }
+}
+
+// 打开新增对话框
+const openAddDialog = () => {
+  dialogTitle.value = '新增记录'
+  isEditing.value = false
+  editingId.value = null
+  form.value = {
+    drinkName: '',
+    alcoholType: '',
+    unit: '瓶',
+    drinkTime: new Date().toISOString().slice(0, 19).replace('T', ' '),
+    reason: ''
+  }
+  dialogVisible.value = true
+}
+
+// 打开编辑对话框
+const openEditDialog = (record) => {
+  dialogTitle.value = '编辑记录'
+  isEditing.value = true
+  editingId.value = record._id
+  form.value = {
+    drinkName: record.drinkName,
+    alcoholType: record.alcoholType,
+    unit: record.unit,
+    drinkTime: record.drinkTime,
+    reason: record.reason
+  }
+  dialogVisible.value = true
+}
+
+// 提交表单
+const submitForm = async () => {
+  if (!formRef.value) return
+  
+  try {
+    await formRef.value.validate()
+    
+    let response
+    if (isEditing.value) {
+      response = await updateDrink(editingId.value, form.value)
+    } else {
+      response = await createDrink(form.value)
+    }
+    
+    if (response.code === '000000') {
+      ElMessage.success(isEditing.value ? '修改成功' : '添加成功')
+      dialogVisible.value = false
+      loadDrinkingRecords()
+    } else {
+      ElMessage.error(response.msg || (isEditing.value ? '修改失败' : '添加失败'))
+    }
+  } catch (error) {
+    console.error('提交表单失败:', error)
+    ElMessage.error('操作失败，请重试')
+  }
+}
+
+// 删除记录
+const handleDelete = async (id) => {
+  try {
+    await ElMessageBox.confirm('确定要删除这条记录吗？', '提示', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    })
+    
+    const response = await deleteDrink(id)
+    if (response.code === '000000') {
+      ElMessage.success('删除成功')
+      loadDrinkingRecords()
+    } else {
+      ElMessage.error(response.msg || '删除失败')
+    }
+  } catch (error) {
+    if (error !== 'cancel') {
+      console.error('删除失败:', error)
+      ElMessage.error('删除失败，请重试')
+    }
+  }
+}
+
+// 初始化
+loadDrinkingRecords()
+</script>
+
 <style lang="scss" scoped>
-.drinking-records {
+.drinking-container {
   padding: 20px;
   
   .page-header {
@@ -317,47 +368,94 @@ const submitForm = async () => {
     }
   }
   
-  .records-list {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    
-    .record-card {
-      .record-header {
+  .calendar-view {
+    :deep(.el-calendar) {
+      --el-calendar-cell-width: 14.28571%;
+      background-color: #fff;
+      
+      .calendar-header {
         display: flex;
-        justify-content: space-between;
         align-items: center;
-        margin-bottom: 12px;
+        gap: 16px;
         
-        .date-info {
-          .date {
-            font-size: 14px;
-            color: #606266;
+        .current-month {
+          font-size: 16px;
+          font-weight: 500;
+        }
+      }
+      
+      .calendar-cell {
+        height: 120px;
+        padding: 8px;
+        
+        &.has-records {
+          background-color: var(--el-color-primary-light-9);
+        }
+        
+        .date-number {
+          font-size: 16px;
+          margin-bottom: 8px;
+          color: var(--el-text-color-primary);
+        }
+        
+        .records-list {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+          max-height: calc(100% - 30px);
+          overflow-y: auto;
+          
+          .record-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 4px 8px;
+            background-color: #fff;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+            
+            &:hover {
+              background-color: var(--el-color-primary-light-8);
+              
+              .el-button {
+                opacity: 1;
+              }
+            }
+            
+            .record-content {
+              display: flex;
+              align-items: center;
+              gap: 8px;
+              flex: 1;
+              min-width: 0;
+              
+              .drink-name {
+                flex: 1;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                font-size: 12px;
+                color: var(--el-text-color-primary);
+              }
+              
+              .drink-amount {
+                font-size: 12px;
+                color: var(--el-text-color-secondary);
+              }
+            }
+            
+            .el-button {
+              opacity: 0;
+              transition: opacity 0.3s;
+              padding: 2px;
+            }
           }
         }
       }
       
-      .record-content {
-        .drink-info {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          margin-bottom: 8px;
-          
-          .drink-name {
-            font-size: 16px;
-            font-weight: 500;
-          }
-          
-          .unit {
-            color: #606266;
-          }
-        }
-        
-        .reason {
-          color: #606266;
-          font-size: 14px;
-        }
+      .el-calendar__body {
+        padding: 12px;
       }
     }
   }
