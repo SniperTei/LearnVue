@@ -13,7 +13,7 @@ const routes = [
         path: 'system/dashboard',
         name: 'Dashboard',
         component: () => import('@/views/system/dashboard/index.vue'),
-        meta: { title: '仪表盘', icon: 'Odometer' }
+        meta: { title: '仪表盘', icon: 'fa-solid fa-gauge' }
       }
     ]
   },
@@ -21,13 +21,13 @@ const routes = [
     path: '/system',
     component: Layout,
     name: 'System',
-    meta: { title: '系统管理', icon: 'Setting' },
+    meta: { title: '系统管理', icon: 'fa-solid fa-gear' },
     children: [
       {
         path: 'users',
         name: 'Users',
         component: () => import('@/views/system/users/index.vue'),
-        meta: { title: '用户管理', icon: 'User' }
+        meta: { title: '用户管理', icon: 'fa-solid fa-users' }
       }
     ]
   },
@@ -35,25 +35,25 @@ const routes = [
     path: '/entertainment',
     component: Layout,
     name: 'Entertainment',
-    meta: { title: '娱乐', icon: 'Menu' },
+    meta: { title: '娱乐', icon: 'fa-solid fa-gamepad' },
     children: [
       {
         path: 'movie',
         name: 'Movie',
         component: () => import('@/views/entertainment/movie/index.vue'),
-        meta: { title: '影视', icon: 'VideoCamera' }
+        meta: { title: '影视', icon: 'fa-solid fa-film' }
       },
       {
         path: 'game',
         name: 'Game',
         component: () => import('@/views/entertainment/game/index.vue'),
-        meta: { title: '游戏', icon: 'GamePad' }
+        meta: { title: '游戏', icon: 'fa-solid fa-dice' }
       },
       {
         path: 'travel',
         name: 'Travel',
         component: () => import('@/views/entertainment/travel/index.vue'),
-        meta: { title: '旅游', icon: 'Location' }
+        meta: { title: '旅游', icon: 'fa-solid fa-plane' }
       }
     ]
   },
@@ -61,13 +61,13 @@ const routes = [
     path: '/login',
     name: 'Login',
     component: Login,
-    meta: { title: '登录', icon: 'Key' }
+    meta: { title: '登录', icon: 'fa-solid fa-right-to-bracket' }
   },
   {
     path: '/404',
     name: 'NotFound',
     component: NotFound,
-    meta: { title: '404', icon: 'WarningFilled' }
+    meta: { title: '404', icon: 'fa-solid fa-triangle-exclamation' }
   },
   // 将匹配所有内容并将其重定向到 404 页面
   {

@@ -1,18 +1,8 @@
 <script setup>
 import { computed } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-// 方式1：直接引入需要的图标
-import {
-  HomeFilled,
-  Location,
-  Menu as IconMenu,
-  Setting,
-  User,
-  VideoCamera
-} from '@element-plus/icons-vue'
-
-const route = useRoute()
-const router = useRouter()
+import { useRoute } from 'vue-router'
+import { useUserStore } from '@/stores/user'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 const props = defineProps({
   isCollapse: {
@@ -21,33 +11,18 @@ const props = defineProps({
   }
 })
 
-// 获取路由配置中的菜单
-const menus = computed(() => {
-  return router.options.routes.filter(route => {
-    return route.meta && !route.meta.hidden
-  })
-})
-
+const route = useRoute()
+const userStore = useUserStore()
 const activeMenu = computed(() => route.path)
 
-// 图标映射表
-const iconMap = {
-  'HomeFilled': HomeFilled,
-  'Location': Location,
-  'Menu': IconMenu,
-  'Setting': Setting,
-  'User': User,
-  'VideoCamera': VideoCamera
-}
+// 从 store 中获取菜单数据
+const menus = computed(() => userStore.menus)
 </script>
 
 <template>
   <div class="sidebar">
     <div class="logo" :class="{ 'is-collapse': isCollapse }">
-      <!-- 方式1：直接使用引入的图标组件 -->
-      <el-icon class="logo-icon" :size="32">
-        <HomeFilled />
-      </el-icon>
+      <font-awesome-icon icon="fa-solid fa-code" class="logo-icon" />
       <span v-show="!isCollapse" class="title">YOLO系统</span>
     </div>
     
@@ -61,35 +36,28 @@ const iconMap = {
         :unique-opened="true"
         :router="true"
       >
-        <template v-for="menu in menus" :key="menu.path">
+        <template v-for="menu in menus" :key="menu._id">
           <!-- 有子菜单的情况 -->
           <el-sub-menu v-if="menu.children && menu.children.length" :index="menu.path">
             <template #title>
-              <!-- 方式2：使用 el-icon 组件动态渲染 -->
-              <el-icon>
-                <component :is="iconMap[menu.meta?.icon] || Setting" />
-              </el-icon>
-              <span>{{ menu.meta?.title }}</span>
+              <font-awesome-icon :icon="menu.icon" />
+              <span>{{ menu.title }}</span>
             </template>
             
             <el-menu-item 
               v-for="child in menu.children"
-              :key="child.path"
-              :index="menu.path + '/' + child.path"
+              :key="child._id"
+              :index="child.path"
             >
-              <el-icon>
-                <component :is="iconMap[child.meta?.icon] || User" />
-              </el-icon>
-              <span>{{ child.meta?.title }}</span>
+              <font-awesome-icon :icon="child.icon" />
+              <span>{{ child.title }}</span>
             </el-menu-item>
           </el-sub-menu>
           
           <!-- 没有子菜单的情况 -->
           <el-menu-item v-else :index="menu.path">
-            <el-icon>
-              <component :is="iconMap[menu.meta?.icon] || HomeFilled" />
-            </el-icon>
-            <span>{{ menu.meta?.title }}</span>
+            <font-awesome-icon :icon="menu.meta?.icon" />
+            <span>{{ menu.title }}</span>
           </el-menu-item>
         </template>
       </el-menu>
@@ -111,6 +79,7 @@ const iconMap = {
     overflow: hidden;
     
     .logo-icon {
+      font-size: 24px;
       color: #409EFF;
       transition: all 0.3s;
     }
@@ -136,10 +105,20 @@ const iconMap = {
   
   :deep(.el-menu) {
     border-right: none;
+    
+    .svg-inline--fa {
+      margin-right: 10px;
+      width: 16px;
+      text-align: center;
+    }
   }
   
   :deep(.el-menu--collapse) {
     width: 64px;
+    
+    .svg-inline--fa {
+      margin-right: 0;
+    }
   }
   
   :deep(.el-sub-menu__title) {
