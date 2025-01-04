@@ -13,7 +13,7 @@ const routes = [
         path: 'system/dashboard',
         name: 'Dashboard',
         component: () => import('@/views/system/dashboard/index.vue'),
-        meta: { title: '仪表盘', icon: 'dashboard' }
+        meta: { title: '仪表盘', icon: 'Odometer' }
       }
     ]
   },
@@ -21,13 +21,13 @@ const routes = [
     path: '/system',
     component: Layout,
     name: 'System',
-    meta: { title: '系统管理', icon: 'setting' },
+    meta: { title: '系统管理', icon: 'Setting' },
     children: [
       {
         path: 'users',
         name: 'Users',
         component: () => import('@/views/system/users/index.vue'),
-        meta: { title: '用户管理', icon: 'user' }
+        meta: { title: '用户管理', icon: 'User' }
       }
     ]
   },
@@ -35,25 +35,25 @@ const routes = [
     path: '/entertainment',
     component: Layout,
     name: 'Entertainment',
-    meta: { title: '娱乐', icon: 'smile' },
+    meta: { title: '娱乐', icon: 'Menu' },
     children: [
       {
         path: 'movie',
         name: 'Movie',
         component: () => import('@/views/entertainment/movie/index.vue'),
-        meta: { title: '影视', icon: 'video-camera' }
+        meta: { title: '影视', icon: 'VideoCamera' }
       },
       {
         path: 'game',
         name: 'Game',
         component: () => import('@/views/entertainment/game/index.vue'),
-        meta: { title: '游戏', icon: 'gamepad' }
+        meta: { title: '游戏', icon: 'GamePad' }
       },
       {
         path: 'travel',
         name: 'Travel',
         component: () => import('@/views/entertainment/travel/index.vue'),
-        meta: { title: '旅游', icon: 'compass' }
+        meta: { title: '旅游', icon: 'Location' }
       }
     ]
   },
@@ -61,13 +61,13 @@ const routes = [
     path: '/login',
     name: 'Login',
     component: Login,
-    meta: { title: '登录' }
+    meta: { title: '登录', icon: 'Key' }
   },
   {
     path: '/404',
     name: 'NotFound',
     component: NotFound,
-    meta: { title: '404' }
+    meta: { title: '404', icon: 'WarningFilled' }
   },
   // 将匹配所有内容并将其重定向到 404 页面
   {

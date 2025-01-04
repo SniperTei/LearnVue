@@ -1,15 +1,18 @@
 <script setup>
 import { computed } from 'vue'
-import { useRoute } from 'vue-router'
-import * as ElementPlusIconsVue from '@element-plus/icons-vue'
-import { Platform } from '@element-plus/icons-vue'
-import { useUserStore } from '@/stores/user'
+import { useRoute, useRouter } from 'vue-router'
+// 方式1：直接引入需要的图标
+import {
+  HomeFilled,
+  Location,
+  Menu as IconMenu,
+  Setting,
+  User,
+  VideoCamera
+} from '@element-plus/icons-vue'
 
-// 注册所有图标
-const icons = {}
-for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
-  icons[key] = component
-}
+const route = useRoute()
+const router = useRouter()
 
 const props = defineProps({
   isCollapse: {
@@ -18,19 +21,32 @@ const props = defineProps({
   }
 })
 
-const route = useRoute()
-const userStore = useUserStore()
+// 获取路由配置中的菜单
+const menus = computed(() => {
+  return router.options.routes.filter(route => {
+    return route.meta && !route.meta.hidden
+  })
+})
+
 const activeMenu = computed(() => route.path)
 
-// 从 store 中获取菜单数据
-const menus = computed(() => userStore.menus)
+// 图标映射表
+const iconMap = {
+  'HomeFilled': HomeFilled,
+  'Location': Location,
+  'Menu': IconMenu,
+  'Setting': Setting,
+  'User': User,
+  'VideoCamera': VideoCamera
+}
 </script>
 
 <template>
   <div class="sidebar">
     <div class="logo" :class="{ 'is-collapse': isCollapse }">
+      <!-- 方式1：直接使用引入的图标组件 -->
       <el-icon class="logo-icon" :size="32">
-        <Platform />
+        <HomeFilled />
       </el-icon>
       <span v-show="!isCollapse" class="title">YOLO系统</span>
     </div>
@@ -45,28 +61,35 @@ const menus = computed(() => userStore.menus)
         :unique-opened="true"
         :router="true"
       >
-        <template v-for="menu in menus" :key="menu._id">
+        <template v-for="menu in menus" :key="menu.path">
           <!-- 有子菜单的情况 -->
           <el-sub-menu v-if="menu.children && menu.children.length" :index="menu.path">
             <template #title>
-              <el-icon><component :is="menu.icon" /></el-icon>
-              <span>{{ menu.title }}</span>
+              <!-- 方式2：使用 el-icon 组件动态渲染 -->
+              <el-icon>
+                <component :is="iconMap[menu.meta?.icon] || Setting" />
+              </el-icon>
+              <span>{{ menu.meta?.title }}</span>
             </template>
             
             <el-menu-item 
               v-for="child in menu.children"
-              :key="child._id"
-              :index="child.path"
+              :key="child.path"
+              :index="menu.path + '/' + child.path"
             >
-              <el-icon><component :is="child.icon" /></el-icon>
-              <span>{{ child.title }}</span>
+              <el-icon>
+                <component :is="iconMap[child.meta?.icon] || User" />
+              </el-icon>
+              <span>{{ child.meta?.title }}</span>
             </el-menu-item>
           </el-sub-menu>
           
           <!-- 没有子菜单的情况 -->
           <el-menu-item v-else :index="menu.path">
-            <el-icon><component :is="menu.icon" /></el-icon>
-            <span>{{ menu.title }}</span>
+            <el-icon>
+              <component :is="iconMap[menu.meta?.icon] || HomeFilled" />
+            </el-icon>
+            <span>{{ menu.meta?.title }}</span>
           </el-menu-item>
         </template>
       </el-menu>
