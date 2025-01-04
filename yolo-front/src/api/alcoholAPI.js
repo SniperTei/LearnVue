@@ -6,7 +6,7 @@ import http from '@/utils/http';
  * @returns {Promise} 返回创建响应的Promise
  */
 export const createAlcohol = (data) => {
-  return http.post('/api/v1/alcohols', data);
+  return http.post('/api/v1/alcohols/create', data);
 };
 
 /**
@@ -15,7 +15,7 @@ export const createAlcohol = (data) => {
  * @returns {Promise} 返回酒类列表的Promise
  */
 export const getAlcoholList = (params = {}) => {
-  return http.get('/api/v1/alcohols', { 
+  return http.get('/api/v1/alcohols/list', { 
     params,
     // 添加响应处理选项
     transformResponse: [...(http.defaults?.transformResponse || []), (data) => {

@@ -70,6 +70,12 @@ const routes = [
         meta: { title: '饮酒记录', icon: 'fa-solid fa-wine-glass' }
       },
       {
+        path: 'drinking/add',
+        name: 'DrinkingAdd',
+        component: () => import('@/views/discipline/drinking/add.vue'),
+        meta: { title: '新增饮酒记录' }
+      },
+      {
         path: 'reading',
         name: 'Reading',
         component: () => import('@/views/discipline/reading/index.vue'),

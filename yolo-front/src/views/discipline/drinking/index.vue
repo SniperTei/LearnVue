@@ -7,7 +7,7 @@
           <el-tag type="info">本月记录: {{ monthlyRecords.length }}</el-tag>
         </div>
       </div>
-      <el-button type="primary" @click="openAddDialog">
+      <el-button type="primary" @click="router.push('/discipline/drinking/add')">
         <el-icon><Plus /></el-icon>新增记录
       </el-button>
     </div>
@@ -136,9 +136,12 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Delete, Edit, Plus, ArrowLeft, ArrowRight } from '@element-plus/icons-vue'
 import { createDrink, getDrinkList, updateDrink, deleteDrink } from '@/api/drinkAPI'
+
+const router = useRouter()
 
 // 数据
 const drinkingRecords = ref([])
@@ -255,21 +258,6 @@ const loadDrinkingRecords = async () => {
     console.error('加载饮酒记录失败:', error)
     ElMessage.error('加载数据失败，请重试')
   }
-}
-
-// 打开新增对话框
-const openAddDialog = () => {
-  dialogTitle.value = '新增记录'
-  isEditing.value = false
-  editingId.value = null
-  form.value = {
-    drinkName: '',
-    alcoholType: '',
-    unit: '瓶',
-    drinkTime: new Date().toISOString().slice(0, 19).replace('T', ' '),
-    reason: ''
-  }
-  dialogVisible.value = true
 }
 
 // 打开编辑对话框
