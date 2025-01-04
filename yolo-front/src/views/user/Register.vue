@@ -45,9 +45,9 @@
       </div>
 
       <div class="form-item">
-        <el-form-item prop="birthday">
+        <el-form-item prop="birthDate">
           <el-date-picker
-            v-model="form.birthday"
+            v-model="form.birthDate"
             type="date"
             placeholder="请选择生日"
             style="width: 100%"
@@ -66,9 +66,9 @@
       </div>
 
       <div class="form-item">
-        <el-form-item prop="phone">
+        <el-form-item prop="mobile">
           <el-input 
-            v-model="form.phone"
+            v-model="form.mobile"
             placeholder="请输入手机号"
             :prefix-icon="Iphone"
           ></el-input>
@@ -106,17 +106,21 @@
 <script setup>
 import { ref, reactive } from 'vue';
 import { User, Lock, Picture, Iphone, Message } from '@element-plus/icons-vue';
+import { useRouter } from 'vue-router';
+import { ElMessage } from 'element-plus';
+import { register } from '@/api/userAPI';
 
+const router = useRouter();
 const formRef = ref(null);
 const form = reactive({
   username: '',
   password: '',
   confirmPassword: '',
   gender: 'male',
-  birthday: '',
+  birthDate: '',
   avatar: '',
   isAdmin: false,
-  phone: '',
+  mobile: '',
   email: '',
 });
 
@@ -152,7 +156,7 @@ const rules = {
   confirmPassword: [
     { required: true, validator: validatePass2, trigger: 'blur' }
   ],
-  phone: [
+  mobile: [
     { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号码', trigger: 'blur' }
   ],
   email: [
@@ -165,10 +169,30 @@ const handleRegister = async () => {
   
   try {
     await formRef.value.validate();
-    console.log('注册信息:', form);
-    // 在这里处理注册逻辑
+    
+    // 准备注册数据
+    const registerData = {
+      username: form.username,
+      password: form.password,
+      email: form.email,
+      gender: form.gender,
+      mobile: form.mobile,
+      birthDate: form.birthDate ? new Date(form.birthDate).toISOString().split('T')[0] : undefined
+    };
+    
+    // 调用注册API
+    const response = await register(registerData);
+    
+    if (response.code === '000000') {
+      ElMessage.success('注册成功！');
+      // 注册成功后跳转到登录页
+      router.push('/login');
+    } else {
+      ElMessage.error(response.msg || '注册失败，请重试');
+    }
   } catch (error) {
-    console.error('表单验证失败:', error);
+    console.error('注册失败:', error);
+    ElMessage.error(error.response?.data?.msg || '注册失败，请重试');
   }
 };
 </script>

@@ -90,6 +90,12 @@ const routes = [
     meta: { title: '登录', icon: 'fa-solid fa-right-to-bracket' }
   },
   {
+    path: '/register',
+    name: 'Register',
+    component: () => import('@/views/user/Register.vue'),
+    meta: { title: '注册', icon: 'fa-solid fa-user-plus' }
+  },
+  {
     path: '/404',
     name: 'NotFound',
     component: NotFound,
@@ -115,14 +121,14 @@ router.beforeEach((to, from, next) => {
   // 获取token
   const token = localStorage.getItem('token');
   
-  // 如果是访问登录页且已登录，重定向到首页
-  if (to.path === '/login' && token) {
+  // 如果是访问登录页或注册页且已登录，重定向到首页
+  if ((to.path === '/login' || to.path === '/register') && token) {
     next('/');
     return;
   }
   
-  // 如果不是登录页，检查是否已登录
-  if (to.path !== '/login' && !token) {
+  // 如果不是登录页或注册页，检查是否已登录
+  if (!['/login', '/register'].includes(to.path) && !token) {
     next('/login');
     return;
   }
