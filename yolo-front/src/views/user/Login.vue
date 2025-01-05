@@ -42,6 +42,7 @@ const handleLogin = async () => {
     console.log('表单验证通过');
     
     loading.value = true;
+    
     console.log('发送登录请求');
     const res = await login(form.value);
     console.log('登录响应:', res);
