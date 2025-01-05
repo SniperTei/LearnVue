@@ -998,6 +998,56 @@ Authorization: Bearer <token>
 }
 ```
 
+### 6. 随机推荐菜品
+
+**请求**
+- 方法: `GET`
+- URL: `/api/v1/foodmenus/random`
+- 请求头: 
+  ```
+  Authorization: Bearer <token>
+  ```
+- 查询参数:
+  - `foodCount`: 需要推荐的菜品数量（可选，默认1，最大10）
+
+**响应**
+```json
+{
+  "code": "000000",
+  "statusCode": 200,
+  "msg": "Success",
+  "data": {
+    "result": [
+      {
+        "_id": "5f9f1b9b9b9b9b9b9b9b9b9b",
+        "name": "锅包肉",
+        "type": "meat",
+        "description": "酥脆可口的锅包肉",
+        "imageUrl": "https://food-images.com/guobaorou.jpg",
+        "price": 48,
+        "chef": "朴金燕",
+        "createdBy": "admin",
+        "updatedBy": "admin",
+        "createdAt": "2025-01-05T11:19:59.000Z",
+        "updatedAt": "2025-01-05T11:19:59.000Z"
+      }
+    ]
+  },
+  "timestamp": "2025-01-05T11:19:59.000Z"
+}
+```
+
+**错误响应**
+```json
+{
+  "code": "1",
+  "statusCode": 400,
+  "msg": "错误信息",
+  "data": null,
+  "timestamp": "2025-01-05T11:19:59.000Z"
+}
+```
+
 ## 通用接口
 
 ### 上传图片

@@ -45,3 +45,12 @@ export const updateFoodMenu = (id, data) => {
 export const deleteFoodMenu = (id) => {
   return http.delete(`/api/v1/foodmenus/delete/${id}`);
 };
+
+/**
+ * 获取随机推荐菜品
+ * @param {number} foodCount 推荐菜品数量
+ * @returns {Promise} 返回推荐菜品的Promise
+ */
+export const getRandomFoodMenu = (foodCount = 1) => {
+  return http.get('/api/v1/foodmenus/random', { foodCount });
+};

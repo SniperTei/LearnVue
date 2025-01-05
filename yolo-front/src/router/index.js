@@ -107,6 +107,12 @@ const routes = [
         meta: { title: '菜单管理' }
       },
       {
+        path: 'randomMenu',
+        name: 'RandomMenu',
+        component: () => import('@/views/food/foodmenu/random.vue'),
+        meta: { title: '今天吃啥' }
+      },
+      {
         path: 'wine',
         name: 'Wine',
         component: () => import('@/views/food/wine/index.vue'),

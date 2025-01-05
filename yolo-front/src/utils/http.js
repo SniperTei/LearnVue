@@ -51,13 +51,14 @@ class Http {
         console.log('收到响应:', {
           status: response.status,
           data: response.data,
-          headers: response.headers
+          headers: response.headers,
         });
 
         const res = response.data;
         
         // 只认 code === '000000' 为成功
         if (res.code === '000000') {
+          console.log('响应成功:res.data', res.data);
           return res.data;
         } else {
           const error = new Error(res.msg || 'Request failed');

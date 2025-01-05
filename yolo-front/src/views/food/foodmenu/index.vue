@@ -43,7 +43,8 @@
 
     <!-- 操作按钮区域 -->
     <div class="operation-area">
-      <el-button type="primary" @click="handleAdd">新增菜品</el-button>
+      <el-button type="primary" @click="handleAdd" v-if="userStore.userInfo.isAdmin">新增菜品</el-button>
+      <el-button type="success" @click="goToRandom">今天吃啥</el-button>
     </div>
 
     <!-- 菜品列表 -->
@@ -69,7 +70,7 @@
               <div class="menu-description">{{ item.description }}</div>
               <div class="menu-price">¥{{ item.price }}</div>
               <div class="menu-chef">厨师：{{ item.chef }}</div>
-              <div class="menu-actions">
+              <div class="menu-actions" v-if="userStore.userInfo.isAdmin">
                 <el-button type="primary" link @click="handleEdit(item)">编辑</el-button>
                 <el-button type="danger" link @click="handleDelete(item._id)">删除</el-button>
               </div>
@@ -153,6 +154,8 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { useUserStore } from '@/stores/user';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { Picture, Plus } from '@element-plus/icons-vue';
 import { getFoodMenuList, createFoodMenu, updateFoodMenu, deleteFoodMenu } from '@/api/foodMenuAPI';
@@ -358,7 +361,15 @@ const beforeUpload = (file) => {
   return true;
 };
 
+// 跳转到随机推荐页面
+const router = useRouter();
+const goToRandom = () => {
+  router.push({ name: 'RandomMenu' });
+};
+
 // 初始化
+const userStore = useUserStore();
+
 onMounted(() => {
   loadFoodMenus();
 });
