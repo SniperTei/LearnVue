@@ -15,7 +15,7 @@ export const createAlcohol = (data) => {
  * @returns {Promise} 返回酒类列表的Promise
  */
 export const getAlcoholList = (params = {}) => {
-  return http.get('/api/v1/alcohols/list', { params });
+  return http.get('/api/v1/alcohols/list', { ...params });
 };
 
 /**
