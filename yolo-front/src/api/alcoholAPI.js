@@ -1,4 +1,4 @@
-import http from '@/utils/http';
+import http from '@/utils/http'
 
 /**
  * 创建酒类
@@ -6,38 +6,27 @@ import http from '@/utils/http';
  * @returns {Promise} 返回创建响应的Promise
  */
 export const createAlcohol = (data) => {
-  return http.post('/api/v1/alcohols/create', data);
-};
+  return http.post('/api/v1/alcohols/create', data, {
+    showError: false
+  })
+}
 
 /**
  * 获取酒类列表
  * @param {Object} params 查询参数
  * @returns {Promise} 返回酒类列表的Promise
  */
-export const getAlcoholList = (params = {}) => {
-  return http.get('/api/v1/alcohols/list', { 
-    params,
-    // 添加响应处理选项
-    transformResponse: [...(http.defaults?.transformResponse || []), (data) => {
-      // 如果data是字符串，尝试解析它
-      if (typeof data === 'string') {
-        try {
-          data = JSON.parse(data);
-        } catch (e) {
-          console.error('解析响应数据失败:', e);
-          return data;
-        }
-      }
-      return {
-        success: true,
-        data: {
-          alcohols: data.data,
-          pagination: data.pagination
-        }
-      };
-    }]
-  });
-};
+export const getAlcoholList = ({ page = 1, limit = 10, ...rest } = {}) => {
+  const query = new URLSearchParams({
+    page: page.toString(),
+    limit: limit.toString(),
+    ...rest
+  }).toString()
+  
+  return http.get(`/api/v1/alcohols/list?${query}`, {
+    showError: false
+  })
+}
 
 /**
  * 获取单个酒类详情
@@ -45,8 +34,10 @@ export const getAlcoholList = (params = {}) => {
  * @returns {Promise} 返回酒类详情的Promise
  */
 export const getAlcoholDetail = (id) => {
-  return http.get(`/api/v1/alcohols/${id}`);
-};
+  return http.get(`/api/v1/alcohols/${id}`, {
+    showError: false
+  })
+}
 
 /**
  * 更新酒类
@@ -55,8 +46,10 @@ export const getAlcoholDetail = (id) => {
  * @returns {Promise} 返回更新响应的Promise
  */
 export const updateAlcohol = (id, data) => {
-  return http.put(`/api/v1/alcohols/${id}`, data);
-};
+  return http.put(`/api/v1/alcohols/${id}`, data, {
+    showError: false
+  })
+}
 
 /**
  * 删除酒类
@@ -64,5 +57,7 @@ export const updateAlcohol = (id, data) => {
  * @returns {Promise} 返回删除响应的Promise
  */
 export const deleteAlcohol = (id) => {
-  return http.delete(`/api/v1/alcohols/${id}`);
-};
+  return http.delete(`/api/v1/alcohols/${id}`, {
+    showError: false
+  })
+}

@@ -8,12 +8,27 @@ class Http {
       timeout: 10000,
       headers: {
         'Content-Type': 'application/json'
+      },
+      // 修改参数序列化方式
+      paramsSerializer: {
+        indexes: null // 数组格式化时不添加索引
       }
     });
 
     // 请求拦截器
     this.instance.interceptors.request.use(
       config => {
+        // 从 localStorage 获取 token
+        const token = localStorage.getItem('token');
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+        }
+
+        // 如果有 params，直接展开到 URL 参数中
+        // if (config.params) {
+        //   config.params = { ...config.params };
+        // }
+        
         console.log('发送请求:', {
           url: config.url,
           method: config.method,
@@ -21,12 +36,6 @@ class Http {
           params: config.params,
           headers: config.headers
         });
-        
-        // 从 localStorage 获取 token
-        const token = localStorage.getItem('token');
-        if (token) {
-          config.headers.Authorization = `Bearer ${token}`;
-        }
         
         return config;
       },

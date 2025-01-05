@@ -115,6 +115,18 @@ const routes = [
     ]
   },
   {
+    path: '/test',
+    component: Layout,
+    children: [
+      {
+        path: 'upload',
+        name: 'TestUpload',
+        component: () => import('@/views/test/testImgUpload.vue'),
+        meta: { title: '图片上传测试' }
+      }
+    ]
+  },
+  {
     path: '/login',
     name: 'Login',
     component: Login,
