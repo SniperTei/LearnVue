@@ -240,34 +240,31 @@ const rules = {
 
 // 加载酒类列表
 const loadWines = async () => {
-  try {
-    loading.value = true;
-    const params = {
-      page: pagination.value.page,
-      limit: pagination.value.limit
-    };
-    
-    const data = await getAlcoholList(params);
-    wines.value = data.alcohols || [];
-    
-    // 更新分页信息
-    const paginationData = data.pagination || {};
-    pagination.value = {
-      page: paginationData.currentPage || 1,
-      limit: paginationData.limit || 10,
-      total: paginationData.total || 0
-    };
-    
-    if (wines.value.length === 0) {
-      ElMessage.info('暂无数据');
-    }
-  } catch (error) {
-    console.error('加载酒类列表失败:', error);
-    ElMessage.error(error.message || '加载数据失败，请重试');
-  } finally {
-    loading.value = false;
-  }
-}
+  loading.value = true;
+  
+  await getAlcoholList({
+    page: pagination.value.page,
+    limit: pagination.value.limit
+  })
+    .then(data => {
+      wines.value = data.alcohols || [];
+      
+      // 更新分页信息
+      const paginationData = data.pagination || {};
+      pagination.value = {
+        page: paginationData.currentPage || 1,
+        limit: paginationData.limit || 10,
+        total: paginationData.total || 0
+      };
+      
+      if (wines.value.length === 0) {
+        ElMessage.info('暂无数据');
+      }
+    })
+    .finally(() => {
+      loading.value = false;
+    });
+};
 
 // 处理分页变化
 const handlePageChange = (newPage) => {
@@ -315,45 +312,45 @@ const openEditDialog = (wine) => {
 const submitForm = async () => {
   if (!formRef.value) return;
   
-  try {
-    await formRef.value.validate();
-    const data = { ...form.value };
-    
-    if (isEditing.value) {
-      await updateAlcohol(editingId.value, data);
-      ElMessage.success('修改成功');
-    } else {
-      await createAlcohol(data);
-      ElMessage.success('添加成功');
-    }
-    
-    dialogVisible.value = false;
-    loadWines();
-  } catch (error) {
-    console.error('提交表单失败:', error);
-    ElMessage.error(error.message || '操作失败，请重试');
+  await formRef.value.validate();
+  
+  const data = { ...form.value };
+  
+  if (isEditing.value) {
+    await updateAlcohol(editingId.value, data)
+      .then(() => {
+        ElMessage.success('修改成功');
+        dialogVisible.value = false;
+        loadWines();
+      });
+  } else {
+    await createAlcohol(data)
+      .then(() => {
+        ElMessage.success('添加成功');
+        dialogVisible.value = false;
+        loadWines();
+      });
   }
-}
+};
 
 // 删除酒类
 const handleDelete = async (id) => {
-  try {
-    await ElMessageBox.confirm('确定要删除这个酒类记录吗？', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
+  await ElMessageBox.confirm('确定要删除这个酒类记录吗？', '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning'
+  })
+    .then(() => deleteAlcohol(id))
+    .then(() => {
+      ElMessage.success('删除成功');
+      loadWines();
+    })
+    .catch(error => {
+      if (error !== 'cancel') {
+        console.error('删除失败:', error);
+      }
     });
-    
-    await deleteAlcohol(id);
-    ElMessage.success('删除成功');
-    loadWines();
-  } catch (error) {
-    if (error !== 'cancel') {
-      console.error('删除失败:', error);
-      ElMessage.error(error.message || '删除失败，请重试');
-    }
-  }
-}
+};
 
 // 获取分类显示名称
 const getCategoryLabel = (value) => {

@@ -28,34 +28,27 @@ const formRef = ref(null);
 const loading = ref(false);
 
 const handleLogin = async () => {
-  console.log('开始登录流程');
+  if (!formRef.value) return;
   
-  if (!formRef.value) {
-    console.warn('表单引用未找到');
-    return;
-  }
+  await formRef.value.validate();
+  loading.value = true;
   
-  try {
-    await formRef.value.validate();
-    loading.value = true;
-    
-    const data = await login(form.value);
-    
-    // 保存用户信息和token
-    userStore.setToken(data.token);
-    userStore.setUserInfo({
-      ...data.user
+  await login(form.value)
+    .then(data => {
+      // 保存用户信息和token
+      const userStore = useUserStore();
+      userStore.setToken(data.token);
+      userStore.setUserInfo({
+        ...data.user
+      });
+      userStore.setMenus(data.menus || []);
+      
+      ElMessage.success('登录成功');
+      router.push('/');
+    })
+    .finally(() => {
+      loading.value = false;
     });
-    userStore.setMenus(data.menus || []);
-    
-    ElMessage.success('登录成功');
-    router.push('/');
-  } catch (error) {
-    console.error('登录失败:', error);
-    ElMessage.error(error.message || '登录失败，请稍后重试');
-  } finally {
-    loading.value = false;
-  }
 };
 </script>
 

@@ -272,56 +272,52 @@ const selectNextMonth = () => {
 
 // 加载饮酒记录
 const loadDrinkingRecords = async () => {
-  try {
-    const data = await getDrinkList();
-    drinkingRecords.value = data.drinks || [];
-  } catch (error) {
-    console.error('加载饮酒记录失败:', error);
-    ElMessage.error(error.message || '加载数据失败，请重试');
-  }
+  await getDrinkList()
+    .then(data => {
+      drinkingRecords.value = data.drinks || [];
+    });
 };
 
 // 提交表单
 const submitForm = async () => {
   if (!formRef.value) return;
   
-  try {
-    await formRef.value.validate();
-    
-    if (isEditing.value) {
-      await updateDrink(editingId.value, form.value);
-      ElMessage.success('修改成功');
-    } else {
-      await createDrink(form.value);
-      ElMessage.success('添加成功');
-    }
-    
-    dialogVisible.value = false;
-    loadDrinkingRecords();
-  } catch (error) {
-    console.error('提交表单失败:', error);
-    ElMessage.error(error.message || '操作失败，请重试');
+  await formRef.value.validate();
+  
+  if (isEditing.value) {
+    await updateDrink(editingId.value, form.value)
+      .then(() => {
+        ElMessage.success('修改成功');
+        dialogVisible.value = false;
+        loadDrinkingRecords();
+      });
+  } else {
+    await createDrink(form.value)
+      .then(() => {
+        ElMessage.success('添加成功');
+        dialogVisible.value = false;
+        loadDrinkingRecords();
+      });
   }
 };
 
 // 删除记录
 const handleDelete = async (id) => {
-  try {
-    await ElMessageBox.confirm('确定要删除这条记录吗？', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
+  await ElMessageBox.confirm('确定要删除这条记录吗？', '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning'
+  })
+    .then(() => deleteDrink(id))
+    .then(() => {
+      ElMessage.success('删除成功');
+      loadDrinkingRecords();
+    })
+    .catch(error => {
+      if (error !== 'cancel') {
+        console.error('删除失败:', error);
+      }
     });
-    
-    await deleteDrink(id);
-    ElMessage.success('删除成功');
-    loadDrinkingRecords();
-  } catch (error) {
-    if (error !== 'cancel') {
-      console.error('删除失败:', error);
-      ElMessage.error(error.message || '删除失败，请重试');
-    }
-  }
 };
 
 // 初始化

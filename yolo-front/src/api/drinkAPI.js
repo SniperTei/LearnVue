@@ -1,4 +1,4 @@
-import http from '@/utils/http'
+import http from '@/utils/http';
 
 /**
  * 创建饮酒记录
@@ -6,8 +6,8 @@ import http from '@/utils/http'
  * @returns {Promise} 返回创建响应的Promise
  */
 export const createDrink = (data) => {
-  return http.post('/api/v1/drinks/create', data)
-}
+  return http.post('/api/v1/drinks/create', data);
+};
 
 /**
  * 获取饮酒记录列表
@@ -23,8 +23,8 @@ export const createDrink = (data) => {
  * @returns {Promise} 返回记录列表的Promise
  */
 export const getDrinkList = (params = {}) => {
-  return http.get('/api/v1/drinks/list', { ...params })
-}
+  return http.get('/api/v1/drinks/list', { ...params });
+};
 
 /**
  * 获取单个饮酒记录详情
@@ -32,8 +32,8 @@ export const getDrinkList = (params = {}) => {
  * @returns {Promise} 返回记录详情的Promise
  */
 export const getDrinkDetail = (id) => {
-  return http.get(`/api/v1/drinks/${id}`)
-}
+  return http.get(`/api/v1/drinks/${id}`);
+};
 
 /**
  * 更新饮酒记录
@@ -42,8 +42,8 @@ export const getDrinkDetail = (id) => {
  * @returns {Promise} 返回更新响应的Promise
  */
 export const updateDrink = (id, data) => {
-  return http.put(`/api/v1/drinks/${id}`, data)
-}
+  return http.put(`/api/v1/drinks/${id}`, data);
+};
 
 /**
  * 删除饮酒记录
@@ -51,5 +51,5 @@ export const updateDrink = (id, data) => {
  * @returns {Promise} 返回删除响应的Promise
  */
 export const deleteDrink = (id) => {
-  return http.delete(`/api/v1/drinks/${id}`)
-}
+  return http.delete(`/api/v1/drinks/${id}`);
+};
