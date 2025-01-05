@@ -21,7 +21,8 @@ const breadcrumbs = computed(() => {
       if (currentPath.startsWith(currentBasePath)) {
         result.push({
           title: menu.meta?.title || menu.title,
-          path: currentBasePath
+          path: currentBasePath,
+          redirect: menu.redirect
         })
         
         if (menu.children && menu.children.length) {
@@ -52,15 +53,25 @@ const breadcrumbs = computed(() => {
 
   return result
 })
+
+// 处理面包屑点击
+const handleClick = (item) => {
+  if (item.path === route.path) return
+  
+  // 如果有重定向路径，优先使用重定向路径
+  const targetPath = item.redirect || item.path
+  router.push(targetPath)
+}
 </script>
 
 <template>
   <el-breadcrumb separator="/">
-    <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
+    <el-breadcrumb-item @click="router.push('/')" :to="{ path: '/' }">首页</el-breadcrumb-item>
     <el-breadcrumb-item 
       v-for="item in breadcrumbs" 
       :key="item.path"
-      :to="{ path: item.path }"
+      @click="handleClick(item)"
+      :to="{ path: item.redirect || item.path }"
     >
       {{ item.title }}
     </el-breadcrumb-item>
@@ -71,5 +82,19 @@ const breadcrumbs = computed(() => {
 .el-breadcrumb {
   line-height: 34px;
   font-size: 14px;
+
+  :deep(.el-breadcrumb__item) {
+    .el-breadcrumb__inner {
+      cursor: pointer;
+      
+      &:hover {
+        color: var(--el-color-primary);
+      }
+      
+      &.is-link {
+        font-weight: normal;
+      }
+    }
+  }
 }
 </style>

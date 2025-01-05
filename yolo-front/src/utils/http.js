@@ -58,8 +58,8 @@ class Http {
         
         // 只认 code === '000000' 为成功
         if (res.code === '000000') {
-          console.log('响应成功:res.data', res.data);
-          return res.data;
+          console.log('响应成功:res.data', res);
+          return res;
         } else {
           const error = new Error(res.msg || 'Request failed');
           error.response = response;

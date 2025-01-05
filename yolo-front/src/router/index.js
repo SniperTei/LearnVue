@@ -113,6 +113,12 @@ const routes = [
         meta: { title: '今天吃啥' }
       },
       {
+        path: 'restaurant',
+        name: 'Restaurant',
+        component: () => import('@/views/food/restaurant/index.vue'),
+        meta: { title: '餐厅管理', icon: 'fa-solid fa-utensils' }
+      },
+      {
         path: 'wine',
         name: 'Wine',
         component: () => import('@/views/food/wine/index.vue'),
