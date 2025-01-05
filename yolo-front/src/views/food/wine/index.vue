@@ -246,11 +246,11 @@ const loadWines = async () => {
     page: pagination.value.page,
     limit: pagination.value.limit
   })
-    .then(data => {
-      wines.value = data.alcohols || [];
+    .then(res => {
+      wines.value = res.data.alcohols || [];
       
       // 更新分页信息
-      const paginationData = data.pagination || {};
+      const paginationData = res.data.pagination || {};
       pagination.value = {
         page: paginationData.currentPage || 1,
         limit: paginationData.limit || 10,

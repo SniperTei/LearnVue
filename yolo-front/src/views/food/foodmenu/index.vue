@@ -236,12 +236,12 @@ const loadFoodMenus = async () => {
   };
   
   await getFoodMenuList(params)
-    .then(data => {
-      foodMenus.value = data.foodMenus;
+    .then(res => {
+      foodMenus.value = res.data.foodMenus;
       pagination.value = {
-        page: data.pagination.currentPage,
-        limit: data.pagination.limit,
-        total: data.pagination.total
+        page: res.data.pagination.currentPage,
+        limit: res.data.pagination.limit,
+        total: res.data.pagination.total
       };
     })
     .finally(() => {
