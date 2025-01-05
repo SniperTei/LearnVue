@@ -76,12 +76,10 @@
     <div class="pagination" v-if="pagination.total > 0">
       <el-pagination
         v-model:current-page="pagination.page"
-        v-model:page-size="pagination.limit"
-        :page-sizes="[10, 20, 50, 100]"
+        :page-size="pagination.limit"
         :total="pagination.total"
-        @size-change="handleSizeChange"
         @current-change="handlePageChange"
-        layout="total, sizes, prev, pager, next, jumper"
+        layout="prev, pager, next"
       />
     </div>
 
@@ -242,49 +240,45 @@ const rules = {
 
 // 加载酒类列表
 const loadWines = async () => {
-  loading.value = true
   try {
+    loading.value = true
     const params = {
       page: pagination.value.page,
-      limit: pagination.value.limit,
-      sortBy: 'createdAt',
-      order: 'desc'
+      limit: pagination.value.limit
     }
-    
     const response = await getAlcoholList(params)
-    if (response.success) {
-      wines.value = response.data.alcohols
+    console.log('API响应:', response) // 添加日志
+    
+    if (response.success && response.data) {
+      // 直接使用返回的数据
+      wines.value = response.data.alcohols || []
+      
+      // 更新分页信息
+      const paginationData = response.data.pagination || {}
       pagination.value = {
-        ...pagination.value,
-        ...response.data.pagination
+        page: paginationData.currentPage || 1,
+        limit: paginationData.limit || 10,
+        total: paginationData.total || 0
       }
       
-      // 如果当前页大于总页数，回到第一页
-      if (pagination.value.page > Math.ceil(pagination.value.total / pagination.value.limit)) {
-        pagination.value.page = 1
-        await loadWines()
+      if (wines.value.length === 0) {
+        ElMessage.info('暂无数据')
       }
     } else {
-      ElMessage.error(response.message || '获取酒类列表失败')
+      console.error('响应格式不正确:', response)
+      ElMessage.error(response.message || '获取数据失败')
     }
   } catch (error) {
     console.error('加载酒类列表失败:', error)
-    ElMessage.error('加载失败，请重试')
+    ElMessage.error(error.response?.data?.message || '加载数据失败，请重试')
   } finally {
     loading.value = false
   }
 }
 
-// 处理每页数量变化
-const handleSizeChange = (val) => {
-  pagination.value.limit = val
-  pagination.value.page = 1
-  loadWines()
-}
-
-// 处理页码变化
-const handlePageChange = (val) => {
-  pagination.value.page = val
+// 处理分页变化
+const handlePageChange = (newPage) => {
+  pagination.value.page = newPage
   loadWines()
 }
 

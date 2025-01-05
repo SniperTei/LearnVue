@@ -6,9 +6,7 @@ import http from '@/utils/http'
  * @returns {Promise} 返回创建响应的Promise
  */
 export const createDrink = (data) => {
-  return http.post('/api/v1/drinks/create', data, {
-    showError: false
-  })
+  return http.post('/api/v1/drinks/create', data)
 }
 
 /**
@@ -24,15 +22,33 @@ export const createDrink = (data) => {
  * @param {string} params.order 排序方向
  * @returns {Promise} 返回记录列表的Promise
  */
-export const getDrinkList = ({ page = 1, limit = 10, ...rest } = {}) => {
-  const query = new URLSearchParams({
-    page: page.toString(),
-    limit: limit.toString(),
-    ...rest
-  }).toString()
-  
-  return http.get(`/api/v1/drinks/list?${query}`, {
-    showError: false
+export const getDrinkList = (params = {}) => {
+  return http.get('/api/v1/drinks/list', { 
+    params,
+    transformResponse: [...(http.defaults?.transformResponse || []), (data) => {
+      try {
+        const parsedData = typeof data === 'string' ? JSON.parse(data) : data
+        if (parsedData.success && parsedData.data) {
+          return {
+            success: true,
+            data: {
+              drinks: parsedData.data.drinks || [],
+              pagination: parsedData.data.pagination || {
+                total: 0,
+                totalPages: 0,
+                currentPage: 1,
+                limit: 10
+              }
+            },
+            message: parsedData.message
+          }
+        }
+        return parsedData
+      } catch (error) {
+        console.error('解析饮酒记录数据失败:', error)
+        return data
+      }
+    }]
   })
 }
 
@@ -42,9 +58,7 @@ export const getDrinkList = ({ page = 1, limit = 10, ...rest } = {}) => {
  * @returns {Promise} 返回记录详情的Promise
  */
 export const getDrinkDetail = (id) => {
-  return http.get(`/api/v1/drinks/${id}`, {
-    showError: false
-  })
+  return http.get(`/api/v1/drinks/${id}`)
 }
 
 /**
@@ -54,9 +68,7 @@ export const getDrinkDetail = (id) => {
  * @returns {Promise} 返回更新响应的Promise
  */
 export const updateDrink = (id, data) => {
-  return http.put(`/api/v1/drinks/${id}`, data, {
-    showError: false
-  })
+  return http.put(`/api/v1/drinks/${id}`, data)
 }
 
 /**
@@ -65,7 +77,5 @@ export const updateDrink = (id, data) => {
  * @returns {Promise} 返回删除响应的Promise
  */
 export const deleteDrink = (id) => {
-  return http.delete(`/api/v1/drinks/${id}`, {
-    showError: false
-  })
+  return http.delete(`/api/v1/drinks/${id}`)
 }
