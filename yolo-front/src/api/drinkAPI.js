@@ -32,7 +32,7 @@ export const getDrinkList = (params = {}) => {
  * @returns {Promise} 返回记录详情的Promise
  */
 export const getDrinkDetail = (id) => {
-  return http.get(`/api/v1/drinks/${id}`);
+  return http.get(`/api/v1/drinks/query/${id}`);
 };
 
 /**
@@ -42,7 +42,7 @@ export const getDrinkDetail = (id) => {
  * @returns {Promise} 返回更新响应的Promise
  */
 export const updateDrink = (id, data) => {
-  return http.put(`/api/v1/drinks/${id}`, data);
+  return http.put(`/api/v1/drinks/update/${id}`, data);
 };
 
 /**
@@ -51,5 +51,5 @@ export const updateDrink = (id, data) => {
  * @returns {Promise} 返回删除响应的Promise
  */
 export const deleteDrink = (id) => {
-  return http.delete(`/api/v1/drinks/${id}`);
+  return http.delete(`/api/v1/drinks/delete/${id}`);
 };

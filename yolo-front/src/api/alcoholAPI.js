@@ -24,7 +24,7 @@ export const getAlcoholList = (params = {}) => {
  * @returns {Promise} 返回酒类详情的Promise
  */
 export const getAlcoholDetail = (id) => {
-  return http.get(`/api/v1/alcohols/${id}`);
+  return http.get(`/api/v1/alcohols/query/${id}`);
 };
 
 /**
@@ -34,7 +34,7 @@ export const getAlcoholDetail = (id) => {
  * @returns {Promise} 返回更新响应的Promise
  */
 export const updateAlcohol = (id, data) => {
-  return http.put(`/api/v1/alcohols/${id}`, data);
+  return http.put(`/api/v1/alcohols/update/${id}`, data);
 };
 
 /**
@@ -43,5 +43,5 @@ export const updateAlcohol = (id, data) => {
  * @returns {Promise} 返回删除响应的Promise
  */
 export const deleteAlcohol = (id) => {
-  return http.delete(`/api/v1/alcohols/${id}`);
+  return http.delete(`/api/v1/alcohols/delete/${id}`);
 };
