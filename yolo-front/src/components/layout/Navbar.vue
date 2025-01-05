@@ -47,8 +47,8 @@ const handleLogout = () => {
       <el-dropdown trigger="click">
         <div class="avatar-container">
           <el-avatar :size="30" src="https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png" />
-          <span class="username">{{ userStore.userInfo?.username }}</span>
-          <el-icon><CaretBottom /></el-icon>
+          <span class="username">{{ userStore.userInfo?.username || '未登录' }}</span>
+          <el-icon class="dropdown-icon"><CaretBottom /></el-icon>
         </div>
         <template #dropdown>
           <el-dropdown-menu>
@@ -95,10 +95,25 @@ const handleLogout = () => {
     display: flex;
     align-items: center;
     cursor: pointer;
+    padding: 5px 8px;
+    border-radius: 4px;
+    transition: all 0.3s;
+    
+    &:hover {
+      background: rgba(0, 0, 0, 0.025);
+    }
     
     .username {
       margin: 0 8px;
       color: #606266;
+      font-size: 14px;
+      white-space: nowrap;
+    }
+
+    .dropdown-icon {
+      font-size: 12px;
+      color: #909399;
+      margin-top: 2px;
     }
   }
 }

@@ -49,10 +49,10 @@ const handleLogin = async () => {
     // 保存用户信息和token
     console.log('保存用户信息到 store');
     userStore.setToken(res.data.token);
-    userStore.setUserInfo(res.data.userInfo);
+    userStore.setUserInfo(res.data.user);
     userStore.setMenus(res.data.menus || []);
     
-    console.log('Store 中的用户信息:', userStore.userInfo);
+    console.log('Store 中的用户信息:', userStore.user);
     console.log('Store 中的 token:', userStore.token);
     
     ElMessage.success('登录成功');
