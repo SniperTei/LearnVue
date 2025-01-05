@@ -811,6 +811,7 @@ Authorization: Bearer <token>
   {
     "name": "宫保鸡丁",
     "type": "meat",
+    "description": "一道闻名中外的特色传统名菜，选用鸡丁、干辣椒、花生米等炒制而成。",
     "imageUrl": "http://example.com/image.jpg",
     "price": 38,
     "chef": "张大厨"
@@ -840,6 +841,7 @@ Authorization: Bearer <token>
     "_id": "5f7b5d7e9b8c2d1a3e4f5g6h",
     "name": "宫保鸡丁",
     "type": "meat",
+    "description": "一道闻名中外的特色传统名菜，选用鸡丁、干辣椒、花生米等炒制而成。",
     "imageUrl": "http://example.com/image.jpg",
     "price": 38,
     "chef": "张大厨",
@@ -878,6 +880,7 @@ Authorization: Bearer <token>
         "_id": "5f7b5d7e9b8c2d1a3e4f5g6h",
         "name": "宫保鸡丁",
         "type": "meat",
+        "description": "一道闻名中外的特色传统名菜，选用鸡丁、干辣椒、花生米等炒制而成。",
         "imageUrl": "http://example.com/image.jpg",
         "price": 38,
         "chef": "张大厨",
@@ -916,6 +919,7 @@ Authorization: Bearer <token>
     "_id": "5f7b5d7e9b8c2d1a3e4f5g6h",
     "name": "宫保鸡丁",
     "type": "meat",
+    "description": "一道闻名中外的特色传统名菜，选用鸡丁、干辣椒、花生米等炒制而成。",
     "imageUrl": "http://example.com/image.jpg",
     "price": 38,
     "chef": "张大厨",
@@ -943,6 +947,7 @@ Authorization: Bearer <token>
   {
     "name": "宫保鸡丁",
     "type": "meat",
+    "description": "一道闻名中外的特色传统名菜，选用鸡丁、干辣椒、花生米等炒制而成。",
     "imageUrl": "http://example.com/image.jpg",
     "price": 42,
     "chef": "李大厨"
@@ -959,6 +964,7 @@ Authorization: Bearer <token>
     "_id": "5f7b5d7e9b8c2d1a3e4f5g6h",
     "name": "宫保鸡丁",
     "type": "meat",
+    "description": "一道闻名中外的特色传统名菜，选用鸡丁、干辣椒、花生米等炒制而成。",
     "imageUrl": "http://example.com/image.jpg",
     "price": 42,
     "chef": "李大厨",

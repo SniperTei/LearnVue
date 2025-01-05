@@ -101,9 +101,9 @@ const routes = [
         meta: { title: '菜谱管理' }
       },
       {
-        path: 'menu',
-        name: 'Menu',
-        component: () => import('@/views/food/menu/index.vue'),
+        path: 'foodMenu',
+        name: 'FoodMenu',
+        component: () => import('@/views/food/foodmenu/index.vue'),
         meta: { title: '菜单管理' }
       },
       {
