@@ -58,13 +58,12 @@ class Http {
         
         // 只认 code === '000000' 为成功
         if (res.code === '000000') {
-          return res;
+          return res.data;
+        } else {
+          const error = new Error(res.msg || 'Request failed');
+          error.response = response;
+          return Promise.reject(error);
         }
-        
-        // 其他情况都是失败
-        const error = new Error(res.msg || 'Request failed');
-        error.response = response;
-        return Promise.reject(error);
       },
       error => {
         console.error('响应错误:', {

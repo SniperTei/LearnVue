@@ -29,7 +29,6 @@ const loading = ref(false);
 
 const handleLogin = async () => {
   console.log('开始登录流程');
-  console.log('表单数据:', form.value);
   
   if (!formRef.value) {
     console.warn('表单引用未找到');
@@ -37,31 +36,23 @@ const handleLogin = async () => {
   }
   
   try {
-    console.log('开始表单验证');
     await formRef.value.validate();
-    console.log('表单验证通过');
-    
     loading.value = true;
     
-    console.log('发送登录请求');
-    const res = await login(form.value);
-    console.log('登录响应:', res);
+    const data = await login(form.value);
     
     // 保存用户信息和token
-    console.log('保存用户信息到 store');
-    userStore.setToken(res.data.token);
-    userStore.setUserInfo(res.data.user);
-    userStore.setMenus(res.data.menus || []);
-    
-    console.log('Store 中的用户信息:', userStore.user);
-    console.log('Store 中的 token:', userStore.token);
+    userStore.setToken(data.token);
+    userStore.setUserInfo({
+      ...data.user
+    });
+    userStore.setMenus(data.menus || []);
     
     ElMessage.success('登录成功');
-    console.log('准备跳转到首页');
     router.push('/');
   } catch (error) {
     console.error('登录失败:', error);
-    ElMessage.error(error.msg || '登录失败，请稍后重试');
+    ElMessage.error(error.message || '登录失败，请稍后重试');
   } finally {
     loading.value = false;
   }

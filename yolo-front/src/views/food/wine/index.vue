@@ -241,52 +241,45 @@ const rules = {
 // 加载酒类列表
 const loadWines = async () => {
   try {
-    loading.value = true
+    loading.value = true;
     const params = {
       page: pagination.value.page,
       limit: pagination.value.limit
-    }
-    const response = await getAlcoholList(params)
-    console.log('API响应:', response) // 添加日志
+    };
     
-    if (response.success && response.data) {
-      // 直接使用返回的数据
-      wines.value = response.data.alcohols || []
-      
-      // 更新分页信息
-      const paginationData = response.data.pagination || {}
-      pagination.value = {
-        page: paginationData.currentPage || 1,
-        limit: paginationData.limit || 10,
-        total: paginationData.total || 0
-      }
-      
-      if (wines.value.length === 0) {
-        ElMessage.info('暂无数据')
-      }
-    } else {
-      console.error('响应格式不正确:', response)
-      ElMessage.error(response.message || '获取数据失败')
+    const data = await getAlcoholList(params);
+    wines.value = data.alcohols || [];
+    
+    // 更新分页信息
+    const paginationData = data.pagination || {};
+    pagination.value = {
+      page: paginationData.currentPage || 1,
+      limit: paginationData.limit || 10,
+      total: paginationData.total || 0
+    };
+    
+    if (wines.value.length === 0) {
+      ElMessage.info('暂无数据');
     }
   } catch (error) {
-    console.error('加载酒类列表失败:', error)
-    ElMessage.error(error.response?.data?.message || '加载数据失败，请重试')
+    console.error('加载酒类列表失败:', error);
+    ElMessage.error(error.message || '加载数据失败，请重试');
   } finally {
-    loading.value = false
+    loading.value = false;
   }
 }
 
 // 处理分页变化
 const handlePageChange = (newPage) => {
-  pagination.value.page = newPage
-  loadWines()
+  pagination.value.page = newPage;
+  loadWines();
 }
 
 // 打开新增对话框
 const openAddDialog = () => {
-  dialogTitle.value = '新增酒类'
-  isEditing.value = false
-  editingId.value = null
+  dialogTitle.value = '新增酒类';
+  isEditing.value = false;
+  editingId.value = null;
   form.value = {
     name: '',
     type: '',
@@ -296,15 +289,15 @@ const openAddDialog = () => {
     volumeUnit: 'ml',
     description: '',
     imageUrl: ''
-  }
-  dialogVisible.value = true
+  };
+  dialogVisible.value = true;
 }
 
 // 打开编辑对话框
 const openEditDialog = (wine) => {
-  dialogTitle.value = '编辑酒类'
-  isEditing.value = true
-  editingId.value = wine._id
+  dialogTitle.value = '编辑酒类';
+  isEditing.value = true;
+  editingId.value = wine._id;
   form.value = {
     name: wine.name,
     type: wine.type,
@@ -314,35 +307,31 @@ const openEditDialog = (wine) => {
     volumeUnit: wine.volumeUnit,
     description: wine.description,
     imageUrl: wine.imageUrl
-  }
-  dialogVisible.value = true
+  };
+  dialogVisible.value = true;
 }
 
 // 提交表单
 const submitForm = async () => {
-  if (!formRef.value) return
+  if (!formRef.value) return;
   
   try {
-    await formRef.value.validate()
-    const data = { ...form.value }
+    await formRef.value.validate();
+    const data = { ...form.value };
     
-    let response
     if (isEditing.value) {
-      response = await updateAlcohol(editingId.value, data)
+      await updateAlcohol(editingId.value, data);
+      ElMessage.success('修改成功');
     } else {
-      response = await createAlcohol(data)
+      await createAlcohol(data);
+      ElMessage.success('添加成功');
     }
     
-    if (response.success) {
-      ElMessage.success(isEditing.value ? '修改成功' : '添加成功')
-      dialogVisible.value = false
-      loadWines()
-    } else {
-      ElMessage.error(response.message || (isEditing.value ? '修改失败' : '添加失败'))
-    }
+    dialogVisible.value = false;
+    loadWines();
   } catch (error) {
-    console.error('提交表单失败:', error)
-    ElMessage.error(error.response?.data?.message || '操作失败，请重试')
+    console.error('提交表单失败:', error);
+    ElMessage.error(error.message || '操作失败，请重试');
   }
 }
 
@@ -353,45 +342,41 @@ const handleDelete = async (id) => {
       confirmButtonText: '确定',
       cancelButtonText: '取消',
       type: 'warning'
-    })
+    });
     
-    const response = await deleteAlcohol(id)
-    if (response.success) {
-      ElMessage.success('删除成功')
-      loadWines()
-    } else {
-      ElMessage.error(response.message || '删除失败')
-    }
+    await deleteAlcohol(id);
+    ElMessage.success('删除成功');
+    loadWines();
   } catch (error) {
     if (error !== 'cancel') {
-      console.error('删除失败:', error)
-      ElMessage.error(error.response?.data?.message || '删除失败，请重试')
+      console.error('删除失败:', error);
+      ElMessage.error(error.message || '删除失败，请重试');
     }
   }
 }
 
 // 获取分类显示名称
 const getCategoryLabel = (value) => {
-  const category = categories.find(c => c.value === value)
-  return category ? category.label : value
+  const category = categories.find(c => c.value === value);
+  return category ? category.label : value;
 }
 
 // 格式化日期
 const formatDate = (dateString) => {
-  if (!dateString) return '未知'
-  const date = new Date(dateString)
+  if (!dateString) return '未知';
+  const date = new Date(dateString);
   return date.toLocaleString('zh-CN', {
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',
     hour: '2-digit',
     minute: '2-digit'
-  })
+  });
 }
 
 onMounted(() => {
-  loadWines()
-})
+  loadWines();
+});
 </script>
 
 <style lang="scss" scoped>

@@ -273,63 +273,36 @@ const selectNextMonth = () => {
 // 加载饮酒记录
 const loadDrinkingRecords = async () => {
   try {
-    const response = await getDrinkList()
-    if (response.success && response.data) {
-      drinkingRecords.value = response.data.drinks
-    } else {
-      ElMessage.error(response.message || '获取数据失败')
-    }
+    const data = await getDrinkList();
+    drinkingRecords.value = data.drinks || [];
   } catch (error) {
-    console.error('加载饮酒记录失败:', error)
-    ElMessage.error('加载数据失败，请重试')
+    console.error('加载饮酒记录失败:', error);
+    ElMessage.error(error.message || '加载数据失败，请重试');
   }
-}
-
-// 打开编辑对话框
-const openEditDialog = (record) => {
-  dialogTitle.value = '编辑记录'
-  isEditing.value = true
-  editingId.value = record._id
-  form.value = {
-    alcoholId: record.alcoholId._id,
-    unit: record.unit,
-    amount: record.amount,
-    drinkTime: record.drinkTime,
-    mood: record.mood,
-    occasion: record.occasion,
-    location: record.location,
-    companions: record.companions,
-    note: record.note
-  }
-  dialogVisible.value = true
-}
+};
 
 // 提交表单
 const submitForm = async () => {
-  if (!formRef.value) return
+  if (!formRef.value) return;
   
   try {
-    await formRef.value.validate()
+    await formRef.value.validate();
     
-    let response
     if (isEditing.value) {
-      response = await updateDrink(editingId.value, form.value)
+      await updateDrink(editingId.value, form.value);
+      ElMessage.success('修改成功');
     } else {
-      response = await createDrink(form.value)
+      await createDrink(form.value);
+      ElMessage.success('添加成功');
     }
     
-    if (response.success) {
-      ElMessage.success(isEditing.value ? '修改成功' : '添加成功')
-      dialogVisible.value = false
-      loadDrinkingRecords()
-    } else {
-      ElMessage.error(response.message || (isEditing.value ? '修改失败' : '添加失败'))
-    }
+    dialogVisible.value = false;
+    loadDrinkingRecords();
   } catch (error) {
-    console.error('提交表单失败:', error)
-    ElMessage.error('操作失败，请重试')
+    console.error('提交表单失败:', error);
+    ElMessage.error(error.message || '操作失败，请重试');
   }
-}
+};
 
 // 删除记录
 const handleDelete = async (id) => {
@@ -338,22 +311,18 @@ const handleDelete = async (id) => {
       confirmButtonText: '确定',
       cancelButtonText: '取消',
       type: 'warning'
-    })
+    });
     
-    const response = await deleteDrink(id)
-    if (response.success) {
-      ElMessage.success('删除成功')
-      loadDrinkingRecords()
-    } else {
-      ElMessage.error(response.message || '删除失败')
-    }
+    await deleteDrink(id);
+    ElMessage.success('删除成功');
+    loadDrinkingRecords();
   } catch (error) {
     if (error !== 'cancel') {
-      console.error('删除失败:', error)
-      ElMessage.error('删除失败，请重试')
+      console.error('删除失败:', error);
+      ElMessage.error(error.message || '删除失败，请重试');
     }
   }
-}
+};
 
 // 初始化
 loadDrinkingRecords()

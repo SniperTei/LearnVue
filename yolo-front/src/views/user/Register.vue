@@ -181,18 +181,13 @@ const handleRegister = async () => {
     };
     
     // 调用注册API
-    const response = await register(registerData);
-    
-    if (response.code === '000000') {
-      ElMessage.success('注册成功！');
-      // 注册成功后跳转到登录页
-      router.push('/login');
-    } else {
-      ElMessage.error(response.msg || '注册失败，请重试');
-    }
+    await register(registerData);
+    ElMessage.success('注册成功！');
+    // 注册成功后跳转到登录页
+    router.push('/login');
   } catch (error) {
     console.error('注册失败:', error);
-    ElMessage.error(error.response?.data?.msg || '注册失败，请重试');
+    ElMessage.error(error.message || '注册失败，请重试');
   }
 };
 </script>

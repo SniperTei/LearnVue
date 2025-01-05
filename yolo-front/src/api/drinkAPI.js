@@ -23,33 +23,7 @@ export const createDrink = (data) => {
  * @returns {Promise} 返回记录列表的Promise
  */
 export const getDrinkList = (params = {}) => {
-  return http.get('/api/v1/drinks/list', { 
-    params,
-    transformResponse: [...(http.defaults?.transformResponse || []), (data) => {
-      try {
-        const parsedData = typeof data === 'string' ? JSON.parse(data) : data
-        if (parsedData.success && parsedData.data) {
-          return {
-            success: true,
-            data: {
-              drinks: parsedData.data.drinks || [],
-              pagination: parsedData.data.pagination || {
-                total: 0,
-                totalPages: 0,
-                currentPage: 1,
-                limit: 10
-              }
-            },
-            message: parsedData.message
-          }
-        }
-        return parsedData
-      } catch (error) {
-        console.error('解析饮酒记录数据失败:', error)
-        return data
-      }
-    }]
-  })
+  return http.get('/api/v1/drinks/list', { params })
 }
 
 /**

@@ -302,25 +302,22 @@ const filteredWines = computed(() => {
 // 加载酒类列表
 const loadWines = async () => {
   try {
-    loading.value = true
+    loading.value = true;
     const params = {
       page: currentPage.value,
       limit: pageSize.value
-    }
-    const response = await getAlcoholList(params)
-    if (response.success && response.data) {
-      wines.value = response.data.alcohols
-      total.value = response.data.pagination.total
-    } else {
-      ElMessage.error(response.message || '获取酒类列表失败')
-    }
+    };
+    
+    const data = await getAlcoholList(params);
+    wines.value = data.alcohols;
+    total.value = data.pagination.total;
   } catch (error) {
-    console.error('加载酒类列表失败:', error)
-    ElMessage.error('加载失败，请重试')
+    console.error('加载酒类列表失败:', error);
+    ElMessage.error(error.message || '加载失败，请重试');
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
 // 选择酒品
 const selectWine = (wine) => {
@@ -384,18 +381,14 @@ const submitForm = async () => {
       companions: form.value.companions,
       photos: form.value.photos,
       note: form.value.note
-    }
+    };
 
-    const response = await createDrink(data)
-    if (response.success) {
-      ElMessage.success('记录添加成功')
-      router.back()
-    } else {
-      ElMessage.error(response.message || '添加失败')
-    }
+    await createDrink(data);
+    ElMessage.success('记录添加成功');
+    router.back();
   } catch (error) {
-    console.error('提交表单失败:', error)
-    ElMessage.error('提交失败，请重试')
+    console.error('提交表单失败:', error);
+    ElMessage.error(error.message || '提交失败，请重试');
   }
 }
 
