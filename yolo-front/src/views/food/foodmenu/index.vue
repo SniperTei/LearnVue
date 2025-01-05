@@ -5,7 +5,7 @@
     <div class="search-area">
       <el-form :inline="true" :model="searchForm" class="search-form">
         <el-form-item label="菜品类型">
-          <el-select v-model="searchForm.type" placeholder="选择菜品类型" clearable>
+          <el-select v-model="searchForm.type" placeholder="选择菜品类型" clearable style="width: 200px">
             <el-option
               v-for="item in foodTypes"
               :key="item.value"
@@ -68,7 +68,10 @@
               <h3 class="menu-name">{{ item.name }}</h3>
               <div class="menu-type">{{ getFoodTypeLabel(item.type) }}</div>
               <div class="menu-description">{{ item.description }}</div>
-              <div class="menu-price">¥{{ item.price }}</div>
+              <div class="menu-price">
+                <span class="price-symbol">¥</span>
+                <span class="price-number">{{ item.price }}</span>
+              </div>
               <div class="menu-chef">厨师：{{ item.chef }}</div>
               <div class="menu-actions" v-if="userStore.userInfo.isAdmin">
                 <el-button type="primary" link @click="handleEdit(item)">编辑</el-button>
@@ -451,6 +454,17 @@ onMounted(() => {
   font-size: 20px;
   font-weight: bold;
   margin: 8px 0;
+  display: flex;
+  align-items: baseline;
+}
+
+.price-symbol {
+  font-size: 14px;
+  margin-right: 4px;
+}
+
+.price-number {
+  font-size: 20px;
 }
 
 .menu-chef {

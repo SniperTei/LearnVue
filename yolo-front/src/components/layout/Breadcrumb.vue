@@ -1,9 +1,10 @@
 <script setup>
 import { computed } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 
 const route = useRoute()
+const router = useRouter()
 const userStore = useUserStore()
 
 // 根据当前路由和菜单数据生成面包屑
@@ -19,7 +20,7 @@ const breadcrumbs = computed(() => {
       
       if (currentPath.startsWith(currentBasePath)) {
         result.push({
-          title: menu.title,
+          title: menu.meta?.title || menu.title,
           path: currentBasePath
         })
         
@@ -30,7 +31,25 @@ const breadcrumbs = computed(() => {
     }
   }
 
-  findMenuPath(menus)
+  // 从路由匹配记录中获取完整的面包屑
+  const matched = route.matched
+  if (matched.length) {
+    // 先从菜单中查找主要路径
+    findMenuPath(menus)
+    
+    // 检查最后一个匹配项是否已包含在结果中
+    const lastMatched = matched[matched.length - 1]
+    const lastPath = lastMatched.path
+    const lastTitle = lastMatched.meta?.title
+    
+    if (lastPath && lastTitle && !result.find(item => item.path === lastPath)) {
+      result.push({
+        title: lastTitle,
+        path: lastPath
+      })
+    }
+  }
+
   return result
 })
 </script>

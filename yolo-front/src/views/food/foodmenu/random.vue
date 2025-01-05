@@ -37,7 +37,10 @@
               <h3 class="food-name">{{ food.name }}</h3>
               <div class="food-type">{{ getFoodTypeLabel(food.type) }}</div>
               <div class="food-description">{{ food.description }}</div>
-              <div class="food-price">¥{{ food.price }}</div>
+              <div class="food-price">
+                <span class="price-symbol">¥</span>
+                <span class="price-number">{{ food.price }}</span>
+              </div>
               <div class="food-chef">厨师：{{ food.chef }}</div>
             </div>
           </el-card>
@@ -180,6 +183,17 @@ const getRandomFood = async () => {
   font-size: 20px;
   font-weight: bold;
   margin: 8px 0;
+  display: flex;
+  align-items: baseline;
+}
+
+.price-symbol {
+  font-size: 14px;
+  margin-right: 4px;
+}
+
+.price-number {
+  font-size: 20px;
 }
 
 .food-chef {
