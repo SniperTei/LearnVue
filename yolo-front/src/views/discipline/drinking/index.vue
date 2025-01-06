@@ -273,8 +273,8 @@ const selectNextMonth = () => {
 // 加载饮酒记录
 const loadDrinkingRecords = async () => {
   await getDrinkList()
-    .then(data => {
-      drinkingRecords.value = data.drinks || [];
+    .then(res => {
+      drinkingRecords.value = res.data.drinks || [];
     });
 };
 

@@ -34,14 +34,14 @@ const handleLogin = async () => {
   loading.value = true;
   
   await login(form.value)
-    .then(data => {
+    .then(res => {
       // 保存用户信息和token
       const userStore = useUserStore();
-      userStore.setToken(data.token);
+      userStore.setToken(res.data.token);
       userStore.setUserInfo({
-        ...data.user
+        ...res.data.user
       });
-      userStore.setMenus(data.menus || []);
+      userStore.setMenus(res.data.menus || []);
       
       ElMessage.success('登录成功');
       router.push('/');

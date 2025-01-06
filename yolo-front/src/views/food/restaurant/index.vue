@@ -138,12 +138,16 @@
         </el-form-item>
         <el-form-item label="图片" prop="imageUrls">
           <el-upload
-            action="/api/v1/upload"
+            :action="null"
+            :auto-upload="false"
             list-type="picture-card"
-            :headers="uploadHeaders"
-            :on-success="handleUploadSuccess"
-            :on-remove="handleUploadRemove"
+            :on-change="handleFileChange"
+            :on-remove="handleFileRemove"
             :file-list="fileList"
+            :limit="9"
+            :on-exceed="handleExceed"
+            :before-upload="beforeUpload"
+            multiple
           >
             <el-icon><Plus /></el-icon>
           </el-upload>
@@ -179,6 +183,7 @@ import {
   deleteRestaurant
 } from '@/api/restaurantAPI'
 import { getDictionaries } from '@/api/dictionaryAPI'
+import { uploadImages } from '@/api/uploadAPI'
 
 const userStore = useUserStore()
 
@@ -195,10 +200,10 @@ const searchForm = reactive({
 
 // 餐厅表单
 const restaurantFormRef = ref(null)
-const restaurantForm = reactive({
+const restaurantForm = ref({
   name: '',
   address: '',
-  rating: 0,
+  rating: 5,
   imageUrls: [],
   description: '',
   priceLevel: ''
@@ -209,7 +214,9 @@ const rules = {
   name: [{ required: true, message: '请输入餐厅名称', trigger: 'blur' }],
   address: [{ required: true, message: '请输入餐厅地址', trigger: 'blur' }],
   rating: [{ required: true, message: '请选择评分', trigger: 'change' }],
-  priceLevel: [{ required: true, message: '请选择价位等级', trigger: 'change' }]
+  priceLevel: [{ required: true, message: '请选择价位等级', trigger: 'change' }],
+  description: [{ required: true, message: '请输入描述', trigger: 'blur' }],
+  imageUrls: [{ type: 'array', message: '请上传至少一张图片', trigger: 'change' }]
 }
 
 // 列表数据
@@ -225,9 +232,7 @@ const currentId = ref('')
 
 // 文件上传相关
 const fileList = ref([])
-const uploadHeaders = {
-  Authorization: `Bearer ${userStore.token}`
-}
+const uploadFiles = ref([])
 
 // 初始化
 onMounted(async () => {
@@ -300,11 +305,12 @@ const handleAdd = () => {
 const handleEdit = (row) => {
   dialogType.value = 'edit'
   currentId.value = row._id
-  Object.assign(restaurantForm, row)
+  Object.assign(restaurantForm.value, row)
   fileList.value = row.imageUrls?.map((url, index) => ({
     name: `image-${index}`,
     url
   })) || []
+  uploadFiles.value = []
   dialogVisible.value = true
 }
 
@@ -327,38 +333,112 @@ const handleDelete = async (item) => {
   }
 }
 
-// 重置表单
-const resetForm = () => {
-  if (restaurantFormRef.value) {
-    restaurantFormRef.value.resetFields()
+// 处理文件选择
+const handleFileChange = (file, files) => {
+  const totalImages = (restaurantForm.value.imageUrls?.length || 0) + files.length
+  if (totalImages > 9) {
+    ElMessage.warning('图片总数不能超过9张')
+    const extraCount = totalImages - 9
+    files.splice(files.length - extraCount, extraCount)
   }
-  Object.keys(restaurantForm).forEach(key => {
-    restaurantForm[key] = key === 'rating' ? 0 : ''
-  })
-  fileList.value = []
+  uploadFiles.value = files
+}
+
+// 处理文件移除
+const handleFileRemove = (file, files) => {
+  uploadFiles.value = files
+  const index = restaurantForm.value.imageUrls.indexOf(file.url)
+  if (index > -1) {
+    restaurantForm.value.imageUrls.splice(index, 1)
+  }
+}
+
+// 超出限制处理
+const handleExceed = () => {
+  ElMessage.warning('最多只能上传9张图片')
+}
+
+// 上传前检查
+const beforeUpload = (file) => {
+  const isImage = file.type.startsWith('image/')
+  const isLt2M = file.size / 1024 / 1024 < 2
+
+  if (!isImage) {
+    ElMessage.error('只能上传图片文件!')
+    return false
+  }
+  if (!isLt2M) {
+    ElMessage.error('图片大小不能超过 2MB!')
+    return false
+  }
+  return true
+}
+
+// 上传图片
+const uploadRestaurantImages = async () => {
+  if (!uploadFiles.value.length) return []
+
+  try {
+    const formData = new FormData()
+    uploadFiles.value.forEach(file => {
+      formData.append('files', file.raw)
+    })
+
+    const res = await uploadImages(formData)
+    if (res.code === '000000') {
+        const urls = res.data.urls.map(item => item.url)
+        restaurantForm.value.imageUrls = urls
+        ElMessage.success('图片上传成功')
+        return res.data.urls
+    } else {
+        ElMessage.error('图片上传失败')
+        return []
+    }
+  } catch (error) {
+    console.error('上传图片失败:', error)
+    ElMessage.error('图片上传失败')
+    return []
+  }
 }
 
 // 提交表单
 const handleSubmit = async () => {
   if (!restaurantFormRef.value) return
-  
+
   try {
     await restaurantFormRef.value.validate()
     
-    const data = { ...restaurantForm }
+    // 先上传图片
+    const urlItems = await uploadRestaurantImages()
+    const imageUrls = urlItems.map(item => item.url)
+    if (!imageUrls.length && uploadFiles.value.length > 0) {
+      return
+    }
+
+    const allImageUrls = [...(restaurantForm.value.imageUrls || []), ...imageUrls]
+    if (allImageUrls.length > 9) {
+      ElMessage.error('图片总数不能超过9张')
+      return
+    }
+
+    const data = { 
+      ...restaurantForm.value,
+      imageUrls: allImageUrls
+    }
+
     if (dialogType.value === 'add') {
       const res = await createRestaurant(data)
       if (res.code === '000000') {
         ElMessage.success('创建成功')
         dialogVisible.value = false
-        await fetchRestaurantList()
+        fetchRestaurantList()
       }
     } else {
       const res = await updateRestaurant(currentId.value, data)
       if (res.code === '000000') {
         ElMessage.success('更新成功')
         dialogVisible.value = false
-        await fetchRestaurantList()
+        fetchRestaurantList()
       }
     }
   } catch (error) {
@@ -367,18 +447,16 @@ const handleSubmit = async () => {
   }
 }
 
-// 上传成功处理
-const handleUploadSuccess = (response, file) => {
-  restaurantForm.imageUrls = restaurantForm.imageUrls || []
-  restaurantForm.imageUrls.push(response.data.url)
-}
-
-// 移除上传文件处理
-const handleUploadRemove = (file) => {
-  const index = restaurantForm.imageUrls.indexOf(file.url)
-  if (index > -1) {
-    restaurantForm.imageUrls.splice(index, 1)
+// 重置表单
+const resetForm = () => {
+  if (restaurantFormRef.value) {
+    restaurantFormRef.value.resetFields()
   }
+  Object.keys(restaurantForm.value).forEach(key => {
+    restaurantForm.value[key] = key === 'rating' ? 5 : ''
+  })
+  fileList.value = []
+  uploadFiles.value = []
 }
 </script>
 
