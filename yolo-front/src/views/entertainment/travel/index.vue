@@ -1,19 +1,22 @@
 <script setup>
-import { ref, onMounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import * as travelPlanAPI from '@/api/travelPlanAPI'
+import { ref, onMounted, watch } from 'vue'
+import { useRouter } from 'vue-router'
+import { ElMessage } from 'element-plus'
+import { getTravelPlans, getTravelDiaries, deleteTravelPlan, createTravelPlan } from '@/api/travelAPI'
 
-// Travel plans data
-const travelPlans = ref([])
+// Router
+const router = useRouter()
+
+// Data
 const loading = ref(false)
-const currentPage = ref(1)
-const totalPages = ref(1)
-const pageSize = ref(10)
+const travelPlans = ref([])
+const travelDiaries = ref([])
+const activeTab = ref('plans')
 
-// Form dialog
+// Create dialog
 const createDialogVisible = ref(false)
-const formLoading = ref(false)
-const planForm = ref({
+const createFormLoading = ref(false)
+const createForm = ref({
   title: '',
   description: '',
   startDate: '',
@@ -23,34 +26,133 @@ const planForm = ref({
     city: '',
     locations: []
   },
-  itinerary: [{
-    day: 1,
-    date: '',
-    activities: [{
-      time: '',
-      location: '',
-      activity: '',
-      duration: ''
-    }]
-  }]
+  itinerary: []
 })
 
-const planFormRules = {
-  title: [{ required: true, message: '请输入标题', trigger: 'blur' }],
-  startDate: [{ required: true, message: '请选择开始日期', trigger: 'change' }],
-  endDate: [{ required: true, message: '请选择结束日期', trigger: 'change' }],
-  'destination.country': [{ required: true, message: '请输入国家', trigger: 'blur' }],
-  'destination.city': [{ required: true, message: '请输入城市', trigger: 'blur' }]
+// New itinerary item form
+const itineraryForm = ref({
+  day: 1,
+  date: '',
+  activities: []
+})
+
+const activityForm = ref({
+  time: '',
+  location: '',
+  activity: '',
+  duration: ''
+})
+
+const createFormRules = {
+  title: [
+    { required: true, message: '请输入标题', trigger: 'blur' },
+    { min: 2, max: 50, message: '长度在 2 到 50 个字符', trigger: 'blur' }
+  ],
+  description: [
+    { required: true, message: '请输入描述', trigger: 'blur' }
+  ],
+  startDate: [
+    { required: true, message: '请选择开始日期', trigger: 'change' }
+  ],
+  endDate: [
+    { required: true, message: '请选择结束日期', trigger: 'change' }
+  ],
+  'destination.country': [
+    { required: true, message: '请输入国家', trigger: 'blur' }
+  ],
+  'destination.city': [
+    { required: true, message: '请输入城市', trigger: 'blur' }
+  ]
 }
 
-const planFormRef = ref(null)
+const createFormRef = ref(null)
+const locationInput = ref('')
 
-// Reset form
-const resetForm = () => {
-  if (planFormRef.value) {
-    planFormRef.value.resetFields()
+// Helper function to format date string
+const formatDate = (dateString) => {
+  if (!dateString) return ''
+  return new Date(dateString).toLocaleDateString('zh-CN')
+}
+
+// Methods for create dialog
+const handleCreatePlan = () => {
+  createDialogVisible.value = true
+}
+
+const handleAddLocation = () => {
+  if (locationInput.value) {
+    createForm.value.destination.locations.push(locationInput.value)
+    locationInput.value = ''
   }
-  planForm.value = {
+}
+
+const handleRemoveLocation = (index) => {
+  createForm.value.destination.locations.splice(index, 1)
+}
+
+const handleAddActivity = () => {
+  if (!activityForm.value.activity || !activityForm.value.location) {
+    ElMessage.warning('请填写活动内容和地点')
+    return
+  }
+
+  const time = activityForm.value.time ? 
+    new Date(activityForm.value.time).toLocaleTimeString('zh', { hour: '2-digit', minute: '2-digit', hour12: false }) :
+    ''
+
+  itineraryForm.value.activities.push({
+    time,
+    location: activityForm.value.location,
+    activity: activityForm.value.activity,
+    duration: activityForm.value.duration
+  })
+
+  activityForm.value = {
+    time: '',
+    location: '',
+    activity: '',
+    duration: ''
+  }
+}
+
+const handleRemoveActivity = (index) => {
+  itineraryForm.value.activities.splice(index, 1)
+}
+
+const handleAddItinerary = () => {
+  if (!itineraryForm.value.date) {
+    ElMessage.warning('请选择日期')
+    return
+  }
+  
+  if (itineraryForm.value.activities.length === 0) {
+    ElMessage.warning('请至少添加一个活动')
+    return
+  }
+  
+  createForm.value.itinerary.push({
+    day: itineraryForm.value.day,
+    date: formatDate(itineraryForm.value.date),
+    activities: [...itineraryForm.value.activities]
+  })
+  
+  const nextDay = itineraryForm.value.day + 1
+  const nextDate = new Date(itineraryForm.value.date)
+  nextDate.setDate(nextDate.getDate() + 1)
+  
+  itineraryForm.value = {
+    day: nextDay,
+    date: formatDate(nextDate),
+    activities: []
+  }
+}
+
+const handleRemoveItinerary = (index) => {
+  createForm.value.itinerary.splice(index, 1)
+}
+
+const resetCreateForm = () => {
+  createForm.value = {
     title: '',
     description: '',
     startDate: '',
@@ -60,159 +162,162 @@ const resetForm = () => {
       city: '',
       locations: []
     },
-    itinerary: [{
-      day: 1,
-      date: '',
-      activities: [{
-        time: '',
-        location: '',
-        activity: '',
-        duration: ''
-      }]
-    }]
+    itinerary: []
+  }
+  itineraryForm.value = {
+    day: 1,
+    date: '',
+    activities: []
+  }
+  activityForm.value = {
+    time: '',
+    location: '',
+    activity: '',
+    duration: ''
+  }
+  if (createFormRef.value) {
+    createFormRef.value.resetFields()
   }
 }
 
-// Watch for date changes to update itinerary
-const updateItineraryDates = () => {
-  if (planForm.value.startDate) {
-    const startDate = new Date(planForm.value.startDate)
-    planForm.value.itinerary[0].date = planForm.value.startDate
-  }
-}
-
-// Handlers
-const handleCreatePlan = () => {
-  createDialogVisible.value = true
-}
-
-const handleCreateConfirm = async () => {
-  if (!planFormRef.value) return
+const handleCreateSubmit = async () => {
+  if (!createFormRef.value) return
   
-  await planFormRef.value.validate(async (valid) => {
-    if (valid) {
-      try {
-        formLoading.value = true
-        const response = await travelPlanAPI.createTravelPlan(planForm.value)
-        if (response.code === '000000') {
-          ElMessage.success('创建成功')
-          createDialogVisible.value = false
-          resetForm()
-          fetchTravelPlans()
+  try {
+    await createFormRef.value.validate()
+    
+    // Validate itinerary
+    if (!createForm.value.itinerary.length) {
+      ElMessage.warning('请至少添加一个行程')
+      return
+    }
+
+    // Validate activities in each itinerary
+    for (const item of createForm.value.itinerary) {
+      if (!item.activities.length) {
+        ElMessage.warning('每个行程至少需要一个活动')
+        return
+      }
+      for (const activity of item.activities) {
+        if (!activity.activity || !activity.location) {
+          ElMessage.warning('活动内容和地点不能为空')
+          return
         }
-      } catch (error) {
-        ElMessage.error(error.response?.data?.msg || '创建失败')
-      } finally {
-        formLoading.value = false
       }
     }
-  })
+
+    createFormLoading.value = true
+    
+    // Format dates before submission
+    const formData = {
+      ...createForm.value,
+      startDate: formatDate(createForm.value.startDate),
+      endDate: formatDate(createForm.value.endDate),
+      itinerary: createForm.value.itinerary.map(item => ({
+        ...item,
+        date: formatDate(item.date)
+      }))
+    }
+    
+    const result = await createTravelPlan(formData)
+    if (result.code === '000000') {
+      ElMessage.success('创建成功')
+      createDialogVisible.value = false
+      resetCreateForm()
+      fetchTravelPlans()
+    } else {
+      ElMessage.error(result.msg || '创建失败')
+    }
+  } catch (error) {
+    console.error('Error creating travel plan:', error)
+    ElMessage.error(typeof error === 'object' ? JSON.stringify(error) : error)
+  } finally {
+    createFormLoading.value = false
+  }
 }
 
 const handleCreateCancel = () => {
   createDialogVisible.value = false
-  resetForm()
+  resetCreateForm()
 }
 
-const handleLocationRemove = (location) => {
-  const index = planForm.value.destination.locations.indexOf(location)
-  if (index !== -1) {
-    planForm.value.destination.locations.splice(index, 1)
-  }
-}
-
-const handleLocationAdd = (location) => {
-  if (location && !planForm.value.destination.locations.includes(location)) {
-    planForm.value.destination.locations.push(location)
-  }
-}
-
-const handleActivityChange = (index, field, value) => {
-  planForm.value.itinerary[0].activities[0][field] = value
-}
-
-// Fetch travel plans
+// Fetch data
 const fetchTravelPlans = async () => {
   try {
     loading.value = true
-    const response = await travelPlanAPI.getTravelPlans({
-      page: currentPage.value,
-      limit: pageSize.value
-    })
-    if (response.code === '000000') {
-      travelPlans.value = response.data.travelPlans
-      totalPages.value = response.data.totalPages
+    const result = await getTravelPlans()
+    console.log('Travel plans list response:', result)
+    
+    if (result.code === '000000' && result.data) {
+      // Access the travelPlans array from the nested structure
+      travelPlans.value = result.data.travelPlans || []
+    } else {
+      ElMessage.error(result.msg || '获取旅行计划失败')
+      travelPlans.value = []
     }
   } catch (error) {
+    console.error('Error fetching travel plans:', error)
     ElMessage.error('获取旅行计划失败')
+    travelPlans.value = []
   } finally {
     loading.value = false
   }
 }
 
-const handlePlanDetail = async (plan) => {
+const fetchTravelDiaries = async () => {
   try {
-    const response = await travelPlanAPI.getTravelPlan(plan._id)
-    if (response.code === '000000') {
-      // TODO: Navigate to detail page with plan data
-      ElMessage.info('计划详情功能开发中...')
+    loading.value = true
+    const result = await getTravelDiaries()
+    if (result.code === '000000') {
+      travelDiaries.value = result.data.travelDiaries
+    } else {
+      ElMessage.error(result.msg || '获取旅行日记失败')
     }
   } catch (error) {
-    ElMessage.error('获取计划详情失败')
+    console.error('Error fetching travel diaries:', error)
+    ElMessage.error('获取旅行日记失败')
+  } finally {
+    loading.value = false
   }
 }
 
-const handlePublishPlan = async (plan) => {
+// Handlers
+const handleDelete = async (row) => {
   try {
-    const response = await travelPlanAPI.updateTravelPlan(plan._id, {
-      status: 'published'
-    })
-    if (response.code === '000000') {
-      ElMessage.success('发布成功')
-      fetchTravelPlans()
-    }
-  } catch (error) {
-    ElMessage.error('发布失败')
-  }
-}
-
-const handleUnpublishPlan = async (plan) => {
-  try {
-    const response = await travelPlanAPI.updateTravelPlan(plan._id, {
-      status: 'draft'
-    })
-    if (response.code === '000000') {
-      ElMessage.success('取消发布成功')
-      fetchTravelPlans()
-    }
-  } catch (error) {
-    ElMessage.error('取消发布失败')
-  }
-}
-
-const handleDeletePlan = async (plan) => {
-  try {
-    await ElMessageBox.confirm('确定要删除该旅行计划吗？', '提示', {
-      type: 'warning'
-    })
-    const response = await travelPlanAPI.deleteTravelPlan(plan._id)
-    if (response.code === '000000') {
+    const result = await deleteTravelPlan(row._id)
+    if (result.code === '000000') {
       ElMessage.success('删除成功')
       fetchTravelPlans()
+    } else {
+      ElMessage.error(result.msg || '删除失败')
     }
   } catch (error) {
-    if (error !== 'cancel') {
-      ElMessage.error('删除失败')
-    }
+    console.error('Error deleting travel plan:', error)
+    ElMessage.error('删除失败')
   }
 }
 
-const handlePageChange = (page) => {
-  currentPage.value = page
-  fetchTravelPlans()
+const handleCreateDiary = () => {
+  router.push('/entertainment/travel/diary/create')
 }
 
-// Initial fetch
+// Watch tab changes
+const handleTabChange = (tab) => {
+  if (tab === 'plans') {
+    fetchTravelPlans()
+  } else if (tab === 'diaries') {
+    fetchTravelDiaries()
+  }
+}
+
+// Watch startDate to set initial itinerary date
+watch(() => createForm.value.startDate, (newDate) => {
+  if (newDate && !itineraryForm.value.date) {
+    itineraryForm.value.date = newDate
+  }
+})
+
+// Initial data load
 onMounted(() => {
   fetchTravelPlans()
 })
@@ -220,7 +325,7 @@ onMounted(() => {
 
 <template>
   <div class="travel-container">
-    <el-tabs v-model="activeTab" class="travel-tabs">
+    <el-tabs v-model="activeTab" class="travel-tabs" @tab-change="handleTabChange">
       <el-tab-pane label="旅游计划" name="plans">
         <div class="section-header">
           <h2>我的旅行计划</h2>
@@ -230,209 +335,312 @@ onMounted(() => {
         </div>
         
         <el-row :gutter="20" v-loading="loading">
-          <el-col :span="12" v-for="plan in travelPlans" :key="plan._id">
-            <el-card class="plan-card">
+          <el-col 
+            :span="12" 
+            v-for="plan in travelPlans" 
+            :key="plan._id"
+          >
+            <el-card 
+              class="plan-card" 
+              @click="router.push(`/entertainment/travel/detail/${plan._id}`)"
+            >
               <div class="plan-header">
-                <h3 @click="handlePlanDetail(plan)">{{ plan.title }}</h3>
+                <h3>{{ plan.title }}</h3>
                 <el-tag :type="plan.status === 'published' ? 'success' : 'warning'">
-                  {{ plan.status === 'published' ? '已发布' : '草稿' }}
+                  {{ plan.status === 'published' ? '已发布' : '未发布' }}
                 </el-tag>
               </div>
-              <div class="plan-info">
-                <template v-if="plan.startDate && plan.endDate">
-                  <p><el-icon><Calendar /></el-icon> {{ plan.startDate.split('T')[0] }} 至 {{ plan.endDate.split('T')[0] }}</p>
-                </template>
-                <template v-if="plan.destination">
-                  <p>
-                    <el-icon><Location /></el-icon> 
-                    {{ plan.destination.country }} · {{ plan.destination.city }}
-                  </p>
-                  <p v-if="plan.destination.locations?.length" class="locations">
-                    <el-tag 
-                      v-for="location in plan.destination.locations" 
-                      :key="location"
-                      size="small"
-                    >
-                      {{ location }}
-                    </el-tag>
-                  </p>
-                </template>
-                <p class="plan-description">{{ plan.description || '暂无描述' }}</p>
-                <div class="plan-meta">
-                  <span class="created-by">
-                    <el-icon><User /></el-icon> {{ plan.createdBy?.username }}
-                  </span>
-                  <span class="created-time">
-                    <el-icon><Clock /></el-icon> {{ new Date(plan.createdAt).toLocaleDateString() }}
-                  </span>
+              <div class="plan-content">
+                <p><el-icon><Calendar /></el-icon> {{ formatDate(plan.startDate) }} - {{ formatDate(plan.endDate) }}</p>
+                <p><el-icon><Location /></el-icon> {{ plan.destination?.city }}, {{ plan.destination?.country }}</p>
+                <p v-if="plan.destination?.locations?.length">
+                  <el-icon><List /></el-icon> 景点：{{ plan.destination.locations.join(', ') }}
+                </p>
+                <p class="plan-description">{{ plan.description }}</p>
+                <div class="plan-itinerary" v-if="plan.itinerary?.length">
+                  <p><strong>行程安排：</strong></p>
+                  <ul>
+                    <li v-for="(item, index) in plan.itinerary" :key="index">
+                      第{{ item.day }}天 ({{ formatDate(item.date) }}): 
+                      <template v-if="item.activities?.length">
+                        {{ item.activities.map(a => `${a.time} ${a.activity}(${a.location})`).join(', ') }}
+                      </template>
+                    </li>
+                  </ul>
                 </div>
               </div>
               <div class="plan-actions">
                 <el-button 
-                  type="primary" 
-                  link 
-                  @click="handlePlanDetail(plan)"
-                >
-                  编辑
-                </el-button>
-                <el-button 
-                  :type="plan.status === 'published' ? 'warning' : 'success'" 
-                  link 
-                  @click="plan.status === 'published' ? handleUnpublishPlan(plan) : handlePublishPlan(plan)"
-                >
-                  {{ plan.status === 'published' ? '取消发布' : '发布' }}
-                </el-button>
-                <el-button 
                   type="danger" 
-                  link 
-                  @click="handleDeletePlan(plan)"
+                  @click.stop="handleDelete(plan)"
+                  :loading="loading"
                 >
-                  删除
+                  <el-icon><Delete /></el-icon>删除
                 </el-button>
               </div>
             </el-card>
           </el-col>
+          <el-empty 
+            v-if="!loading && (!travelPlans || travelPlans.length === 0)" 
+            description="暂无旅行计划" 
+          />
         </el-row>
-
-        <el-pagination
-          v-if="totalPages > 1"
-          class="pagination"
-          :current-page="currentPage"
-          :page-size="pageSize"
-          :total="totalPages * pageSize"
-          layout="total, prev, pager, next"
-          @current-change="handlePageChange"
-        />
       </el-tab-pane>
 
       <el-tab-pane label="旅行游记" name="diaries">
         <div class="section-header">
-          <h2>旅行游记</h2>
-          <el-button type="primary">
+          <h2>精选游记</h2>
+          <el-button type="primary" @click="handleCreateDiary">
             <el-icon><Edit /></el-icon>写游记
           </el-button>
         </div>
-        <el-empty description="游记功能开发中..." />
+
+        <el-row :gutter="20">
+          <el-col :span="12" v-for="diary in travelDiaries" :key="diary._id">
+            <el-card class="diary-card">
+              <img :src="diary.cover" class="diary-cover" @click="router.push(`/entertainment/travel/diary/detail/${diary._id}`)">
+              <div class="diary-info">
+                <h3 @click="router.push(`/entertainment/travel/diary/detail/${diary._id}`)">{{ diary.title }}</h3>
+                <div class="diary-meta">
+                  <span><el-icon><User /></el-icon> {{ diary.author }}</span>
+                  <span><el-icon><Calendar /></el-icon> {{ diary.date }}</span>
+                </div>
+                <div class="diary-tags">
+                  <el-tag v-for="tag in diary.tags" :key="tag" size="small">{{ tag }}</el-tag>
+                </div>
+                <p class="diary-summary">{{ diary.summary }}</p>
+                <div class="diary-stats">
+                  <span><el-icon><View /></el-icon> {{ diary.views }}</span>
+                  <el-button type="primary" link @click.stop="diary.likes++">
+                    <el-icon><Star /></el-icon> {{ diary.likes }}
+                  </el-button>
+                </div>
+              </div>
+            </el-card>
+          </el-col>
+        </el-row>
       </el-tab-pane>
     </el-tabs>
-
-    <!-- Create Plan Dialog -->
+    
+    <!-- Create Travel Plan Dialog -->
     <el-dialog
       v-model="createDialogVisible"
       title="创建旅行计划"
-      width="700px"
+      width="70%"
       :close-on-click-modal="false"
-      @close="handleCreateCancel"
     >
       <el-form
-        ref="planFormRef"
-        :model="planForm"
-        :rules="planFormRules"
+        ref="createFormRef"
+        :model="createForm"
+        :rules="createFormRules"
         label-width="100px"
-        :disabled="formLoading"
       >
         <el-form-item label="标题" prop="title">
-          <el-input v-model="planForm.title" placeholder="请输入旅行计划标题" />
+          <el-input v-model="createForm.title" placeholder="请输入旅行计划标题" />
         </el-form-item>
         
-        <el-form-item label="开始日期" prop="startDate">
-          <el-date-picker
-            v-model="planForm.startDate"
-            type="date"
-            placeholder="选择开始日期"
-            value-format="YYYY-MM-DD"
-            :disabled-date="(time) => time.getTime() < Date.now()"
-            @change="updateItineraryDates"
+        <el-form-item label="描述" prop="description">
+          <el-input
+            v-model="createForm.description"
+            type="textarea"
+            rows="3"
+            placeholder="请输入旅行计划描述"
           />
         </el-form-item>
         
-        <el-form-item label="结束日期" prop="endDate">
-          <el-date-picker
-            v-model="planForm.endDate"
-            type="date"
-            placeholder="选择结束日期"
-            value-format="YYYY-MM-DD"
-            :disabled-date="(time) => time.getTime() < Date.now() || (planForm.startDate && time.getTime() < new Date(planForm.startDate).getTime())"
-          />
-        </el-form-item>
+        <el-row :gutter="20">
+          <el-col :span="12">
+            <el-form-item label="开始日期" prop="startDate">
+              <el-date-picker
+                v-model="createForm.startDate"
+                type="date"
+                value-format="YYYY-MM-DD"
+                placeholder="选择开始日期"
+                style="width: 100%"
+              />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="结束日期" prop="endDate">
+              <el-date-picker
+                v-model="createForm.endDate"
+                type="date"
+                value-format="YYYY-MM-DD"
+                placeholder="选择结束日期"
+                style="width: 100%"
+              />
+            </el-form-item>
+          </el-col>
+        </el-row>
         
-        <el-form-item label="国家" prop="destination.country">
-          <el-input v-model="planForm.destination.country" placeholder="请输入目的地国家" />
-        </el-form-item>
+        <el-divider>目的地信息</el-divider>
         
-        <el-form-item label="城市" prop="destination.city">
-          <el-input v-model="planForm.destination.city" placeholder="请输入目的地城市" />
-        </el-form-item>
+        <el-row :gutter="20">
+          <el-col :span="12">
+            <el-form-item label="国家" prop="destination.country">
+              <el-input v-model="createForm.destination.country" placeholder="请输入国家" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="城市" prop="destination.city">
+              <el-input v-model="createForm.destination.city" placeholder="请输入城市" />
+            </el-form-item>
+          </el-col>
+        </el-row>
         
         <el-form-item label="景点">
-          <el-tag
-            v-for="location in planForm.destination.locations"
-            :key="location"
-            closable
-            class="location-tag"
-            @close="handleLocationRemove(location)"
-          >
-            {{ location }}
-          </el-tag>
-          <el-input
-            v-if="planForm.destination.locations.length < 5"
-            class="location-input"
-            placeholder="输入景点名称后回车"
-            @keyup.enter="handleLocationAdd($event.target.value); $event.target.value = ''"
-          />
+          <div class="location-input">
+            <el-input
+              v-model="locationInput"
+              placeholder="输入景点名称"
+              @keyup.enter="handleAddLocation"
+            >
+              <template #append>
+                <el-button @click="handleAddLocation">添加</el-button>
+              </template>
+            </el-input>
+          </div>
+          <div class="locations-list" v-if="createForm.destination.locations.length">
+            <el-tag
+              v-for="(location, index) in createForm.destination.locations"
+              :key="index"
+              closable
+              @close="handleRemoveLocation(index)"
+              class="location-tag"
+            >
+              {{ location }}
+            </el-tag>
+          </div>
         </el-form-item>
-
-        <el-divider>第1天行程</el-divider>
         
-        <div class="activity-form">
-          <el-form-item label="时间">
-            <el-time-picker
-              v-model="planForm.itinerary[0].activities[0].time"
-              format="HH:mm"
-              placeholder="选择时间"
-              @change="val => handleActivityChange(0, 'time', val)"
-            />
-          </el-form-item>
-
-          <el-form-item label="地点">
-            <el-input
-              v-model="planForm.itinerary[0].activities[0].location"
-              placeholder="请输入活动地点"
-              @input="val => handleActivityChange(0, 'location', val)"
-            />
-          </el-form-item>
-
+        <el-divider>行程安排</el-divider>
+        
+        <!-- Itinerary Form -->
+        <div class="itinerary-form">
+          <el-row :gutter="20">
+            <el-col :span="8">
+              <el-form-item label="第几天">
+                <el-input-number 
+                  v-model="itineraryForm.day" 
+                  :min="1" 
+                  controls-position="right"
+                />
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
+              <el-form-item label="日期">
+                <el-date-picker
+                  v-model="itineraryForm.date"
+                  type="date"
+                  value-format="YYYY-MM-DD"
+                  placeholder="选择日期"
+                  style="width: 100%"
+                />
+              </el-form-item>
+            </el-col>
+          </el-row>
+          
           <el-form-item label="活动">
-            <el-input
-              v-model="planForm.itinerary[0].activities[0].activity"
-              placeholder="请输入活动内容"
-              @input="val => handleActivityChange(0, 'activity', val)"
-            />
+            <div class="activity-form">
+              <el-row :gutter="20">
+                <el-col :span="6">
+                  <el-time-picker
+                    v-model="activityForm.time"
+                    format="HH:mm"
+                    placeholder="时间"
+                    style="width: 100%"
+                  />
+                </el-col>
+                <el-col :span="6">
+                  <el-input v-model="activityForm.location" placeholder="地点" />
+                </el-col>
+                <el-col :span="6">
+                  <el-input v-model="activityForm.activity" placeholder="活动内容" />
+                </el-col>
+                <el-col :span="6">
+                  <el-input 
+                    v-model="activityForm.duration" 
+                    placeholder="持续时间"
+                    @keyup.enter="handleAddActivity"
+                  >
+                    <template #append>
+                      <el-button @click="handleAddActivity">添加</el-button>
+                    </template>
+                  </el-input>
+                </el-col>
+              </el-row>
+            </div>
+            
+            <div class="activities-list" v-if="itineraryForm.activities.length">
+              <el-table :data="itineraryForm.activities" style="width: 100%">
+                <el-table-column prop="time" label="时间" width="100" />
+                <el-table-column prop="location" label="地点" />
+                <el-table-column prop="activity" label="活动" />
+                <el-table-column prop="duration" label="持续时间" width="120" />
+                <el-table-column label="操作" width="80">
+                  <template #default="{ $index }">
+                    <el-button
+                      type="danger"
+                      link
+                      @click="handleRemoveActivity($index)"
+                    >
+                      删除
+                    </el-button>
+                  </template>
+                </el-table-column>
+              </el-table>
+            </div>
           </el-form-item>
-
-          <el-form-item label="时长">
-            <el-input
-              v-model="planForm.itinerary[0].activities[0].duration"
-              placeholder="例如：3小时"
-              @input="val => handleActivityChange(0, 'duration', val)"
-            />
+          
+          <el-form-item>
+            <el-button type="primary" @click="handleAddItinerary">
+              <el-icon><Plus /></el-icon>添加到行程
+            </el-button>
           </el-form-item>
         </div>
         
-        <el-form-item label="描述">
-          <el-input
-            v-model="planForm.description"
-            type="textarea"
-            rows="3"
-            placeholder="请输入计划描述"
-          />
-        </el-form-item>
+        <!-- Itinerary List -->
+        <div class="itinerary-list" v-if="createForm.itinerary.length">
+          <el-timeline>
+            <el-timeline-item
+              v-for="(item, index) in createForm.itinerary"
+              :key="index"
+              :timestamp="'第' + item.day + '天 - ' + item.date"
+              placement="top"
+            >
+              <el-card>
+                <template #header>
+                  <div class="itinerary-header">
+                    <span>行程安排</span>
+                    <el-button
+                      type="danger"
+                      link
+                      @click="handleRemoveItinerary(index)"
+                    >
+                      删除
+                    </el-button>
+                  </div>
+                </template>
+                <el-table :data="item.activities" style="width: 100%">
+                  <el-table-column prop="time" label="时间" width="100" />
+                  <el-table-column prop="location" label="地点" />
+                  <el-table-column prop="activity" label="活动" />
+                  <el-table-column prop="duration" label="持续时间" width="120" />
+                </el-table>
+              </el-card>
+            </el-timeline-item>
+          </el-timeline>
+        </div>
       </el-form>
       
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="handleCreateCancel">取消</el-button>
-          <el-button type="primary" @click="handleCreateConfirm" :loading="formLoading">
+          <el-button
+            type="primary"
+            :loading="createFormLoading"
+            @click="handleCreateSubmit"
+          >
             创建
           </el-button>
         </span>
@@ -469,7 +677,14 @@ onMounted(() => {
 
   .plan-card {
     margin-bottom: 20px;
-    
+    cursor: pointer;
+    transition: all 0.3s;
+
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 2px 12px 0 rgba(0,0,0,.1);
+    }
+
     .plan-header {
       display: flex;
       justify-content: space-between;
@@ -480,86 +695,186 @@ onMounted(() => {
         margin: 0;
         font-size: 18px;
         color: #303133;
+      }
+    }
+
+    .plan-content {
+      margin: 15px 0;
+      
+      p {
+        margin: 8px 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        
+        .el-icon {
+          color: #409EFF;
+        }
+      }
+      
+      .plan-description {
+        color: #606266;
+        font-size: 14px;
+        margin: 12px 0;
+      }
+      
+      .plan-itinerary {
+        margin-top: 15px;
+        padding: 12px;
+        background-color: #f5f7fa;
+        border-radius: 4px;
+        
+        p {
+          margin: 0 0 8px;
+        }
+        
+        ul {
+          margin: 0;
+          padding-left: 20px;
+          
+          li {
+            margin-bottom: 8px;
+            color: #606266;
+            font-size: 14px;
+            line-height: 1.4;
+            
+            &:last-child {
+              margin-bottom: 0;
+            }
+          }
+        }
+      }
+    }
+
+    .plan-actions {
+      margin-top: 15px;
+      text-align: right;
+    }
+  }
+
+  .diary-card {
+    margin-bottom: 20px;
+    overflow: hidden;
+
+    .diary-cover {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      cursor: pointer;
+      transition: transform 0.3s;
+
+      &:hover {
+        transform: scale(1.05);
+      }
+    }
+
+    .diary-info {
+      padding: 15px;
+
+      h3 {
+        margin: 0 0 10px;
+        font-size: 18px;
+        color: #303133;
         cursor: pointer;
 
         &:hover {
           color: #409EFF;
         }
       }
-    }
 
-    .plan-info {
-      p {
-        margin: 8px 0;
-        color: #606266;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-
-        .el-icon {
-          font-size: 16px;
-        }
-
-        &.locations {
-          flex-wrap: wrap;
+      .diary-meta {
+        color: #909399;
+        font-size: 14px;
+        margin-bottom: 10px;
+        
+        span {
+          margin-right: 15px;
+          display: inline-flex;
+          align-items: center;
           gap: 4px;
         }
       }
 
-      .plan-description {
-        margin: 12px 0;
-        color: #909399;
-        font-size: 14px;
+      .diary-tags {
+        margin: 10px 0;
+        
+        .el-tag {
+          margin-right: 8px;
+        }
       }
 
-      .plan-meta {
+      .diary-summary {
+        color: #606266;
+        margin: 12px 0;
+        line-height: 1.6;
+        height: 48px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+      }
+
+      .diary-stats {
         display: flex;
-        gap: 20px;
+        justify-content: space-between;
+        align-items: center;
         color: #909399;
-        font-size: 13px;
+        font-size: 14px;
 
         span {
-          display: flex;
+          display: inline-flex;
           align-items: center;
           gap: 4px;
         }
       }
     }
-
-    .plan-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 16px;
-      margin-top: 16px;
-      padding-top: 16px;
-      border-top: 1px solid #EBEEF5;
-    }
-  }
-
-  .location-tag {
-    margin-right: 8px;
-    margin-bottom: 8px;
   }
 
   .location-input {
-    width: 200px;
+    margin-bottom: 10px;
   }
 
-  .activity-form {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
+  .locations-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    
+    .location-tag {
+      margin-right: 8px;
+      margin-bottom: 8px;
+    }
+  }
+
+  .itinerary-form {
+    background-color: #f5f7fa;
+    padding: 20px;
+    border-radius: 4px;
     margin-bottom: 20px;
   }
 
-  :deep(.el-form-item__content) {
-    flex-wrap: wrap;
+  .activity-form {
+    margin-bottom: 15px;
   }
 
-  .pagination {
+  .activities-list {
+    margin-top: 15px;
+  }
+
+  .itinerary-list {
     margin-top: 20px;
-    text-align: right;
-    padding: 0 20px;
+    
+    .itinerary-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+  }
+
+  .dialog-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
   }
 }
 </style>

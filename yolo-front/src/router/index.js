@@ -53,7 +53,13 @@ const routes = [
         path: 'travel',
         name: 'Travel',
         component: () => import('@/views/entertainment/travel/index.vue'),
-        meta: { title: '旅游', icon: 'fa-solid fa-plane' }
+        meta: { title: '旅行计划', icon: 'fa-solid fa-plane' }
+      },
+      {
+        path: 'travel/detail/:id',
+        name: 'TravelPlanDetail',
+        component: () => import('@/views/entertainment/travel/detail.vue'),
+        meta: { title: '旅行计划详情' }
       }
     ]
   },
