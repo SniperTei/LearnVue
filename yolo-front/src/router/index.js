@@ -52,7 +52,7 @@ const routes = [
       {
         path: 'travel',
         name: 'Travel',
-        component: () => import('@/views/entertainment/travel/index.vue'),
+        component: () => import('@/views/entertainment/travel/plan/index.vue'),
         meta: { title: '旅行', icon: 'fa-solid fa-plane' },
         redirect: '/entertainment/travel/plan',
         children: [
