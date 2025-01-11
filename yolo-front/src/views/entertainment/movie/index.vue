@@ -2,8 +2,8 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { getMovieList, toggleLike, addToWantToWatch, removeFromWantToWatch } from '@/api/movieAPI'
-import { Star, StarFilled, View, Plus, Delete } from '@element-plus/icons-vue'
+import { getMovieList, toggleLike, addToWantToWatch, removeFromWantToWatch, deleteMovie, markAsWatched } from '@/api/movieAPI'
+import { Star, StarFilled, View, Plus, Delete, Edit } from '@element-plus/icons-vue'
 
 const router = useRouter()
 const loading = ref(false)
@@ -114,6 +114,50 @@ const handleViewDetail = (id) => {
   router.push(`/entertainment/movie/detail/${id}`)
 }
 
+const handleDelete = async (id) => {
+  try {
+    await ElMessageBox.confirm('确认删除该电影？', '提示', {
+      type: 'warning'
+    })
+    
+    const result = await deleteMovie(id)
+    if (result.code === '000000') {
+      ElMessage.success('删除成功')
+      loadMovies()
+    } else {
+      ElMessage.error(result.msg || '删除失败')
+    }
+  } catch (error) {
+    if (error !== 'cancel') {
+      console.error('Error deleting movie:', error)
+      ElMessage.error('删除失败')
+    }
+  }
+}
+
+const handleEdit = (id) => {
+  router.push(`/entertainment/movie/detail/${id}`)
+}
+
+const handleAdd = () => {
+  router.push('/entertainment/movie/detail')
+}
+
+const handleMarkAsWatched = async (movie) => {
+  try {
+    const result = await markAsWatched(movie.id, { watchDate: new Date().toISOString() })
+    if (result.code === '000000') {
+      movie.watchStatus = 'Y'
+      ElMessage.success('标记为已看')
+    } else {
+      ElMessage.error(result.msg || '操作失败')
+    }
+  } catch (error) {
+    console.error('Error marking as watched:', error)
+    ElMessage.error('操作失败')
+  }
+}
+
 const resetQuery = () => {
   queryParams.value = {
     page: 1,
@@ -176,6 +220,7 @@ onMounted(() => {
             搜索
           </el-button>
           <el-button @click="resetQuery">重置</el-button>
+          <el-button type="success" @click="handleAdd">新增电影</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -194,16 +239,36 @@ onMounted(() => {
                 circle
                 :icon="movie.likeStatus === 'Y' ? StarFilled : Star"
                 @click="handleToggleLike(movie)"
+                :type="movie.likeStatus === 'Y' ? 'warning' : ''"
+                title="收藏"
               />
               <el-button 
                 circle
                 :icon="movie.wantToWatchStatus === 'Y' ? Delete : Plus"
                 @click="handleToggleWantToWatch(movie)"
+                :type="movie.wantToWatchStatus === 'Y' ? 'danger' : ''"
+                title="想看"
               />
-              <el-button 
+              <el-button
                 circle
                 :icon="View"
-                @click="handleViewDetail(movie.id)"
+                @click="handleMarkAsWatched(movie)"
+                :type="movie.watchStatus === 'Y' ? 'success' : ''"
+                title="看过"
+              />
+              <el-button
+                circle
+                :icon="Edit"
+                @click="handleEdit(movie.id)"
+                type="primary"
+                title="编辑"
+              />
+              <el-button
+                circle
+                :icon="Delete"
+                @click="handleDelete(movie.id)"
+                type="danger"
+                title="删除"
               />
             </div>
           </div>
@@ -311,19 +376,9 @@ onMounted(() => {
         display: flex;
         justify-content: center;
         align-items: center;
-        gap: 12px;
+        gap: 10px;
         opacity: 0;
-        transition: opacity 0.3s ease;
-        
-        .el-button {
-          background: rgba(255, 255, 255, 0.9);
-          border: none;
-          
-          &:hover {
-            background: #fff;
-            transform: scale(1.1);
-          }
-        }
+        transition: opacity 0.3s;
       }
     }
     
@@ -379,6 +434,29 @@ onMounted(() => {
     margin-top: 32px;
     display: flex;
     justify-content: flex-end;
+  }
+  
+  .poster-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  
+  .poster-wrapper:hover .poster-overlay {
+    opacity: 1;
+  }
+  
+  .el-button.is-circle {
+    margin: 0 4px;
   }
 }
 </style>

@@ -44,6 +44,18 @@ const routes = [
         meta: { title: '影视', icon: 'fa-solid fa-film' }
       },
       {
+        path: 'movie/detail',
+        name: 'NewMovie',
+        component: () => import('@/views/entertainment/movie/detail.vue'),
+        meta: { title: '新增电影', activeMenu: '/entertainment/movie' }
+      },
+      {
+        path: 'movie/detail/:id',
+        name: 'MovieDetail',
+        component: () => import('@/views/entertainment/movie/detail.vue'),
+        meta: { title: '电影详情', activeMenu: '/entertainment/movie' }
+      },
+      {
         path: 'game',
         name: 'Game',
         component: () => import('@/views/entertainment/game/index.vue'),
