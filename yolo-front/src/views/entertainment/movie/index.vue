@@ -2,7 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { getMovieList, searchMovies, toggleLike, addToWantToWatch, removeFromWantToWatch } from '@/api/movieAPI'
+import { getMovieList, toggleLike, addToWantToWatch, removeFromWantToWatch } from '@/api/movieAPI'
 import { Star, StarFilled, View, Plus, Delete } from '@element-plus/icons-vue'
 
 const router = useRouter()
@@ -55,7 +55,7 @@ const handleSearch = async () => {
   queryParams.value.page = 1
   try {
     loading.value = true
-    const result = await searchMovies(queryParams.value)
+    const result = await getMovieList(queryParams.value)
     
     if (result.code === '000000' && result.data) {
       movieList.value = result.data.movies

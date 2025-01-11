@@ -21,10 +21,6 @@ export const deleteMovie = (id) => {
   return http.delete(`/api/v1/movies/delete/${id}`)
 }
 
-export const searchMovies = (params) => {
-  return http.get('/api/v1/movies/search', { params })
-}
-
 // 用户观影记录 API
 export const getUserMovieRecord = (movieId) => {
   return http.get(`/api/v1/user-movies/query/${movieId}`)
