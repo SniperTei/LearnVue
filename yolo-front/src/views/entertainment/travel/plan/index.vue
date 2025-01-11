@@ -74,6 +74,17 @@ const formatDate = (dateString) => {
   return new Date(dateString).toLocaleDateString('zh-CN')
 }
 
+const formatDateTime = (dateString) => {
+  if (!dateString) return ''
+  return new Date(dateString).toLocaleString('zh-CN', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
+}
+
 // Methods for create dialog
 const handleCreatePlan = () => {
   createDialogVisible.value = true
@@ -268,14 +279,18 @@ const fetchTravelDiaries = async () => {
   try {
     loading.value = true
     const result = await getTravelDiaries()
-    if (result.code === '000000') {
-      travelDiaries.value = result.data.travelDiaries
+    console.log('Travel diaries response:', result)
+    
+    if (result.code === '000000' && result.data) {
+      travelDiaries.value = result.data.diaries || []
     } else {
       ElMessage.error(result.msg || '获取旅行日记失败')
+      travelDiaries.value = []
     }
   } catch (error) {
     console.error('Error fetching travel diaries:', error)
     ElMessage.error('获取旅行日记失败')
+    travelDiaries.value = []
   } finally {
     loading.value = false
   }
@@ -387,37 +402,93 @@ onMounted(() => {
         </el-row>
       </el-tab-pane>
 
-      <el-tab-pane label="旅行游记" name="diaries">
+      <el-tab-pane label="旅行日记" name="diaries">
         <div class="section-header">
-          <h2>精选游记</h2>
+          <h2>我的旅行日记</h2>
           <el-button type="primary" @click="handleCreateDiary">
-            <el-icon><Edit /></el-icon>写游记
+            <el-icon><Plus /></el-icon>写新日记
           </el-button>
         </div>
-
-        <el-row :gutter="20">
-          <el-col :span="12" v-for="diary in travelDiaries" :key="diary._id">
+        
+        <el-row :gutter="20" v-loading="loading">
+          <el-col 
+            :span="12" 
+            v-for="diary in travelDiaries" 
+            :key="diary._id"
+          >
             <el-card class="diary-card">
-              <img :src="diary.cover" class="diary-cover" @click="router.push(`/entertainment/travel/diary/detail/${diary._id}`)">
-              <div class="diary-info">
-                <h3 @click="router.push(`/entertainment/travel/diary/detail/${diary._id}`)">{{ diary.title }}</h3>
+              <div class="diary-header">
+                <h3>{{ diary.title }}</h3>
                 <div class="diary-meta">
-                  <span><el-icon><User /></el-icon> {{ diary.author }}</span>
-                  <span><el-icon><Calendar /></el-icon> {{ diary.date }}</span>
+                  <span class="diary-time">
+                    <el-icon><Calendar /></el-icon>
+                    {{ formatDateTime(diary.createdAt) }}
+                  </span>
                 </div>
-                <div class="diary-tags">
-                  <el-tag v-for="tag in diary.tags" :key="tag" size="small">{{ tag }}</el-tag>
-                </div>
-                <p class="diary-summary">{{ diary.summary }}</p>
-                <div class="diary-stats">
-                  <span><el-icon><View /></el-icon> {{ diary.views }}</span>
-                  <el-button type="primary" link @click.stop="diary.likes++">
-                    <el-icon><Star /></el-icon> {{ diary.likes }}
-                  </el-button>
-                </div>
+              </div>
+              
+              <div class="diary-location" v-if="diary.location">
+                <el-icon><Location /></el-icon>
+                {{ diary.location.country }} · {{ diary.location.city }} · {{ diary.location.place }}
+              </div>
+              
+              <div class="diary-content">
+                <p>{{ diary.content }}</p>
+              </div>
+              
+              <div class="diary-images" v-if="diary.images?.length">
+                <el-image
+                  v-for="image in diary.images"
+                  :key="image._id"
+                  :src="image.url"
+                  :alt="image.caption"
+                  fit="cover"
+                  :preview-src-list="diary.images.map(img => img.url)"
+                >
+                  <template #error>
+                    <div class="image-error">
+                      <el-icon><Picture /></el-icon>
+                      图片加载失败
+                    </div>
+                  </template>
+                </el-image>
+              </div>
+              
+              <div class="diary-tags" v-if="diary.tags?.length">
+                <el-tag
+                  v-for="tag in diary.tags"
+                  :key="tag"
+                  size="small"
+                  effect="plain"
+                  class="diary-tag"
+                >
+                  {{ tag }}
+                </el-tag>
+              </div>
+              
+              <div class="diary-actions">
+                <el-button 
+                  type="primary" 
+                  link 
+                  @click="handleEditDiary(diary)"
+                >
+                  <el-icon><Edit /></el-icon>编辑
+                </el-button>
+                <el-button 
+                  type="danger" 
+                  link 
+                  @click="handleDeleteDiary(diary)"
+                >
+                  <el-icon><Delete /></el-icon>删除
+                </el-button>
               </div>
             </el-card>
           </el-col>
+          
+          <el-empty 
+            v-if="!loading && (!travelDiaries || travelDiaries.length === 0)" 
+            description="暂无旅行日记" 
+          />
         </el-row>
       </el-tab-pane>
     </el-tabs>
@@ -756,78 +827,98 @@ onMounted(() => {
     margin-bottom: 20px;
     overflow: hidden;
 
-    .diary-cover {
-      width: 100%;
-      height: 200px;
-      object-fit: cover;
-      cursor: pointer;
-      transition: transform 0.3s;
-
-      &:hover {
-        transform: scale(1.05);
-      }
-    }
-
-    .diary-info {
-      padding: 15px;
-
+    .diary-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+      
       h3 {
-        margin: 0 0 10px;
+        margin: 0;
         font-size: 18px;
         color: #303133;
-        cursor: pointer;
-
-        &:hover {
-          color: #409EFF;
-        }
       }
-
+      
       .diary-meta {
         color: #909399;
         font-size: 14px;
-        margin-bottom: 10px;
         
-        span {
-          margin-right: 15px;
-          display: inline-flex;
+        .diary-time {
+          display: flex;
           align-items: center;
           gap: 4px;
         }
       }
-
-      .diary-tags {
-        margin: 10px 0;
-        
-        .el-tag {
-          margin-right: 8px;
-        }
+    }
+    
+    .diary-location {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      color: #409EFF;
+      font-size: 14px;
+      margin-bottom: 12px;
+    }
+    
+    .diary-content {
+      margin: 16px 0;
+      color: #606266;
+      line-height: 1.6;
+      
+      p {
+        margin: 0;
+        white-space: pre-line;
       }
-
-      .diary-summary {
-        color: #606266;
-        margin: 12px 0;
-        line-height: 1.6;
-        height: 48px;
+    }
+    
+    .diary-images {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 8px;
+      margin: 16px 0;
+      
+      .el-image {
+        width: 100%;
+        height: 150px;
+        border-radius: 4px;
         overflow: hidden;
-        text-overflow: ellipsis;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-      }
-
-      .diary-stats {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        color: #909399;
-        font-size: 14px;
-
-        span {
-          display: inline-flex;
+        
+        .image-error {
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
           align-items: center;
-          gap: 4px;
+          color: #909399;
+          background: #f5f7fa;
+          font-size: 14px;
+          
+          .el-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+          }
         }
       }
+    }
+    
+    .diary-tags {
+      margin: 16px 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      
+      .diary-tag {
+        margin: 0;
+      }
+    }
+    
+    .diary-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 16px;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid #ebeef5;
     }
   }
 
@@ -841,8 +932,7 @@ onMounted(() => {
     gap: 8px;
     
     .location-tag {
-      margin-right: 8px;
-      margin-bottom: 8px;
+      margin: 0;
     }
   }
 

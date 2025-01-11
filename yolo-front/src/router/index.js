@@ -53,13 +53,40 @@ const routes = [
         path: 'travel',
         name: 'Travel',
         component: () => import('@/views/entertainment/travel/index.vue'),
-        meta: { title: '旅行计划', icon: 'fa-solid fa-plane' }
-      },
-      {
-        path: 'travel/detail/:id',
-        name: 'TravelPlanDetail',
-        component: () => import('@/views/entertainment/travel/detail.vue'),
-        meta: { title: '旅行计划详情' }
+        meta: { title: '旅行', icon: 'fa-solid fa-plane' },
+        redirect: '/entertainment/travel/plan',
+        children: [
+          {
+            path: 'plan',
+            name: 'TravelPlan',
+            component: () => import('@/views/entertainment/travel/plan/index.vue'),
+            meta: { title: '旅行计划' }
+          },
+          {
+            path: 'plan/detail/:id',
+            name: 'TravelPlanDetail',
+            component: () => import('@/views/entertainment/travel/plan/detail.vue'),
+            meta: { title: '旅行计划详情' }
+          },
+          {
+            path: 'diary',
+            name: 'TravelDiary',
+            component: () => import('@/views/entertainment/travel/diary/index.vue'),
+            meta: { title: '旅行游记' }
+          },
+          {
+            path: 'diary/detail',
+            name: 'NewTravelDiary',
+            component: () => import('@/views/entertainment/travel/diary/detail.vue'),
+            meta: { title: '写新游记' }
+          },
+          {
+            path: 'diary/detail/:id',
+            name: 'TravelDiaryDetail',
+            component: () => import('@/views/entertainment/travel/diary/detail.vue'),
+            meta: { title: '游记详情' }
+          }
+        ]
       }
     ]
   },
