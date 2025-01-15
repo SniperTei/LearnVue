@@ -9,16 +9,16 @@ export const getMovieList = (params = {}) => {
   return http.get('/api/v1/movies/list', { ...params })
 }
 
-export const getMovieDetail = (id) => {
-  return http.get(`/api/v1/movies/query/${id}`)
+export const getMovieDetail = (movieId) => {
+  return http.get(`/api/v1/movies/query/${movieId}`)
 }
 
-export const updateMovie = (id, data) => {
-  return http.put(`/api/v1/movies/update/${id}`, data)
+export const updateMovie = (movieId, data) => {
+  return http.put(`/api/v1/movies/update/${movieId}`, data)
 }
 
-export const deleteMovie = (id) => {
-  return http.delete(`/api/v1/movies/delete/${id}`)
+export const deleteMovie = (movieId) => {
+  return http.delete(`/api/v1/movies/delete/${movieId}`)
 }
 
 // 用户观影记录 API

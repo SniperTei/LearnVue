@@ -136,6 +136,8 @@ const handleDelete = async (id) => {
 }
 
 const handleEdit = (id) => {
+  // 打印movieId
+  console.log('movieId:', id)
   router.push(`/entertainment/movie/detail/${id}`)
 }
 
@@ -259,21 +261,21 @@ onMounted(() => {
               <el-button
                 circle
                 :icon="Edit"
-                @click="handleEdit(movie.id)"
+                @click="handleEdit(movie.movieId)"
                 type="primary"
                 title="编辑"
               />
               <el-button
                 circle
                 :icon="Delete"
-                @click="handleDelete(movie.id)"
+                @click="handleDelete(movie.movieId)"
                 type="danger"
                 title="删除"
               />
             </div>
           </div>
           <div class="movie-info">
-            <h3 class="title" @click="handleViewDetail(movie.id)">
+            <h3 class="title" @click="handleViewDetail(movie.movieId)">
               {{ movie.title }}
             </h3>
             <div class="meta">
