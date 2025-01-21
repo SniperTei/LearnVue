@@ -7,7 +7,7 @@ import { Plus } from '@element-plus/icons-vue'
 
 const route = useRoute()
 const router = useRouter()
-const diaryId = route.params.id
+const diaryId = route.params.travelDiaryId
 const isView = computed(() => route.query.mode === 'view')
 const isEdit = computed(() => !!diaryId && !isView.value)
 

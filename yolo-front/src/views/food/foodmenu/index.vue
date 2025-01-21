@@ -50,7 +50,7 @@
     <!-- 菜品列表 -->
     <div class="menu-list">
       <el-row :gutter="20">
-        <el-col v-for="item in foodMenus" :key="item._id" :span="6">
+        <el-col v-for="item in foodMenus" :key="item.foodMenuId" :span="6">
           <el-card :body-style="{ padding: '0px' }" class="menu-card">
             <el-image
               :src="item.imageUrl"
@@ -75,7 +75,7 @@
               <div class="menu-chef">厨师：{{ item.chef }}</div>
               <div class="menu-actions" v-if="userStore.userInfo.isAdmin">
                 <el-button type="primary" link @click="handleEdit(item)">编辑</el-button>
-                <el-button type="danger" link @click="handleDelete(item._id)">删除</el-button>
+                <el-button type="danger" link @click="handleDelete(item.foodMenuId)">删除</el-button>
               </div>
             </div>
           </el-card>
@@ -295,7 +295,7 @@ const handleAdd = () => {
 // 编辑菜品
 const handleEdit = (item) => {
   isEditing.value = true;
-  editingId.value = item._id;
+  editingId.value = item.foodMenuId;
   form.value = { ...item };
   dialogVisible.value = true;
 };

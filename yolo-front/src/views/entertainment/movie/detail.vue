@@ -47,7 +47,7 @@ const rules = {
   actors: [{ required: true, message: '请输入演员', trigger: 'blur' }],
   releaseDate: [{ required: true, message: '请选择上映日期', trigger: 'change' }],
   duration: [{ required: true, message: '请输入时长', trigger: 'blur' }],
-  imageUrl: [{ required: true, message: '请上传电影海报', trigger: 'change' }]
+  // imageUrl: [{ required: true, message: '请上传电影海报', trigger: 'change' }]
 }
 
 const formRef = ref(null)
@@ -116,6 +116,7 @@ const beforeUpload = (file) => {
 
 // 上传电影海报
 const uploadMoviePoster = async () => {
+  console.log('1212')
   if (!uploadFiles.value.length) return true
 
   try {
@@ -124,8 +125,9 @@ const uploadMoviePoster = async () => {
     uploadFiles.value.forEach(file => {
       formData.append('files', file.raw)
     })
-
+    console.log('upload files : ', uploadFiles);
     const res = await uploadImages(formData)
+    console.log('res : ', res);
     if (res.code === '000000' && res.data.urls?.length > 0) {
       form.value.imageUrl = res.data.urls[0].url
       ElMessage.success('海报上传成功')
@@ -145,11 +147,10 @@ const uploadMoviePoster = async () => {
 
 const handleSubmit = async () => {
   if (!formRef.value) return
-  
   try {
     await formRef.value.validate()
     loading.value = true
-    
+    console.log('sdfsdfsdf')
     // 如果有新上传的文件，先上传图片
     if (uploadFiles.value.length > 0) {
       const uploadSuccess = await uploadMoviePoster()
@@ -232,9 +233,9 @@ onMounted(() => {
               <el-input v-model="form.actors" placeholder="请输入演员，多个演员用逗号分隔" />
             </el-form-item>
             
-            <el-form-item label="上映日期" prop="releaseDate">
+            <el-form-item label="上映日期" prop="publishDate">
               <el-date-picker
-                v-model="form.releaseDate"
+                v-model="form.publishDate"
                 type="date"
                 placeholder="请选择上映日期"
                 class="w-100"
@@ -259,9 +260,9 @@ onMounted(() => {
               />
             </el-form-item>
             
-            <el-form-item label="简介" prop="description">
+            <el-form-item label="简介" prop="desc">
               <el-input
-                v-model="form.description"
+                v-model="form.desc"
                 type="textarea"
                 :rows="4"
                 placeholder="请输入电影简介"

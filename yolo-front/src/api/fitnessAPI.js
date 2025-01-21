@@ -23,7 +23,7 @@ export const createFitness = (data) => {
  * @returns {Promise} 返回记录列表的Promise
  */
 export const getFitnessList = (params = {}) => {
-  return http.get('/api/v1/fitness/list', { params })
+  return http.get('/api/v1/fitness/list', { ...params })
 }
 
 /**

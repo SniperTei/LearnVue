@@ -19,7 +19,7 @@
 
     <div class="food-list" v-if="recommendedFoods.length">
       <el-row :gutter="20">
-        <el-col v-for="food in recommendedFoods" :key="food._id" :span="8">
+        <el-col v-for="food in recommendedFoods" :key="food.foodMenuId" :span="8">
           <el-card :body-style="{ padding: '0px' }" class="food-card">
             <el-image
               :src="food.imageUrl"

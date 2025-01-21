@@ -11,7 +11,7 @@
 
     <div class="content-container">
       <!-- 酒类选择部分 -->
-      <div class="wine-selection">
+      <div class="alcohol-selection">
         <h3>选择酒品</h3>
         <div class="search-bar">
           <el-input
@@ -39,19 +39,19 @@
           </el-select>
         </div>
 
-        <div class="wines-grid">
+        <div class="alcohols-grid">
           <el-card
-            v-for="wine in filteredWines"
-            :key="wine._id"
-            :class="{ 'selected': selectedWine?._id === wine._id }"
-            @click="selectWine(wine)"
+            v-for="alcohol in filteredAlcohols"
+            :key="alcohol.alcoholId"
+            :class="{ 'selected': selectedAlcohol?.alcoholId === alcohol.alcoholId }"
+            @click="selectAlcohol(alcohol)"
           >
-            <div class="wine-card-content">
+            <div class="alcohol-card-content">
               <el-image
-                v-if="wine.imageUrl"
-                :src="wine.imageUrl"
+                v-if="alcohol.imageUrl"
+                :src="alcohol.imageUrl"
                 fit="cover"
-                class="wine-image"
+                class="alcohol-image"
               >
                 <template #error>
                   <div class="image-slot">
@@ -59,13 +59,13 @@
                   </div>
                 </template>
               </el-image>
-              <div class="wine-info">
-                <h4>{{ wine.name }}</h4>
+              <div class="alcohol-info">
+                <h4>{{ alcohol.name }}</h4>
                 <div class="tags">
-                  <el-tag size="small">{{ getCategoryLabel(wine.type) }}</el-tag>
-                  <el-tag type="warning" size="small">{{ wine.alcoholContent }}%</el-tag>
+                  <el-tag size="small">{{ getCategoryLabel(alcohol.type) }}</el-tag>
+                  <el-tag type="warning" size="small">{{ alcohol.alcoholContent }}%</el-tag>
                 </div>
-                <p class="brand">{{ wine.brand }}</p>
+                <p class="brand">{{ alcohol.brand }}</p>
               </div>
             </div>
           </el-card>
@@ -85,7 +85,7 @@
       </div>
 
       <!-- 记录详情表单 -->
-      <div class="record-form" v-if="selectedWine">
+      <div class="record-form" v-if="selectedAlcohol">
         <h3>记录详情</h3>
         <el-form
           ref="formRef"
@@ -94,10 +94,10 @@
           label-width="100px"
         >
           <el-form-item label="选择的酒品">
-            <div class="selected-wine-info">
-              <span class="name">{{ selectedWine.name }}</span>
-              <span class="type">{{ getCategoryLabel(selectedWine.type) }}</span>
-              <span class="alcohol">{{ selectedWine.alcoholContent }}%</span>
+            <div class="selected-alcohol-info">
+              <span class="name">{{ selectedAlcohol.name }}</span>
+              <span class="type">{{ getCategoryLabel(selectedAlcohol.type) }}</span>
+              <span class="alcohol">{{ selectedAlcohol.alcoholContent }}%</span>
             </div>
           </el-form-item>
 
@@ -148,18 +148,6 @@
             <el-input v-model="form.location" placeholder="输入饮酒地点" />
           </el-form-item>
 
-          <el-form-item label="同饮人" prop="companions">
-            <el-select
-              v-model="form.companions"
-              multiple
-              filterable
-              allow-create
-              default-first-option
-              placeholder="输入或选择同饮人（可多选）"
-              style="width: 100%"
-            />
-          </el-form-item>
-
           <el-form-item label="照片" prop="photos">
             <el-upload
               v-model:file-list="fileList"
@@ -188,6 +176,10 @@
             />
           </el-form-item>
 
+          <el-form-item label="备注" prop="note">
+            <el-input v-model="form.note" placeholder="输入备注" />
+          </el-form-item>
+
           <el-form-item>
             <el-button type="primary" @click="submitForm">提交记录</el-button>
           </el-form-item>
@@ -208,13 +200,13 @@ import { createDrink } from '@/api/drinkAPI'
 const router = useRouter()
 
 // 酒类数据
-const wines = ref([])
+const alcohols = ref([])
 const total = ref(0)
 const currentPage = ref(1)
 const pageSize = ref(12)
 const searchQuery = ref('')
 const selectedType = ref('')
-const selectedWine = ref(null)
+const selectedAlcohol = ref(null)
 const loading = ref(false)
 const fileList = ref([])
 const dialogImageUrl = ref('')
@@ -229,8 +221,6 @@ const form = ref({
   mood: '',
   occasion: '',
   location: '',
-  companions: [],
-  photos: [],
   note: ''
 })
 
@@ -289,18 +279,18 @@ const getCategoryLabel = (value) => {
 }
 
 // 过滤后的酒类列表
-const filteredWines = computed(() => {
-  return wines.value.filter(wine => {
+const filteredAlcohols = computed(() => {
+  return alcohols.value.filter(alcohol => {
     const matchName = searchQuery.value ? 
-      wine.name.toLowerCase().includes(searchQuery.value.toLowerCase()) : true
+      alcohol.name.toLowerCase().includes(searchQuery.value.toLowerCase()) : true
     const matchType = selectedType.value ? 
-      wine.type === selectedType.value : true
+      alcohol.type === selectedType.value : true
     return matchName && matchType
   })
 })
 
 // 加载酒类列表
-const loadWines = async () => {
+const loadAlcohols = async () => {
   try {
     loading.value = true;
     const params = {
@@ -308,9 +298,13 @@ const loadWines = async () => {
       limit: pageSize.value
     };
     
-    const data = await getAlcoholList(params);
-    wines.value = data.alcohols;
-    total.value = data.pagination.total;
+    const res = await getAlcoholList(params);
+    if (res.code === '000000') {
+      alcohols.value = res.data.alcohols;
+      total.value = res.data.pagination.total;
+    } else {
+      ElMessage.error(res.message || '加载失败');
+    }
   } catch (error) {
     console.error('加载酒类列表失败:', error);
     ElMessage.error(error.message || '加载失败，请重试');
@@ -320,25 +314,25 @@ const loadWines = async () => {
 };
 
 // 选择酒品
-const selectWine = (wine) => {
-  selectedWine.value = wine
+const selectAlcohol = (alcohol) => {
+  selectedAlcohol.value = alcohol
 }
 
 // 搜索处理
 const handleSearch = () => {
   currentPage.value = 1
-  loadWines()
+  loadAlcohols()
 }
 
 // 分页处理
 const handleSizeChange = (val) => {
   pageSize.value = val
-  loadWines()
+  loadAlcohols()
 }
 
 const handleCurrentChange = (val) => {
   currentPage.value = val
-  loadWines()
+  loadAlcohols()
 }
 
 // 图片上传相关方法
@@ -360,7 +354,7 @@ const handleRemove = (file) => {
 
 // 提交表单
 const submitForm = async () => {
-  if (!selectedWine.value) {
+  if (!selectedAlcohol.value) {
     ElMessage.warning('请先选择一个酒品')
     return
   }
@@ -370,20 +364,18 @@ const submitForm = async () => {
   try {
     await formRef.value.validate()
     
-    const data = {
-      alcoholId: selectedWine.value._id,
+    const submitData = {
+      alcoholId: selectedAlcohol.value.alcoholId,
       amount: form.value.amount,
       unit: form.value.unit,
       drinkTime: form.value.drinkTime,
       mood: form.value.mood,
       occasion: form.value.occasion,
       location: form.value.location,
-      companions: form.value.companions,
-      photos: form.value.photos,
       note: form.value.note
     };
-
-    await createDrink(data);
+    console.log('提交的数据:', submitData);
+    await createDrink(submitData);
     ElMessage.success('记录添加成功');
     router.back();
   } catch (error) {
@@ -393,7 +385,7 @@ const submitForm = async () => {
 }
 
 // 初始化
-loadWines()
+loadAlcohols()
 </script>
 
 <style lang="scss" scoped>
@@ -419,7 +411,7 @@ loadWines()
     grid-template-columns: 2fr 1fr;
     gap: 24px;
 
-    .wine-selection {
+    .alcohol-selection {
       h3 {
         margin: 0 0 16px 0;
       }
@@ -434,7 +426,7 @@ loadWines()
         }
       }
 
-      .wines-grid {
+      .alcohols-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
         gap: 16px;
@@ -454,8 +446,8 @@ loadWines()
             background-color: var(--el-color-primary-light-9);
           }
 
-          .wine-card-content {
-            .wine-image {
+          .alcohol-card-content {
+            .alcohol-image {
               width: 100%;
               height: 150px;
               border-radius: 4px;
@@ -473,7 +465,7 @@ loadWines()
               font-size: 24px;
             }
 
-            .wine-info {
+            .alcohol-info {
               h4 {
                 margin: 0 0 8px 0;
                 font-size: 16px;
@@ -513,7 +505,7 @@ loadWines()
         margin: 0 0 20px 0;
       }
 
-      .selected-wine-info {
+      .selected-alcohol-info {
         display: flex;
         align-items: center;
         gap: 12px;

@@ -462,70 +462,123 @@ const resetForm = () => {
 
 <style lang="scss" scoped>
 .restaurant-container {
-  padding: 20px;
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
 
   .search-area {
-    margin-bottom: 20px;
+    background: #fff;
+    padding: 24px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    margin-bottom: 24px;
+
+    .search-form {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      align-items: flex-end;
+
+      .el-form-item {
+        margin: 0;
+      }
+
+      .el-button {
+        margin-left: 0;
+      }
+    }
+
     .mx-2 {
-      margin: 0 10px;
+      margin: 0 8px;
     }
   }
 
   .operation-area {
-    margin-bottom: 20px;
+    margin-bottom: 24px;
   }
 
   .list-area {
     min-height: 300px;
 
     :deep(.el-empty) {
-      padding: 60px 0;
+      padding: 80px 0;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 
       .el-empty__image {
-        width: 160px;
-        height: 160px;
+        width: 200px;
+        height: 200px;
       }
 
       .el-empty__description {
-        margin-top: 20px;
-        font-size: 16px;
-        color: #909399;
+        margin-top: 24px;
+        font-size: 18px;
+        color: #606266;
       }
 
       .el-button {
-        margin-top: 20px;
+        margin-top: 24px;
+        padding: 12px 24px;
       }
     }
 
     .restaurant-card {
-      margin-bottom: 20px;
+      margin-bottom: 24px;
+      border-radius: 12px;
+      overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s;
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
 
       .restaurant-info {
+        padding: 24px;
+
         .restaurant-header {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin-bottom: 15px;
+          margin-bottom: 20px;
 
           .restaurant-name {
             margin: 0;
-            font-size: 20px;
-            font-weight: bold;
+            font-size: 24px;
+            font-weight: 600;
+            color: #303133;
+          }
+
+          .restaurant-rating {
+            :deep(.el-rate__icon) {
+              font-size: 20px;
+            }
           }
         }
 
         .restaurant-content {
           display: flex;
-          gap: 20px;
+          gap: 24px;
 
           .restaurant-images {
-            display: flex;
-            gap: 10px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            width: 100%;
+            max-width: 600px;
             
             .el-image {
-              width: 150px;
-              height: 150px;
+              width: 100%;
+              height: 180px;
               border-radius: 8px;
+              object-fit: cover;
+              cursor: pointer;
+              transition: transform 0.2s;
+
+              &:hover {
+                transform: scale(1.03);
+              }
             }
           }
 
@@ -533,37 +586,52 @@ const resetForm = () => {
             flex: 1;
             
             p {
-              margin: 8px 0;
+              margin: 12px 0;
+              font-size: 14px;
             }
 
             .address {
-              color: #666;
+              color: #606266;
+              display: flex;
+              align-items: center;
+              gap: 8px;
+
+              i {
+                font-size: 16px;
+                color: #409EFF;
+              }
             }
 
             .description {
-              color: #333;
-              line-height: 1.5;
+              color: #303133;
+              line-height: 1.6;
             }
 
             .price-level {
-              color: #409EFF;
-              font-weight: bold;
+              color: #67C23A;
+              font-weight: 500;
             }
           }
         }
       }
 
       .restaurant-actions {
-        margin-top: 15px;
+        margin-top: 20px;
         text-align: right;
+        padding: 16px 24px;
+        border-top: 1px solid #ebeef5;
       }
     }
   }
 
   .pagination-area {
-    margin-top: 20px;
+    margin-top: 24px;
     display: flex;
     justify-content: center;
+    padding: 16px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   }
 }
 
@@ -571,10 +639,12 @@ const resetForm = () => {
   width: 100px;
   height: 100px;
   line-height: 100px;
+  border-radius: 8px;
 }
 
 :deep(.el-upload-list--picture-card .el-upload-list__item) {
   width: 100px;
   height: 100px;
+  border-radius: 8px;
 }
 </style>

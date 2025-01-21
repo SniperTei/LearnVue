@@ -299,7 +299,7 @@ const fetchTravelDiaries = async () => {
 // Handlers
 const handleDelete = async (row) => {
   try {
-    const result = await deleteTravelPlan(row._id)
+    const result = await deleteTravelPlan(row.travelPlanId)
     if (result.code === '000000') {
       ElMessage.success('删除成功')
       fetchTravelPlans()
@@ -323,6 +323,17 @@ const handleTabChange = (tab) => {
   } else if (tab === 'diaries') {
     fetchTravelDiaries()
   }
+}
+
+const travelPlanItemClick = (plan) => {
+  console.log('Plan clicked:', plan);
+  console.log('Travel Plan ID:', plan.travelPlanId);
+  router.push({
+    name: 'TravelPlanDetail',
+    params: { travelPlanId: plan.travelPlanId }
+  }).catch(err => {
+    console.error('Navigation error:', err);
+  });
 }
 
 // Watch startDate to set initial itinerary date
@@ -353,11 +364,12 @@ onMounted(() => {
           <el-col 
             :span="12" 
             v-for="plan in travelPlans" 
-            :key="plan._id"
+            :key="plan.travelPlanId"
           >
             <el-card 
               class="plan-card" 
-              @click="router.push(`/entertainment/travel/detail/${plan._id}`)"
+              @click.stop="travelPlanItemClick(plan)"
+              style="cursor: pointer;"
             >
               <div class="plan-header">
                 <h3>{{ plan.title }}</h3>
@@ -414,7 +426,7 @@ onMounted(() => {
           <el-col 
             :span="12" 
             v-for="diary in travelDiaries" 
-            :key="diary._id"
+            :key="diary.travelPlanId"
           >
             <el-card class="diary-card">
               <div class="diary-header">
@@ -439,7 +451,7 @@ onMounted(() => {
               <div class="diary-images" v-if="diary.images?.length">
                 <el-image
                   v-for="image in diary.images"
-                  :key="image._id"
+                  :key="image.travelPlanId"
                   :src="image.url"
                   :alt="image.caption"
                   fit="cover"

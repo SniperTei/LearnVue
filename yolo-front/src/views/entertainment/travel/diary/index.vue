@@ -2,7 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { getTravelDiaryList } from '@/api/travelAPI'
+import { getTravelDiaries, deleteTravelDiary } from '@/api/travelAPI'
 
 const router = useRouter()
 const loading = ref(false)
@@ -19,7 +19,7 @@ const loadDiaries = async () => {
       limit: pageSize.value
     }
     
-    const result = await getTravelDiaryList(params)
+    const result = await getTravelDiaries(params)
     if (result.code === '000000' && result.data) {
       diaryList.value = result.data.diaries
       total.value = result.data.totalPages * pageSize.value
@@ -51,6 +51,29 @@ const handleViewDiary = (id) => {
   router.push(`/entertainment/travel/diary/detail/${id}?mode=view`)
 }
 
+const handleDelete = async (id) => {
+  try {
+    await ElMessageBox.confirm('确定要删除这篇游记吗？', '提示', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    })
+    
+    const result = await deleteTravelDiary(id)
+    if (result.code === '000000') {
+      ElMessage.success('删除成功')
+      loadDiaries()
+    } else {
+      ElMessage.error(result.msg || '删除失败')
+    }
+  } catch (error) {
+    if (error !== 'cancel') {
+      console.error('Error deleting diary:', error)
+      ElMessage.error('删除失败')
+    }
+  }
+}
+
 const formatLocation = (location) => {
   if (!location) return ''
   const { country, city, place } = location
@@ -80,11 +103,11 @@ onMounted(() => {
         <el-empty v-if="!diaryList.length" description="暂无游记" />
         
         <template v-else>
-          <div v-for="diary in diaryList" :key="diary._id" class="diary-item">
+          <div v-for="diary in diaryList" :key="diary.travelDiaryId" class="diary-item">
             <el-card shadow="hover">
               <div class="diary-content">
                 <div class="diary-header">
-                  <h3 class="diary-title" @click="handleViewDiary(diary._id)">
+                  <h3 class="diary-title" @click="handleViewDiary(diary.travelDiaryId)">
                     {{ diary.title }}
                   </h3>
                   <div class="diary-meta">
@@ -129,9 +152,16 @@ onMounted(() => {
                   <el-button
                     type="primary"
                     link
-                    @click="handleEditDiary(diary._id)"
+                    @click="handleEditDiary(diary.travelDiaryId)"
                   >
                     编辑
+                  </el-button>
+                  <el-button
+                    type="danger"
+                    link
+                    @click.stop="handleDelete(diary.travelDiaryId)"
+                  >
+                    删除
                   </el-button>
                 </div>
               </div>

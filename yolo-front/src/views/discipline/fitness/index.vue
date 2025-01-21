@@ -164,7 +164,7 @@ const openAddDialog = () => {
 const openEditDialog = (record) => {
   dialogTitle.value = '编辑记录'
   isEditing.value = true
-  editingId.value = record._id
+  editingId.value = record.fitnessId
   form.value = { ...record }
   dialogVisible.value = true
 }
@@ -211,7 +211,7 @@ const handleDelete = async (id) => {
   } catch (error) {
     if (error !== 'cancel') {
       console.error('删除失败:', error)
-      ElMessage.error('删除失败')
+      // ElMessage.error('删除失败')
     }
   }
 }
@@ -283,7 +283,7 @@ onMounted(() => {
     <!-- 记录列表 -->
     <div class="records-list">
       <el-empty v-if="records.length === 0" description="暂无记录" />
-      <el-card v-else v-for="record in records" :key="record._id" class="record-card">
+      <el-card v-else v-for="record in records" :key="record.fitnessId" class="record-card">
         <div class="record-header">
           <div class="date-info">
             <span class="date">{{ formatDateTime(record.exerciseDate) }}</span>
@@ -292,7 +292,7 @@ onMounted(() => {
             <el-button type="primary" link @click="openEditDialog(record)">
               <el-icon><Edit /></el-icon>
             </el-button>
-            <el-button type="danger" link @click="handleDelete(record._id)">
+            <el-button type="danger" link @click="handleDelete(record.fitnessId)">
               <el-icon><Delete /></el-icon>
             </el-button>
           </div>

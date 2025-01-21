@@ -18,7 +18,7 @@ const loading = ref(true)
 const fetchTravelPlan = async () => {
   try {
     loading.value = true
-    const result = await getTravelPlanDetail(route.params.id)
+    const result = await getTravelPlanDetail(route.params.travelPlanId)
     if (result.code === '000000') {
       travelPlan.value = result.data
     } else {
@@ -36,7 +36,7 @@ const fetchTravelPlan = async () => {
 const handlePublishStatus = async (action) => {
   try {
     const apiCall = action === 'publish' ? publishTravelPlan : unpublishTravelPlan
-    const result = await apiCall(route.params.id)
+    const result = await apiCall(route.params.travelPlanId)
     if (result.code === '000000') {
       ElMessage.success(result.msg)
       travelPlan.value = result.data
@@ -52,7 +52,7 @@ const handlePublishStatus = async (action) => {
 // Delete travel plan
 const handleDelete = async () => {
   try {
-    const result = await deleteTravelPlan(route.params.id)
+    const result = await deleteTravelPlan(route.params.travelPlanId)
     if (result.code === '000000') {
       ElMessage.success('删除成功')
       router.push('/entertainment/travel')
@@ -94,7 +94,7 @@ onMounted(() => {
               </el-button>
               <el-button 
                 type="primary" 
-                @click="router.push(`/entertainment/travel/edit/${route.params.id}`)"
+                @click="router.push(`/entertainment/travel/plan/edit/${route.params.travelPlanId}`)"
               >
                 编辑
               </el-button>

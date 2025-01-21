@@ -38,7 +38,7 @@
             <div class="records-list" v-if="hasRecords(data)">
               <div 
                 v-for="record in getRecordsByDate(data)" 
-                :key="record._id"
+                :key="record.drinkId"
                 class="record-item"
                 @click.stop="openEditDialog(record)"
               >
@@ -56,7 +56,7 @@
                   type="danger" 
                   link 
                   size="small"
-                  @click.stop="handleDelete(record._id)"
+                  @click.stop="handleDelete(record.drinkId)"
                 >
                   <el-icon><Delete /></el-icon>
                 </el-button>
