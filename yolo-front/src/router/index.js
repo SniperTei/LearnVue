@@ -64,38 +64,47 @@ const routes = [
       {
         path: 'travel',
         name: 'Travel',
-        component: () => import('@/views/entertainment/travel/plan/index.vue'),
-        meta: { title: '旅行', icon: 'fa-solid fa-plane' }
-      },
-      {
-        path: 'travel/plan/detail/:travelPlanId',
-        name: 'TravelPlanDetail',
-        component: () => import('@/views/entertainment/travel/plan/detail.vue'),
-        meta: { title: '旅行计划详情', activeMenu: '/entertainment/travel' }
-      },
-      {
-        path: 'travel/plan/edit/:travelPlanId',
-        name: 'TravelPlanEdit',
-        component: () => import('@/views/entertainment/travel/plan/edit.vue'),
-        meta: { title: '编辑旅行计划', activeMenu: '/entertainment/travel' }
-      },
-      {
-        path: 'travel/diary',
-        name: 'TravelDiary',
-        component: () => import('@/views/entertainment/travel/diary/index.vue'),
-        meta: { title: '旅行游记' }
-      },
-      {
-        path: 'travel/diary/detail',
-        name: 'NewTravelDiary',
-        component: () => import('@/views/entertainment/travel/diary/detail.vue'),
-        meta: { title: '写新游记', activeMenu: '/entertainment/travel/diary' }
-      },
-      {
-        path: 'travel/diary/detail/:travelDiaryId',
-        name: 'TravelDiaryDetail',
-        component: () => import('@/views/entertainment/travel/diary/detail.vue'),
-        meta: { title: '游记详情', activeMenu: '/entertainment/travel/diary' }
+        component: () => import('@/views/entertainment/travel/index.vue'),
+        meta: { title: '旅行', icon: 'fa-solid fa-plane' },
+        redirect: { name: 'TravelPlan' },
+        children: [
+          {
+            path: 'plan',
+            name: 'TravelPlan',
+            component: () => import('@/views/entertainment/travel/plan/index.vue'),
+            meta: { title: '旅行计划' }
+          },
+          {
+            path: 'plan/detail/:travelPlanId',
+            name: 'TravelPlanDetail',
+            component: () => import('@/views/entertainment/travel/plan/detail.vue'),
+            meta: { title: '旅行计划详情', activeMenu: '/entertainment/travel/plan' }
+          },
+          {
+            path: 'plan/edit/:travelPlanId',
+            name: 'TravelPlanEdit',
+            component: () => import('@/views/entertainment/travel/plan/edit.vue'),
+            meta: { title: '编辑旅行计划', activeMenu: '/entertainment/travel/plan' }
+          },
+          {
+            path: 'diary',
+            name: 'TravelDiary',
+            component: () => import('@/views/entertainment/travel/diary/index.vue'),
+            meta: { title: '旅行游记' }
+          },
+          {
+            path: 'diary/detail',
+            name: 'NewTravelDiary',
+            component: () => import('@/views/entertainment/travel/diary/detail.vue'),
+            meta: { title: '写新游记', activeMenu: '/entertainment/travel/diary' }
+          },
+          {
+            path: 'diary/detail/:diaryId',
+            name: 'TravelDiaryDetail',
+            component: () => import('@/views/entertainment/travel/diary/detail.vue'),
+            meta: { title: '游记详情', activeMenu: '/entertainment/travel/diary' }
+          }
+        ]
       }
     ]
   },

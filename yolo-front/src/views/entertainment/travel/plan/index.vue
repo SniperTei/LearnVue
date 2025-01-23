@@ -313,7 +313,13 @@ const handleDelete = async (row) => {
 }
 
 const handleCreateDiary = () => {
-  router.push('/entertainment/travel/diary/create')
+  // router.push('/entertainment/travel/diary/create')
+  // NewTravelDiary
+  router.push({
+    name: 'NewTravelDiary',
+  }).catch(err => {
+    console.error('Navigation error:', err);
+  });
 }
 
 // Watch tab changes
@@ -351,213 +357,89 @@ onMounted(() => {
 
 <template>
   <div class="travel-container">
-    <el-tabs v-model="activeTab" class="travel-tabs" @tab-change="handleTabChange">
-      <el-tab-pane label="旅游计划" name="plans">
-        <div class="section-header">
-          <h2>我的旅行计划</h2>
-          <el-button type="primary" @click="handleCreatePlan">
-            <el-icon><Plus /></el-icon>创建新计划
-          </el-button>
-        </div>
-        
-        <el-row :gutter="20" v-loading="loading">
-          <el-col 
-            :span="12" 
-            v-for="plan in travelPlans" 
-            :key="plan.travelPlanId"
-          >
-            <el-card 
-              class="plan-card" 
-              @click.stop="travelPlanItemClick(plan)"
-              style="cursor: pointer;"
-            >
-              <div class="plan-header">
-                <h3>{{ plan.title }}</h3>
-                <el-tag :type="plan.status === 'published' ? 'success' : 'warning'">
-                  {{ plan.status === 'published' ? '已发布' : '未发布' }}
-                </el-tag>
-              </div>
-              <div class="plan-content">
-                <p><el-icon><Calendar /></el-icon> {{ formatDate(plan.startDate) }} - {{ formatDate(plan.endDate) }}</p>
-                <p><el-icon><Location /></el-icon> {{ plan.destination?.city }}, {{ plan.destination?.country }}</p>
-                <p v-if="plan.destination?.locations?.length">
-                  <el-icon><List /></el-icon> 景点：{{ plan.destination.locations.join(', ') }}
-                </p>
-                <p class="plan-description">{{ plan.description }}</p>
-                <div class="plan-itinerary" v-if="plan.itinerary?.length">
-                  <p><strong>行程安排：</strong></p>
-                  <ul>
-                    <li v-for="(item, index) in plan.itinerary" :key="index">
-                      第{{ item.day }}天 ({{ formatDate(item.date) }}): 
-                      <template v-if="item.activities?.length">
-                        {{ item.activities.map(a => `${a.time} ${a.activity}(${a.location})`).join(', ') }}
-                      </template>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-              <div class="plan-actions">
-                <el-button 
-                  type="danger" 
-                  @click.stop="handleDelete(plan)"
-                  :loading="loading"
-                >
-                  <el-icon><Delete /></el-icon>删除
-                </el-button>
-              </div>
-            </el-card>
-          </el-col>
-          <el-empty 
-            v-if="!loading && (!travelPlans || travelPlans.length === 0)" 
-            description="暂无旅行计划" 
-          />
-        </el-row>
-      </el-tab-pane>
+    <div class="section-header">
+      <h2>我的旅行计划</h2>
+      <el-button type="primary" @click="handleCreatePlan">
+        <el-icon>
+          <Plus />
+        </el-icon>创建新计划
+      </el-button>
+    </div>
 
-      <el-tab-pane label="旅行日记" name="diaries">
-        <div class="section-header">
-          <h2>我的旅行日记</h2>
-          <el-button type="primary" @click="handleCreateDiary">
-            <el-icon><Plus /></el-icon>写新日记
-          </el-button>
-        </div>
-        
-        <el-row :gutter="20" v-loading="loading">
-          <el-col 
-            :span="12" 
-            v-for="diary in travelDiaries" 
-            :key="diary.travelPlanId"
-          >
-            <el-card class="diary-card">
-              <div class="diary-header">
-                <h3>{{ diary.title }}</h3>
-                <div class="diary-meta">
-                  <span class="diary-time">
-                    <el-icon><Calendar /></el-icon>
-                    {{ formatDateTime(diary.createdAt) }}
-                  </span>
-                </div>
-              </div>
-              
-              <div class="diary-location" v-if="diary.location">
-                <el-icon><Location /></el-icon>
-                {{ diary.location.country }} · {{ diary.location.city }} · {{ diary.location.place }}
-              </div>
-              
-              <div class="diary-content">
-                <p>{{ diary.content }}</p>
-              </div>
-              
-              <div class="diary-images" v-if="diary.images?.length">
-                <el-image
-                  v-for="image in diary.images"
-                  :key="image.travelPlanId"
-                  :src="image.url"
-                  :alt="image.caption"
-                  fit="cover"
-                  :preview-src-list="diary.images.map(img => img.url)"
-                >
-                  <template #error>
-                    <div class="image-error">
-                      <el-icon><Picture /></el-icon>
-                      图片加载失败
-                    </div>
+    <el-row :gutter="20" v-loading="loading">
+      <el-col :span="12" v-for="plan in travelPlans" :key="plan.travelPlanId">
+        <el-card class="plan-card" @click.stop="travelPlanItemClick(plan)" style="cursor: pointer;">
+          <div class="plan-header">
+            <h3>{{ plan.title }}</h3>
+            <el-tag :type="plan.status === 'published' ? 'success' : 'warning'">
+              {{ plan.status === 'published' ? '已发布' : '未发布' }}
+            </el-tag>
+          </div>
+          <div class="plan-content">
+            <p><el-icon>
+                <Calendar />
+              </el-icon> {{ formatDate(plan.startDate) }} - {{ formatDate(plan.endDate) }}</p>
+            <p><el-icon>
+                <Location />
+              </el-icon> {{ plan.destination?.city }}, {{ plan.destination?.country }}</p>
+            <p v-if="plan.destination?.locations?.length">
+              <el-icon>
+                <List />
+              </el-icon> 景点：{{ plan.destination.locations.join(', ') }}
+            </p>
+            <p class="plan-description">{{ plan.description }}</p>
+            <div class="plan-itinerary" v-if="plan.itinerary?.length">
+              <p><strong>行程安排：</strong></p>
+              <ul>
+                <li v-for="(item, index) in plan.itinerary" :key="index">
+                  第{{ item.day }}天 ({{ formatDate(item.date) }}):
+                  <template v-if="item.activities?.length">
+                    {{ item.activities.map(a => `${a.time} ${a.activity}(${a.location})`).join(', ') }}
                   </template>
-                </el-image>
-              </div>
-              
-              <div class="diary-tags" v-if="diary.tags?.length">
-                <el-tag
-                  v-for="tag in diary.tags"
-                  :key="tag"
-                  size="small"
-                  effect="plain"
-                  class="diary-tag"
-                >
-                  {{ tag }}
-                </el-tag>
-              </div>
-              
-              <div class="diary-actions">
-                <el-button 
-                  type="primary" 
-                  link 
-                  @click="handleEditDiary(diary)"
-                >
-                  <el-icon><Edit /></el-icon>编辑
-                </el-button>
-                <el-button 
-                  type="danger" 
-                  link 
-                  @click="handleDeleteDiary(diary)"
-                >
-                  <el-icon><Delete /></el-icon>删除
-                </el-button>
-              </div>
-            </el-card>
-          </el-col>
-          
-          <el-empty 
-            v-if="!loading && (!travelDiaries || travelDiaries.length === 0)" 
-            description="暂无旅行日记" 
-          />
-        </el-row>
-      </el-tab-pane>
-    </el-tabs>
-    
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div class="plan-actions">
+            <el-button type="danger" @click.stop="handleDelete(plan)" :loading="loading">
+              <el-icon>
+                <Delete />
+              </el-icon>删除
+            </el-button>
+          </div>
+        </el-card>
+      </el-col>
+      <el-empty v-if="!loading && (!travelPlans || travelPlans.length === 0)" description="暂无旅行计划" />
+    </el-row>
+
     <!-- Create Travel Plan Dialog -->
-    <el-dialog
-      v-model="createDialogVisible"
-      title="创建旅行计划"
-      width="70%"
-      :close-on-click-modal="false"
-    >
-      <el-form
-        ref="createFormRef"
-        :model="createForm"
-        :rules="createFormRules"
-        label-width="100px"
-      >
+    <el-dialog v-model="createDialogVisible" title="创建旅行计划" width="70%" :close-on-click-modal="false">
+      <el-form ref="createFormRef" :model="createForm" :rules="createFormRules" label-width="100px">
         <el-form-item label="标题" prop="title">
           <el-input v-model="createForm.title" placeholder="请输入旅行计划标题" />
         </el-form-item>
-        
+
         <el-form-item label="描述" prop="description">
-          <el-input
-            v-model="createForm.description"
-            type="textarea"
-            rows="3"
-            placeholder="请输入旅行计划描述"
-          />
+          <el-input v-model="createForm.description" type="textarea" rows="3" placeholder="请输入旅行计划描述" />
         </el-form-item>
-        
+
         <el-row :gutter="20">
           <el-col :span="12">
             <el-form-item label="开始日期" prop="startDate">
-              <el-date-picker
-                v-model="createForm.startDate"
-                type="date"
-                value-format="YYYY-MM-DD"
-                placeholder="选择开始日期"
-                style="width: 100%"
-              />
+              <el-date-picker v-model="createForm.startDate" type="date" value-format="YYYY-MM-DD" placeholder="选择开始日期"
+                style="width: 100%" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="结束日期" prop="endDate">
-              <el-date-picker
-                v-model="createForm.endDate"
-                type="date"
-                value-format="YYYY-MM-DD"
-                placeholder="选择结束日期"
-                style="width: 100%"
-              />
+              <el-date-picker v-model="createForm.endDate" type="date" value-format="YYYY-MM-DD" placeholder="选择结束日期"
+                style="width: 100%" />
             </el-form-item>
           </el-col>
         </el-row>
-        
+
         <el-divider>目的地信息</el-divider>
-        
+
         <el-row :gutter="20">
           <el-col :span="12">
             <el-form-item label="国家" prop="destination.country">
@@ -570,69 +452,46 @@ onMounted(() => {
             </el-form-item>
           </el-col>
         </el-row>
-        
+
         <el-form-item label="景点">
           <div class="location-input">
-            <el-input
-              v-model="locationInput"
-              placeholder="输入景点名称"
-              @keyup.enter="handleAddLocation"
-            >
+            <el-input v-model="locationInput" placeholder="输入景点名称" @keyup.enter="handleAddLocation">
               <template #append>
                 <el-button @click="handleAddLocation">添加</el-button>
               </template>
             </el-input>
           </div>
           <div class="locations-list" v-if="createForm.destination.locations.length">
-            <el-tag
-              v-for="(location, index) in createForm.destination.locations"
-              :key="index"
-              closable
-              @close="handleRemoveLocation(index)"
-              class="location-tag"
-            >
+            <el-tag v-for="(location, index) in createForm.destination.locations" :key="index" closable
+              @close="handleRemoveLocation(index)" class="location-tag">
               {{ location }}
             </el-tag>
           </div>
         </el-form-item>
-        
+
         <el-divider>行程安排</el-divider>
-        
+
         <!-- Itinerary Form -->
         <div class="itinerary-form">
           <el-row :gutter="20">
             <el-col :span="8">
               <el-form-item label="第几天">
-                <el-input-number 
-                  v-model="itineraryForm.day" 
-                  :min="1" 
-                  controls-position="right"
-                />
+                <el-input-number v-model="itineraryForm.day" :min="1" controls-position="right" />
               </el-form-item>
             </el-col>
             <el-col :span="8">
               <el-form-item label="日期">
-                <el-date-picker
-                  v-model="itineraryForm.date"
-                  type="date"
-                  value-format="YYYY-MM-DD"
-                  placeholder="选择日期"
-                  style="width: 100%"
-                />
+                <el-date-picker v-model="itineraryForm.date" type="date" value-format="YYYY-MM-DD" placeholder="选择日期"
+                  style="width: 100%" />
               </el-form-item>
             </el-col>
           </el-row>
-          
+
           <el-form-item label="活动">
             <div class="activity-form">
               <el-row :gutter="20">
                 <el-col :span="6">
-                  <el-time-picker
-                    v-model="activityForm.time"
-                    format="HH:mm"
-                    placeholder="时间"
-                    style="width: 100%"
-                  />
+                  <el-time-picker v-model="activityForm.time" format="HH:mm" placeholder="时间" style="width: 100%" />
                 </el-col>
                 <el-col :span="6">
                   <el-input v-model="activityForm.location" placeholder="地点" />
@@ -641,11 +500,7 @@ onMounted(() => {
                   <el-input v-model="activityForm.activity" placeholder="活动内容" />
                 </el-col>
                 <el-col :span="6">
-                  <el-input 
-                    v-model="activityForm.duration" 
-                    placeholder="持续时间"
-                    @keyup.enter="handleAddActivity"
-                  >
+                  <el-input v-model="activityForm.duration" placeholder="持续时间" @keyup.enter="handleAddActivity">
                     <template #append>
                       <el-button @click="handleAddActivity">添加</el-button>
                     </template>
@@ -653,7 +508,7 @@ onMounted(() => {
                 </el-col>
               </el-row>
             </div>
-            
+
             <div class="activities-list" v-if="itineraryForm.activities.length">
               <el-table :data="itineraryForm.activities" style="width: 100%">
                 <el-table-column prop="time" label="时间" width="100" />
@@ -662,11 +517,7 @@ onMounted(() => {
                 <el-table-column prop="duration" label="持续时间" width="120" />
                 <el-table-column label="操作" width="80">
                   <template #default="{ $index }">
-                    <el-button
-                      type="danger"
-                      link
-                      @click="handleRemoveActivity($index)"
-                    >
+                    <el-button type="danger" link @click="handleRemoveActivity($index)">
                       删除
                     </el-button>
                   </template>
@@ -674,32 +525,26 @@ onMounted(() => {
               </el-table>
             </div>
           </el-form-item>
-          
+
           <el-form-item>
             <el-button type="primary" @click="handleAddItinerary">
-              <el-icon><Plus /></el-icon>添加到行程
+              <el-icon>
+                <Plus />
+              </el-icon>添加到行程
             </el-button>
           </el-form-item>
         </div>
-        
+
         <!-- Itinerary List -->
         <div class="itinerary-list" v-if="createForm.itinerary.length">
           <el-timeline>
-            <el-timeline-item
-              v-for="(item, index) in createForm.itinerary"
-              :key="index"
-              :timestamp="'第' + item.day + '天 - ' + item.date"
-              placement="top"
-            >
+            <el-timeline-item v-for="(item, index) in createForm.itinerary" :key="index"
+              :timestamp="'第' + item.day + '天 - ' + item.date" placement="top">
               <el-card>
                 <template #header>
                   <div class="itinerary-header">
                     <span>行程安排</span>
-                    <el-button
-                      type="danger"
-                      link
-                      @click="handleRemoveItinerary(index)"
-                    >
+                    <el-button type="danger" link @click="handleRemoveItinerary(index)">
                       删除
                     </el-button>
                   </div>
@@ -715,15 +560,11 @@ onMounted(() => {
           </el-timeline>
         </div>
       </el-form>
-      
+
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="handleCreateCancel">取消</el-button>
-          <el-button
-            type="primary"
-            :loading="createFormLoading"
-            @click="handleCreateSubmit"
-          >
+          <el-button type="primary" :loading="createFormLoading" @click="handleCreateSubmit">
             创建
           </el-button>
         </span>

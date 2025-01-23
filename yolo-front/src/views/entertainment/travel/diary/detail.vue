@@ -4,10 +4,12 @@ import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { createTravelDiary, getTravelDiaryDetail, updateTravelDiary } from '@/api/travelAPI'
 import { Plus } from '@element-plus/icons-vue'
+import { useUserStore } from '@/stores/user'
 
 const route = useRoute()
 const router = useRouter()
-const diaryId = route.params.travelDiaryId
+const userStore = useUserStore()
+const diaryId = route.params.diaryId
 const isView = computed(() => route.query.mode === 'view')
 const isEdit = computed(() => !!diaryId && !isView.value)
 
@@ -22,7 +24,6 @@ const formData = ref({
     place: ''
   },
   images: [],
-  travelPlanId: '',
   tags: []
 })
 
@@ -96,11 +97,11 @@ const handleRemoveTag = (tag) => {
   }
 }
 
-const handleImageSuccess = (response, uploadFile) => {
+const handleImageSuccess = (response) => {
   if (response.code === '000000' && response.data?.url) {
     formData.value.images.push({
       url: response.data.url,
-      caption: uploadFile.name
+      caption: ''
     })
   } else {
     ElMessage.error('图片上传失败')
@@ -151,7 +152,7 @@ onMounted(() => {
             {{ isView ? '游记详情' : (isEdit ? '编辑游记' : '写新游记') }}
           </span>
           <div class="header-actions" v-if="isView">
-            <el-button type="primary" @click="router.push(`/entertainment/travel/diary/detail/${diaryId}`)">
+            <el-button type="primary" @click="handleEditDiary(diaryId)">
               编辑
             </el-button>
           </div>
@@ -222,9 +223,7 @@ onMounted(() => {
             list-type="picture-card"
             :on-success="handleImageSuccess"
             :on-remove="handleImageRemove"
-            :headers="{
-              Authorization: `Bearer ${localStorage.getItem('token')}`
-            }"
+            :headers="{ Authorization: `Bearer ${userStore.token}` }"
           >
             <el-icon><Plus /></el-icon>
           </el-upload>
@@ -249,10 +248,10 @@ onMounted(() => {
         
         <el-form-item label="标签">
           <template v-if="!isView">
-            <div class="tags-input">
+            <div class="tag-input">
               <el-input
                 v-model="tagInput"
-                placeholder="输入标签后回车"
+                placeholder="输入标签"
                 @keyup.enter="handleAddTag"
               >
                 <template #append>
@@ -262,11 +261,12 @@ onMounted(() => {
             </div>
           </template>
           
-          <div class="tags-list" v-if="formData.tags.length">
+          <div class="tags-list">
             <el-tag
               v-for="tag in formData.tags"
               :key="tag"
-              :closable="!isView"
+              closable
+              :disable-transitions="false"
               @close="handleRemoveTag(tag)"
             >
               {{ tag }}
@@ -274,9 +274,9 @@ onMounted(() => {
           </div>
         </el-form-item>
         
-        <el-form-item v-if="!isView">
+        <el-form-item>
           <el-button type="primary" @click="handleSubmit" :loading="loading">
-            {{ isEdit ? '更新' : '发布' }}
+            {{ isEdit ? '保存' : '发布' }}
           </el-button>
           <el-button @click="handleCancel">取消</el-button>
         </el-form-item>
@@ -300,90 +300,35 @@ onMounted(() => {
     }
   }
   
-  .el-form {
-    margin-top: 20px;
-    
-    :deep(.el-form-item) {
-      margin-bottom: 24px;
-      
-      .el-form-item__label {
-        font-weight: 500;
-      }
-      
-      .el-textarea {
-        .el-textarea__inner {
-          min-height: 120px !important;
-          line-height: 1.6;
-        }
-      }
-    }
-    
-    .location-form {
-      .el-col {
-        .el-form-item {
-          margin-bottom: 0;
-        }
-      }
-    }
-  }
-  
-  .tags-input {
-    margin-bottom: 10px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    
-    .el-tag {
-      margin-right: 8px;
-      margin-bottom: 8px;
-    }
-    
-    .input-new-tag {
-      width: 90px;
-    }
-  }
-  
   .image-preview {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 16px;
-    margin-top: 16px;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 10px;
     
     .el-image {
-      height: 200px;
-      border-radius: 8px;
+      width: 100%;
+      height: 150px;
+      border-radius: 4px;
       overflow: hidden;
     }
     
     .image-placeholder {
       display: flex;
-      justify-content: center;
       align-items: center;
-      height: 200px;
-      background: #f5f7fa;
+      justify-content: center;
+      height: 100%;
+      background-color: #f5f7fa;
       color: #909399;
-      border-radius: 8px;
-      border: 1px dashed #d9d9d9;
-      transition: all 0.3s;
-      
-      &:hover {
-        border-color: #409eff;
-        color: #409eff;
-      }
-      
-      .el-icon {
-        font-size: 24px;
-      }
     }
   }
   
-  .form-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 12px;
-    margin-top: 24px;
-    padding-top: 20px;
-    border-top: 1px solid #ebeef5;
+  .tags-list {
+    margin-top: 10px;
+    
+    .el-tag {
+      margin-right: 8px;
+      margin-bottom: 8px;
+    }
   }
 }
 </style>

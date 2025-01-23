@@ -613,7 +613,7 @@ Authorization: Bearer <your-token>
   "data": {
     "alcohols": [
       {
-        "_id": "5f7b5d7e9b8c2d1a3e4f5g6h",
+        "alcoholId": "5f7b5d7e9b8c2d1a3e4f5g6h",
         "name": "Asahi Super Dry",
         "type": "beer",
         "brand": "Asahi",
@@ -1178,7 +1178,7 @@ Authorization: Bearer <token>
 ```json
 {
   "rating": 4.8,
-  "description": "正宗朝鲜族料理，特色冷面和烤肉，新增特色火锅"
+  "description": "更新的描述"
 }
 ```
 
@@ -1196,14 +1196,14 @@ Authorization: Bearer <token>
       "https://restaurant-images.com/jingyan1.jpg",
       "https://restaurant-images.com/jingyan2.jpg"
     ],
-    "description": "正宗朝鲜族料理，特色冷面和烤肉，新增特色火锅",
+    "description": "更新的描述",
     "priceLevel": "moderate",
     "createdBy": "admin",
     "updatedBy": "admin",
     "createdAt": "2025-01-05T14:29:13.000Z",
-    "updatedAt": "2025-01-05T14:29:13.000Z"
+    "updatedAt": "2025-01-05T14:40:52.000Z"
   },
-  "timestamp": "2025-01-05T14:29:13.000Z"
+  "timestamp": "2025-01-05T14:40:52.000Z"
 }
 ```
 
@@ -1225,7 +1225,7 @@ Authorization: Bearer <token>
   "statusCode": 200,
   "msg": "餐厅删除成功",
   "data": null,
-  "timestamp": "2025-01-05T14:29:13.000Z"
+  "timestamp": "2025-01-05T14:40:52.000Z"
 }
 ```
 
@@ -1245,7 +1245,7 @@ Authorization: Bearer <token>
   "exerciseDate": "2025-01-06T14:00:00.000Z",
   "duration": 30,
   "caloriesBurned": 300,
-  "intensity": "moderate",
+  "intensity": "moderate",  // 可选值: "light", "moderate", "vigorous"，默认为 "moderate"
   "location": "公园"
 }
 ```
@@ -1273,6 +1273,17 @@ Authorization: Bearer <token>
 }
 ```
 
+**错误响应示例**
+```json
+{
+  "code": "A00400",
+  "statusCode": 400,
+  "msg": "数据验证失败: intensity 必须是以下值之一: light, moderate, vigorous",
+  "data": null,
+  "timestamp": "2025-01-06T14:29:13.000Z"
+}
+```
+
 ### 2. 获取运动记录列表
 
 **请求**
@@ -1281,8 +1292,8 @@ Authorization: Bearer <token>
 - Headers:
   - `Authorization`: Bearer token
 - Query Parameters:
-  - `page`: 页码（默认：1）
-  - `limit`: 每页数量（默认：10）
+  - `page`: 页码（默认1）
+  - `limit`: 每页数量（默认10）
   - `startDate`: 开始日期（可选）
   - `endDate`: 结束日期（可选）
   - `exerciseType`: 运动类型（可选）
@@ -1294,8 +1305,7 @@ Authorization: Bearer <token>
 ```json
 {
   "code": "000000",
-  "statusCode": 200,
-  "msg": "Success",
+  "msg": "获取运动记录列表成功",
   "data": {
     "records": [
       {
@@ -1341,8 +1351,7 @@ Authorization: Bearer <token>
 ```json
 {
   "code": "000000",
-  "statusCode": 200,
-  "msg": "Success",
+  "msg": "获取运动记录成功",
   "data": {
     "_id": "5f7b5d6b3f6a8c2a1c9e4b7e",
     "exerciseType": "跑步",
@@ -1384,7 +1393,6 @@ Authorization: Bearer <token>
 ```json
 {
   "code": "000000",
-  "statusCode": 200,
   "msg": "运动记录更新成功",
   "data": {
     "_id": "5f7b5d6b3f6a8c2a1c9e4b7e",
@@ -1419,7 +1427,6 @@ Authorization: Bearer <token>
 ```json
 {
   "code": "000000",
-  "statusCode": 200,
   "msg": "运动记录删除成功",
   "data": null,
   "timestamp": "2025-01-06T14:36:13.000Z"
@@ -1437,18 +1444,20 @@ Authorization: Bearer <token>
 - **认证要求**: 需要登录认证，请在 Header 中携带 token
 - **Content-Type**: `multipart/form-data`
 
-**请求参数**:
+**请求参数**：
 
 | 参数名 | 类型 | 必填 | 说明 |
 |--------|------|------|------|
 | files | File[] | 是 | 图片文件数组，最多支持9张图片 |
 
-**图片要求**:
+**图片要求**：
 - 支持的格式：jpeg, png, gif, webp
 - 单个文件大小限制：5MB
 - 最大上传数量：9张
 
-**成功响应**:
+**成功响应**：
+- 状态码: `200 OK`
+- 响应体：
 ```json
 {
   "code": "000000",
@@ -1466,12 +1475,12 @@ Authorization: Bearer <token>
 }
 ```
 
-**错误响应**:
+**错误响应**：
 
 1. 未上传文件
 ```json
 {
-  "code": "A00400",
+  "code": "400000",
   "statusCode": 400,
   "msg": "No files uploaded",
   "timestamp": "2025-01-05T15:45:48.000Z"
@@ -1481,7 +1490,7 @@ Authorization: Bearer <token>
 2. 文件类型错误
 ```json
 {
-  "code": "A00400",
+  "code": "400000",
   "statusCode": 400,
   "msg": "Invalid file type. Only images are allowed.",
   "timestamp": "2025-01-05T15:45:48.000Z"
@@ -1491,7 +1500,7 @@ Authorization: Bearer <token>
 3. 超出文件数量限制
 ```json
 {
-  "code": "A00400",
+  "code": "400000",
   "statusCode": 400,
   "msg": "Too many files. Maximum allowed is 9",
   "timestamp": "2025-01-05T15:45:48.000Z"
@@ -1501,7 +1510,7 @@ Authorization: Bearer <token>
 4. 文件大小超限
 ```json
 {
-  "code": "A00400",
+  "code": "400000",
   "statusCode": 400,
   "msg": "File too large. Maximum size is 5MB",
   "timestamp": "2025-01-05T15:45:48.000Z"
@@ -1511,14 +1520,14 @@ Authorization: Bearer <token>
 5. 未登录或 token 无效
 ```json
 {
-  "code": "A00401",
+  "code": "401000",
   "statusCode": 401,
   "msg": "Unauthorized",
   "timestamp": "2025-01-05T15:45:48.000Z"
 }
 ```
 
-**使用示例**:
+**使用示例**：
 
 ```javascript
 // 前端代码示例
@@ -1558,9 +1567,9 @@ if (result.code === '000000') {
 - 查询参数:
   - `groups`: 字典分组，多个分组用逗号分隔（例如：RESTAURANT_PRICE_LEVEL,OTHER_GROUP）
 
-**成功响应**:
+**成功响应**：
 - 状态码: `200 OK`
-- 响应体:
+- 响应体：
 ```json
 {
   "code": "000000",
@@ -1590,7 +1599,7 @@ if (result.code === '000000') {
 }
 ```
 
-**错误响应**:
+**错误响应**：
 
 1. 未指定分组
 ```json
@@ -2142,8 +2151,7 @@ Authorization: Bearer <token>
   ```json
   {
     "code": "000000",
-    "statusCode": 200,
-    "msg": "Success",
+    "msg": "获取游记列表成功",
     "data": {
       "diaries": [
         {
@@ -2165,8 +2173,14 @@ Authorization: Bearer <token>
           "updatedAt": "2025-01-10T05:48:33.867Z"
         }
       ],
-      "totalPages": 1,
-      "currentPage": 1
+      "pagination": {
+        "total": 1,
+        "totalPages": 1,
+        "currentPage": 1,
+        "limit": 10,
+        "hasNextPage": false,
+        "hasPrevPage": false
+      }
     }
   }
   ```
@@ -2181,8 +2195,7 @@ Authorization: Bearer <token>
   ```json
   {
     "code": "000000",
-    "statusCode": 200,
-    "msg": "Success",
+    "msg": "获取游记详情成功",
     "data": {
       "_id": "677f63b5f93fa973677950a9",
       "title": "京都温泉游记",
@@ -2226,7 +2239,6 @@ Authorization: Bearer <token>
   ```json
   {
     "code": "000000",
-    "statusCode": 200,
     "msg": "游记更新成功",
     "data": {
       "_id": "677f63b5f93fa973677950a9",
@@ -2247,7 +2259,6 @@ Authorization: Bearer <token>
   ```json
   {
     "code": "000000",
-    "statusCode": 200,
     "msg": "游记删除成功",
     "data": null
   }
@@ -2361,8 +2372,8 @@ Authorization: Bearer <token>
 - **Method**: `GET`
 - **Auth**: Required
 - **Query Parameters**:
-  - `page` (optional): 页码，默认1
-  - `limit` (optional): 每页数量，默认10
+  - `page` (optional): 页码，默认 1
+  - `limit` (optional): 每页数量，默认 10
   - `status` (optional): 过滤状态
 - **Success Response**:
   ```json
@@ -2656,4 +2667,159 @@ Authorization: Bearer <token>
 9. 删除日程操作会删除整个日程
 10. 所有接口都支持分页和过滤
 
+## 用户列表 API
+
+### 获取用户列表
+
+**请求**
+- 方法: `GET`
+- URL: `/api/v1/users/list`
+- Headers: 
+  - Authorization: Bearer {token}
+- Query Parameters:
+  - `page`: 页码（可选，默认1）
+  - `limit`: 每页数量（可选，默认10）
+  - `username`: 用户名搜索（可选）
+  - `email`: 邮箱搜索（可选）
+  - `isAdmin`: 是否管理员（可选，true/false）
+
+**响应示例**
+```json
+{
+  "code": "000000",
+  "statusCode": 200,
+  "msg": "Success",
+  "data": {
+    "users": [
+      {
+        "userId": "5f7b5d7e9b8c2d1a3e4f5g6h",
+        "username": "testuser",
+        "email": "test@example.com",
+        "gender": "male",
+        "mobile": "13800000001",
+        "birthDate": "1990-01-01",
+        "isAdmin": false,
+        "lastLoginAt": "2025-01-02T06:11:30.123Z",
+        "createdAt": "2025-01-02T06:11:30.123Z",
+        "updatedAt": "2025-01-02T06:11:30.123Z"
+      }
+    ],
+    "pagination": {
+      "total": 1,
+      "totalPages": 1,
+      "currentPage": 1,
+      "limit": 10,
+      "hasNextPage": false,
+      "hasPrevPage": false
+    }
+  },
+  "timestamp": "2025-01-02 14:11:30.123"
+}
+```
+
+### 获取单个用户
+
+**请求**
+- 方法: `GET`
+- URL: `/api/v1/users/query/:id`
+- Headers: 
+  - Authorization: Bearer {token}
+
+**响应示例**
+```json
+{
+  "code": "000000",
+  "statusCode": 200,
+  "msg": "Success",
+  "data": {
+    "userId": "5f7b5d7e9b8c2d1a3e4f5g6h",
+    "username": "testuser",
+    "email": "test@example.com",
+    "gender": "male",
+    "mobile": "13800000001",
+    "birthDate": "1990-01-01",
+    "isAdmin": false,
+    "lastLoginAt": "2025-01-02T06:11:30.123Z",
+    "createdAt": "2025-01-02T06:11:30.123Z",
+    "updatedAt": "2025-01-02T06:11:30.123Z"
+  },
+  "timestamp": "2025-01-02 14:11:30.123"
+}
+```
+
+### 获取用户菜单权限
+
+**请求**
+- 方法: `GET`
+- URL: `/api/v1/users/:userId/menus`
+- Headers: 
+  - Authorization: Bearer {token}
+
+**响应示例**
+```json
+{
+  "code": "000000",
+  "statusCode": 200,
+  "msg": "Success",
+  "data": {
+    "user": {
+      "userId": "5f7b5d7e9b8c2d1a3e4f5g6h",
+      "username": "testuser",
+      "email": "test@example.com",
+      "isAdmin": false
+    },
+    "menuCodes": [
+      "dashboard",
+      "profile",
+      "fitness",
+      "drink"
+    ],
+    "isAdmin": false
+  },
+  "timestamp": "2025-01-02 14:11:30.123"
+}
+```
+
+### 更新用户菜单权限
+
+**请求**
+- 方法: `PUT`
+- URL: `/api/v1/users/:userId/menus`
+- Headers: 
+  - Authorization: Bearer {token}
+- Content-Type: `application/json`
+
+**请求体**
+```json
+{
+  "menuCodes": ["dashboard", "profile", "fitness", "drink"],
+  "isAdmin": false
+}
+```
+
+**响应示例**
+```json
+{
+  "code": "000000",
+  "statusCode": 200,
+  "msg": "Success",
+  "data": {
+    "userId": "5f7b5d7e9b8c2d1a3e4f5g6h",
+    "username": "testuser",
+    "isAdmin": false,
+    "menuCodes": ["dashboard", "profile", "fitness", "drink"]
+  },
+  "timestamp": "2025-01-02 14:11:30.123"
+}
+```
+
+### 错误响应示例
+```json
+{
+  "code": "A00404",
+  "statusCode": 404,
+  "msg": "用户不存在",
+  "data": null,
+  "timestamp": "2025-01-02 14:11:30.123"
+}
 ```

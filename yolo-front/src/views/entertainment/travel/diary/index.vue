@@ -40,15 +40,30 @@ const handlePageChange = (page) => {
 }
 
 const handleCreateDiary = () => {
-  router.push('/entertainment/travel/diary/detail')
+  router.push({
+    name: 'NewTravelDiary'
+  }).catch(err => {
+    console.error('Navigation error:', err)
+  })
 }
 
 const handleEditDiary = (id) => {
-  router.push(`/entertainment/travel/diary/detail/${id}`)
+  router.push({
+    name: 'TravelDiaryDetail',
+    params: { diaryId: id }
+  }).catch(err => {
+    console.error('Navigation error:', err)
+  })
 }
 
 const handleViewDiary = (id) => {
-  router.push(`/entertainment/travel/diary/detail/${id}?mode=view`)
+  router.push({
+    name: 'TravelDiaryDetail',
+    params: { diaryId: id },
+    query: { mode: 'view' }
+  }).catch(err => {
+    console.error('Navigation error:', err)
+  })
 }
 
 const handleDelete = async (id) => {
@@ -103,11 +118,11 @@ onMounted(() => {
         <el-empty v-if="!diaryList.length" description="暂无游记" />
         
         <template v-else>
-          <div v-for="diary in diaryList" :key="diary.travelDiaryId" class="diary-item">
-            <el-card shadow="hover">
+          <div v-for="diary in diaryList" :key="diary.diaryId" class="diary-item">
+            <el-card shadow="hover" @click="handleViewDiary(diary.diaryId)">
               <div class="diary-content">
                 <div class="diary-header">
-                  <h3 class="diary-title" @click="handleViewDiary(diary.travelDiaryId)">
+                  <h3 class="diary-title">
                     {{ diary.title }}
                   </h3>
                   <div class="diary-meta">
@@ -152,14 +167,14 @@ onMounted(() => {
                   <el-button
                     type="primary"
                     link
-                    @click="handleEditDiary(diary.travelDiaryId)"
+                    @click.stop="handleEditDiary(diary.diaryId)"
                   >
                     编辑
                   </el-button>
                   <el-button
                     type="danger"
                     link
-                    @click.stop="handleDelete(diary.travelDiaryId)"
+                    @click.stop="handleDelete(diary.diaryId)"
                   >
                     删除
                   </el-button>

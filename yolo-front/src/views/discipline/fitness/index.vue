@@ -39,7 +39,7 @@ const exerciseTypes = [
 
 // 运动强度选项
 const intensityOptions = [
-  { label: '低强度', value: 'low' },
+  { label: '低强度', value: 'light' },
   { label: '中等强度', value: 'moderate' },
   { label: '高强度', value: 'vigorous' }
 ]
@@ -253,7 +253,13 @@ onMounted(() => {
         />
       </el-form-item>
       <el-form-item label="运动类型">
-        <el-select v-model="queryForm.exerciseType" placeholder="请选择" clearable @change="handleQuery">
+        <el-select 
+          v-model="queryForm.exerciseType" 
+          placeholder="请选择" 
+          clearable 
+          @change="handleQuery"
+          style="width: 160px"
+        >
           <el-option
             v-for="type in exerciseTypes"
             :key="type.value"
@@ -265,7 +271,13 @@ onMounted(() => {
         </el-select>
       </el-form-item>
       <el-form-item label="运动强度">
-        <el-select v-model="queryForm.intensity" placeholder="请选择" clearable @change="handleQuery">
+        <el-select 
+          v-model="queryForm.intensity" 
+          placeholder="请选择" 
+          clearable 
+          @change="handleQuery"
+          style="width: 160px"
+        >
           <el-option
             v-for="item in intensityOptions"
             :key="item.value"
