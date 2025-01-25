@@ -176,19 +176,19 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, nextTick } from 'vue'
 import { useUserStore } from '@/stores/user'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Search } from '@element-plus/icons-vue'
 import { 
   getUserList,
-  getUserDetail,
-  updateUser,
-  deleteUser,
+  softDeleteUser,
+  updateProfile,
   getUserMenus,
   updateUserMenus
 } from '@/api/userAPI'
 import { formatDate } from '@/utils/date'
+import { debounce } from 'lodash'
 
 // Store
 const userStore = useUserStore()
@@ -233,8 +233,7 @@ const formRules = {
     { type: 'email', message: '请输入正确的邮箱地址', trigger: 'blur' }
   ],
   mobile: [
-    { required: true, message: '请输入手机号', trigger: 'blur' },
-    { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' }
+    { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号码', trigger: 'blur' }
   ],
   gender: [
     { required: true, message: '请选择性别', trigger: 'change' }
@@ -280,10 +279,10 @@ const fetchUsers = async () => {
   }
 }
 
-const handleSearch = () => {
+const handleSearch = debounce(() => {
   currentPage.value = 1
   fetchUsers()
-}
+}, 300)
 
 const handleSizeChange = (val) => {
   pageSize.value = val
@@ -298,15 +297,10 @@ const handleCurrentChange = (val) => {
 const handleView = async (row) => {
   dialogType.value = 'view'
   try {
-    const res = await getUserDetail(row.userId)
-    if (res.code === '000000' && res.data) {
-      formData.value = { ...res.data }
-      dialogVisible.value = true
-    } else {
-      ElMessage.error(res.msg || '获取用户详情失败')
-    }
+    formData.value = { ...row }
+    dialogVisible.value = true
   } catch (error) {
-    console.error('Error fetching user detail:', error)
+    console.error('Error viewing user:', error)
     ElMessage.error('获取用户详情失败')
   }
 }
@@ -314,15 +308,10 @@ const handleView = async (row) => {
 const handleEdit = async (row) => {
   dialogType.value = 'edit'
   try {
-    const res = await getUserDetail(row.userId)
-    if (res.code === '000000' && res.data) {
-      formData.value = { ...res.data }
-      dialogVisible.value = true
-    } else {
-      ElMessage.error(res.msg || '获取用户详情失败')
-    }
+    formData.value = { ...row }
+    dialogVisible.value = true
   } catch (error) {
-    console.error('Error fetching user detail:', error)
+    console.error('Error editing user:', error)
     ElMessage.error('获取用户详情失败')
   }
 }
@@ -338,7 +327,7 @@ const handleDelete = (row) => {
     }
   ).then(async () => {
     try {
-      const res = await deleteUser(row.userId)
+      const res = await softDeleteUser()
       if (res.code === '000000') {
         ElMessage.success('删除成功')
         fetchUsers()
@@ -357,7 +346,7 @@ const handleSubmit = async () => {
   
   try {
     await formRef.value.validate()
-    const res = await updateUser(formData.value.id, formData.value)
+    const res = await updateProfile(formData.value)
     if (res.code === '000000') {
       ElMessage.success('更新成功')
       dialogVisible.value = false
@@ -366,7 +355,7 @@ const handleSubmit = async () => {
       ElMessage.error(res.msg || '更新失败')
     }
   } catch (error) {
-    console.error('Error updating user:', error)
+    console.error('Error submitting form:', error)
     ElMessage.error('更新失败')
   }
 }
