@@ -28,6 +28,13 @@ const routes = [
         name: 'Users',
         component: () => import('@/views/system/users/index.vue'),
         meta: { title: '用户管理', icon: 'fa-solid fa-users' }
+      },
+      // 菜单管理
+      {
+        path: 'menus',
+        name: 'Menus',
+        component: () => import('@/views/system/users/managemenu.vue'),
+        meta: { title: '菜单管理', icon: 'fa-solid fa-bars' }
       }
     ]
   },
