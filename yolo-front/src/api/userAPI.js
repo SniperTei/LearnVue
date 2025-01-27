@@ -62,21 +62,20 @@ export const getUserList = (params) => {
 };
 
 /**
- * 获取用户菜单权限（管理员接口）
+ * 获取用户菜单权限
  * @param {string} userId 用户ID
  * @returns {Promise} 返回用户菜单权限的Promise
  */
 export const getUserMenus = (userId) => {
-  return http.get(`/api/v1/users/${userId}/menus`);
-};
+  return http.get(`/api/v1/users/${userId}/menus`)
+}
 
 /**
- * 更新用户菜单权限（管理员接口）
+ * 更新用户菜单权限
  * @param {string} userId 用户ID
- * @param {Array} menuCodes 菜单代码列表
- * @param {boolean} isAdmin 是否管理员
+ * @param {Array} menuCodes 菜单编码列表
  * @returns {Promise} 返回更新响应的Promise
  */
-export const updateUserMenus = (userId, menuCodes, isAdmin = false) => {
-  return http.put(`/api/v1/users/${userId}/menus`, { menuCodes, isAdmin });
-};
+export const updateUserMenus = (userId, menuCodes) => {
+  return http.put(`/api/v1/users/${userId}/menus`, { menuCodes })
+}

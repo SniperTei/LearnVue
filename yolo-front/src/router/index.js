@@ -29,6 +29,13 @@ const routes = [
         component: () => import('@/views/system/users/index.vue'),
         meta: { title: '用户管理', icon: 'fa-solid fa-users' }
       },
+      {
+        path: 'users/menu',
+        name: 'UserMenuPermission',
+        component: () => import('@/views/system/users/menu.vue'),
+        meta: { title: '用户菜单权限', activeMenu: '/system/users' },
+        hidden: true
+      },
       // 菜单管理
       {
         path: 'menus',

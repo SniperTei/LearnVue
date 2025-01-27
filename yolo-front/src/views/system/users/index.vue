@@ -37,23 +37,8 @@
             {{ formatDate(row.lastLoginAt) }}
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="250">
+        <el-table-column label="操作" width="250" fixed="right">
           <template #default="{ row }">
-            <el-button
-              v-if="isAdmin"
-              type="primary"
-              link
-              @click="handleEditMenus(row)"
-            >
-              菜单权限
-            </el-button>
-            <el-button
-              type="primary"
-              link
-              @click="handleView(row)"
-            >
-              查看
-            </el-button>
             <el-button
               v-if="isAdmin"
               type="primary"
@@ -63,12 +48,27 @@
               编辑
             </el-button>
             <el-button
+              type="warning"
+              link
+              @click="handleMenuPermission(row)"
+            >
+              菜单权限
+            </el-button>
+            <el-button
               v-if="isAdmin"
               type="danger"
               link
               @click="handleDelete(row)"
+              :disabled="row.username === 'admin'"
             >
               删除
+            </el-button>
+            <el-button
+              type="primary"
+              link
+              @click="handleView(row)"
+            >
+              查看
             </el-button>
           </template>
         </el-table-column>
@@ -177,6 +177,7 @@
 
 <script setup>
 import { ref, onMounted, computed, nextTick } from 'vue'
+import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Search } from '@element-plus/icons-vue'
@@ -193,6 +194,7 @@ import { debounce } from 'lodash'
 // Store
 const userStore = useUserStore()
 const isAdmin = computed(() => userStore.isAdmin)
+const router = useRouter()
 
 // Data
 const loading = ref(false)
@@ -358,6 +360,13 @@ const handleSubmit = async () => {
     console.error('Error submitting form:', error)
     ElMessage.error('更新失败')
   }
+}
+
+const handleMenuPermission = (row) => {
+  router.push({
+    name: 'UserMenuPermission',
+    query: { userId: row.userId }
+  })
 }
 
 const handleEditMenus = async (row) => {
