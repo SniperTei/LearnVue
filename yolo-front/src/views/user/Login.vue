@@ -5,7 +5,6 @@ import { ElMessage } from 'element-plus';
 import { User, Lock } from '@element-plus/icons-vue';
 import { login } from '@/api/userAPI';
 import { useUserStore } from '@/stores/user';
-import '@/styles/variables.scss';
 
 const router = useRouter();
 const userStore = useUserStore();

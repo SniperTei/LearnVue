@@ -5,15 +5,17 @@ import { ElementPlusResolver } from 'unplugin-vue-components/resolvers';
 import AutoImport from 'unplugin-auto-import/vite';
 import { fileURLToPath, URL } from 'node:url';
 import { loadEnv } from 'vite';
+import path from 'path'
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd());
+  const pathSrc = path.resolve(__dirname, 'src');
   
   return {
     resolve: {
       alias: {
-        '@': fileURLToPath(new URL('./src', import.meta.url)),
+        '@': pathSrc,
       },
     },
     server: {
@@ -34,11 +36,19 @@ export default defineConfig(({ mode }) => {
         resolvers: [ElementPlusResolver()],
       }),
     ],
+    css: {
+      preprocessorOptions: {
+        scss: {
+          charset: false,
+          additionalData: `@use "@/styles/_variables.scss" as *;`
+        }
+      }
+    },
     build: {
       // 生产环境构建配置
       terserOptions: {
         compress: {
-          drop_console: mode === 'production',  // 生产环境下移除console
+          drop_console: mode === 'production',
           drop_debugger: mode === 'production'
         }
       },
@@ -47,7 +57,7 @@ export default defineConfig(({ mode }) => {
         output: {
           manualChunks: {
             'element-plus': ['element-plus'],
-            'vue': ['vue', 'vue-router', 'vuex'],
+            'vue': ['vue', 'vue-router', 'pinia'],
           }
         }
       },
@@ -55,13 +65,6 @@ export default defineConfig(({ mode }) => {
       brotliSize: true,
       // chunk 大小警告的限制
       chunkSizeWarningLimit: 1500
-    },
-    css: {
-      preprocessorOptions: {
-        scss: {
-          additionalData: `@import "@/styles/variables.scss";`
-        }
-      }
     }
   }
 })
