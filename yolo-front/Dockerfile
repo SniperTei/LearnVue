@@ -9,7 +9,7 @@ RUN node -v && npm -v
 
 # Set build-time environment variables
 ENV NODE_ENV=production
-ENV VITE_API_BASE_URL=http://api.example.com
+ENV VITE_API_BASE_URL=http://47.92.139.154:3000
 ENV VITE_APP_ENV=production
 ENV VITE_APP_TITLE="YOLO Front"
 
@@ -45,7 +45,7 @@ COPY env.sh /docker-entrypoint.d/40-env.sh
 RUN chmod +x /docker-entrypoint.d/40-env.sh
 
 # Set default environment variables
-ENV API_URL=http://api.example.com
+ENV API_URL=http://47.92.139.154:3000
 ENV APP_ENV=production
 ENV APP_TITLE="YOLO Front"
 
