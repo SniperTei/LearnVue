@@ -29,7 +29,7 @@ RUN ls -la
 RUN npm run build --verbose
 
 # Production stage
-FROM nginx:stable-alpine as production-stage
+FROM nginx:stable-alpine AS production-stage
 
 # Install envsubst
 RUN apk add --no-cache gettext
