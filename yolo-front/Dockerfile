@@ -1,5 +1,5 @@
 # Build stage
-FROM registry.cn-hangzhou.aliyuncs.com/openz/node:18-alpine AS build-stage
+FROM mydockers.tslience.com/node:18-alpine AS build-stage
 # FROM mydockers.tslience.com/node:18-alpine as build-stage
 
 WORKDIR /app
