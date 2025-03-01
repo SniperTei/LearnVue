@@ -22,7 +22,7 @@ export const login = async (data) => {
 export const register = async (data) => {
   const encryptedData = {
     ...data,
-    password: encryptPassword(data.password)
+    password: data.password
   };
   return http.post('/api/v1/users/register', encryptedData);
 };

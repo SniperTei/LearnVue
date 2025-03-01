@@ -4797,3 +4797,342 @@ Authorization: Bearer <token>
 ```
 
 5. 未登录或 token 无效
+
+## Performance API
+
+所有Performance相关的API都需要在请求头中包含有效的JWT token：
+```http
+Authorization: Bearer <your-token>
+```
+
+### 1. 创建Performance记录
+
+**请求**
+- 方法: `POST`
+- URL: `/api/performances`
+- Content-Type: `application/json`
+
+**请求体**
+```json
+{
+  "customerId": "5f7b5d7e9b8c2d1a3e4f5g6h",
+  "performanceDate": "2024-03-20T10:00:00Z",
+  "performanceType": "inject",  // 可选值: inject, skin, operate
+  "amount": "1000",
+  "itemA": "玻尿酸",  // 消费项目A
+  "itemB": "肉毒素",  // 消费项目B(可选)
+  "remarks": "注射玻尿酸"
+}
+```
+
+**响应示例**
+```json
+{
+  "code": "000000",
+  "statusCode": 201,
+  "msg": "创建成功",
+  "data": {
+    "id": "5f7b5d7e9b8c2d1a3e4f5g6h",
+    "customerId": "5f7b5d7e9b8c2d1a3e4f5g6h",
+    "performanceDate": "2024-03-20T10:00:00Z",
+    "performanceType": "inject",
+    "amount": "1000",
+    "itemA": "玻尿酸",
+    "itemB": "肉毒素",
+    "remarks": "注射玻尿酸",
+    "createdAt": "2024-03-20T10:01:23.456Z",
+    "updatedAt": "2024-03-20T10:01:23.456Z"
+  }
+}
+```
+
+### 2. 获取Performance列表
+
+**请求**
+- 方法: `GET`
+- URL: `/api/performances`
+- Query Parameters:
+  - `page`: 页码（可选，默认1）
+  - `limit`: 每页数量（可选，默认10）
+  - `customerId`: 客户ID（可选）
+  - `performanceType`: 项目类型（可选）
+  - `startDate`: 开始日期（可选）
+  - `endDate`: 结束日期（可选）
+
+**响应示例**
+```json
+{
+  "code": "000000",
+  "statusCode": 200,
+  "msg": "获取成功", 
+  "data": {
+    "performances": [
+      {
+        "id": "5f7b5d7e9b8c2d1a3e4f5g6h",
+        "customerId": {
+          "id": "5f7b5d7e9b8c2d1a3e4f5g6h",
+          "name": "张三",
+          "phone": "13800138000"
+        },
+        "performanceDate": "2024-03-20T10:00:00Z",
+        "performanceType": "inject",
+        "amount": "1000",
+        "itemA": "玻尿酸",
+        "itemB": "肉毒素",
+        "remarks": "注射玻尿酸",
+        "createdAt": "2024-03-20T10:01:23.456Z",
+        "updatedAt": "2024-03-20T10:01:23.456Z"
+      }
+    ]
+  }
+}
+```
+
+### 3. 获取单个Performance详情
+
+**请求**
+- 方法: `GET`
+- URL: `/api/performances/:id`
+
+**响应示例**
+```json
+{
+  "code": "000000",
+  "statusCode": 200,
+  "msg": "获取成功",
+  "data": {
+    "id": "5f7b5d7e9b8c2d1a3e4f5g6h",
+    "customerId": {
+      "id": "5f7b5d7e9b8c2d1a3e4f5g6h",
+      "name": "张三",
+      "phone": "13800138000"
+    },
+    "performanceDate": "2024-03-20T10:00:00Z",
+    "performanceType": "inject",
+    "amount": "1000",
+    "itemA": "玻尿酸",
+    "itemB": "肉毒素",
+    "remarks": "注射玻尿酸",
+    "createdAt": "2024-03-20T10:01:23.456Z",
+    "updatedAt": "2024-03-20T10:01:23.456Z"
+  },
+  "timestamp": "2024-03-20 18:01:23"
+}
+```
+
+### 4. 更新Performance记录
+
+**请求**
+- 方法: `PUT`
+- URL: `/api/performances/:id`
+- Content-Type: `application/json`
+
+**请求体**
+```json
+{
+  "performanceDate": "2024-03-21T10:00:00Z",
+  "amount": "1200",
+  "remarks": "更新备注信息"
+}
+```
+
+**响应示例**
+```json
+{
+  "code": "000000",
+  "statusCode": 200,
+  "msg": "更新成功",
+  "data": {
+    "id": "5f7b5d7e9b8c2d1a3e4f5g6h",
+    "customerId": "5f7b5d7e9b8c2d1a3e4f5g6h",
+    "performanceDate": "2024-03-21T10:00:00Z",
+    "performanceType": "inject",
+    "amount": "1200",
+    "remarks": "更新备注信息",
+    "updatedAt": "2024-03-20T11:01:23.456Z"
+  },
+  "timestamp": "2024-03-20 19:01:23"
+}
+```
+
+### 5. 删除Performance记录
+
+**请求**
+- 方法: `DELETE`
+- URL: `/api/performances/:id`
+
+**响应示例**
+```json
+{
+  "code": "000000",
+  "statusCode": 204,
+  "msg": "删除成功",
+  "data": null,
+  "timestamp": "2024-03-20 19:01:23"
+}
+```
+
+## Customer API
+
+### 1. 创建客户
+
+**请求**
+- 方法: `POST`
+- URL: `/api/v1/customers`
+- Content-Type: `application/json`
+
+**请求体**
+```json
+{
+  "name": "张三",
+  "avatarUrl": "https://example.com/avatar.jpg",
+  "medicalRecordNumber": "MR20240320001",
+  "lastPurchaseDate": "2024-03-20",
+  "remarks": "VIP客户",
+  "createdBy": "5f7b5d7e9b8c2d1a3e4f5g6h",  // 创建者用户ID
+  "updatedBy": "5f7b5d7e9b8c2d1a3e4f5g6h"   // 更新者用户ID
+}
+```
+
+**响应示例**
+```json
+{
+  "code": "000000",
+  "statusCode": 201,
+  "msg": "创建成功",
+  "data": {
+    "id": "5f7b5d7e9b8c2d1a3e4f5g6h",
+    "name": "张三",
+    "avatarUrl": "https://example.com/avatar.jpg",
+    "medicalRecordNumber": "MR20240320001",
+    "lastPurchaseDate": "2024-03-20T00:00:00.000Z",
+    "remarks": "VIP客户",
+    "createdBy": "5f7b5d7e9b8c2d1a3e4f5g6h",
+    "updatedBy": "5f7b5d7e9b8c2d1a3e4f5g6h",
+    "createdAt": "2024-03-20T10:01:23.456Z",
+    "updatedAt": "2024-03-20T10:01:23.456Z"
+  }
+}
+```
+
+### 2. 获取客户列表
+
+**请求**
+- 方法: `GET`
+- URL: `/api/v1/customers`
+- Query Parameters:
+  - `page`: 页码（可选，默认1）
+  - `limit`: 每页数量（可选，默认10）
+  - `name`: 姓名搜索（可选）
+  - `medicalRecordNumber`: 病历号搜索（可选）
+
+**响应示例**
+```json
+{
+  "code": "000000",
+  "statusCode": 200,
+  "msg": "获取成功",
+  "data": {
+    "customers": [
+      {
+        "id": "5f7b5d7e9b8c2d1a3e4f5g6h",
+        "name": "张三",
+        "avatarUrl": "https://example.com/avatar.jpg",
+        "medicalRecordNumber": "MR20240320001",
+        "lastPurchaseDate": "2024-03-20T00:00:00.000Z",
+        "remarks": "VIP客户",
+        "createdBy": {
+          "id": "5f7b5d7e9b8c2d1a3e4f5g6h",
+          "username": "admin"
+        },
+        "updatedBy": {
+          "id": "5f7b5d7e9b8c2d1a3e4f5g6h",
+          "username": "admin"
+        },
+        "createdAt": "2024-03-20T10:01:23.456Z",
+        "updatedAt": "2024-03-20T10:01:23.456Z"
+      }
+    ],
+    "pagination": {
+      "total": 100,
+      "totalPages": 10,
+      "currentPage": 1,
+      "limit": 10
+    }
+  }
+}
+```
+
+### 6. 创建客户并添加Performance记录
+
+**请求**
+- 方法: `POST`
+- URL: `/api/performances/with-customer`
+- Content-Type: `application/json`
+
+**请求体**
+```json
+{
+  // 客户信息
+  "name": "张三",
+  "avatarUrl": "https://example.com/avatar.jpg",
+  "medicalRecordNumber": "MR20240320001",
+  "lastPurchaseDate": "2024-03-20",
+  "customerRemarks": "VIP客户",
+  "createdBy": "5f7b5d7e9b8c2d1a3e4f5g6h",
+  "updatedBy": "5f7b5d7e9b8c2d1a3e4f5g6h",
+
+  // Performance信息
+  "performanceDate": "2024-03-20T10:00:00Z",
+  "performanceType": "inject",
+  "amount": "1000",
+  "itemA": "玻尿酸",
+  "itemB": "肉毒素",
+  "performanceRemarks": "注射玻尿酸"
+}
+```
+
+**响应示例**
+```json
+{
+  "code": "000000",
+  "statusCode": 201,
+  "msg": "创建成功",
+  "data": {
+    "customer": {
+      "id": "5f7b5d7e9b8c2d1a3e4f5g6h",
+      "name": "张三",
+      "avatarUrl": "https://example.com/avatar.jpg",
+      "medicalRecordNumber": "MR20240320001",
+      "lastPurchaseDate": "2024-03-20T00:00:00.000Z",
+      "remarks": "VIP客户",
+      "createdBy": "5f7b5d7e9b8c2d1a3e4f5g6h",
+      "updatedBy": "5f7b5d7e9b8c2d1a3e4f5g6h",
+      "createdAt": "2024-03-20T10:01:23.456Z",
+      "updatedAt": "2024-03-20T10:01:23.456Z"
+    },
+    "performance": {
+      "id": "5f7b5d7e9b8c2d1a3e4f5g6i",
+      "customerId": "5f7b5d7e9b8c2d1a3e4f5g6h",
+      "performanceDate": "2024-03-20T10:00:00Z",
+      "performanceType": "inject",
+      "amount": "1000",
+      "itemA": "玻尿酸",
+      "itemB": "肉毒素",
+      "remarks": "注射玻尿酸",
+      "createdAt": "2024-03-20T10:01:23.456Z",
+      "updatedAt": "2024-03-20T10:01:23.456Z"
+    }
+  }
+}
+```
+
+**错误响应示例**
+```json
+{
+  "code": "A00400",
+  "statusCode": 400,
+  "msg": "创建客户和消费记录失败: 手机号已存在",
+  "data": null
+}
+```

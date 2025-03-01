@@ -192,6 +192,26 @@ const routes = [
     ]
   },
   {
+    path: '/hospital',
+    component: Layout,
+    name: 'Hospital',
+    meta: { title: '医院管理', icon: 'fa-solid fa-hospital' },
+    children: [
+      {
+        path: 'customer',
+        name: 'Customer',
+        component: () => import('@/views/hospital/customer/index.vue'),
+        meta: { title: '客户管理' }
+      },
+      {
+        path: 'performance',
+        name: 'Performance',
+        component: () => import('@/views/hospital/performance/index.vue'),
+        meta: { title: '绩效管理' }
+      }
+    ]
+  },
+  {
     path: '/test',
     component: Layout,
     children: [

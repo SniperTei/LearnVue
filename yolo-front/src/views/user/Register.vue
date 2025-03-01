@@ -181,7 +181,7 @@ const handleRegister = async () => {
     };
     
     // 调用注册API
-    await register(res);
+    await register(registerData);
     ElMessage.success('注册成功！');
     // 注册成功后跳转到登录页
     router.push('/login');
