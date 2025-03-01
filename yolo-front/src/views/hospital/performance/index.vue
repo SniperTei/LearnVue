@@ -226,6 +226,7 @@ const modalVisible = ref(false)
 const modalTitle = ref('')
 const formData = reactive({
   customerId: '',
+  performanceId: '',
   name: '',
   medicalRecordNumber: '',
   performanceDate: '',
@@ -277,7 +278,7 @@ const fetchCustomerList = async () => {
     if (res.code === '000000') {
       customerOptions.value = res.data.customers.map(item => ({
         label: `${item.name} (${item.medicalRecordNumber})`,
-        value: item.id
+        value: item.customerId
       }))
     }
   } catch (error) {
@@ -329,6 +330,7 @@ const handleAdd = () => {
   customerSelectType.value = 'new'
   Object.assign(formData, {
     customerId: '',
+    performanceId: '',
     name: '',
     medicalRecordNumber: '',
     performanceDate: '',
@@ -347,7 +349,8 @@ const handleEdit = (row) => {
   customerSelectType.value = 'existing'
   Object.assign(formData, {
     ...row,
-    customerId: row.customerId.id
+    customerId: row.customerId,
+    performanceId: row.performanceId
   })
   modalVisible.value = true
 }
@@ -355,7 +358,8 @@ const handleEdit = (row) => {
 // 删除业绩
 const handleDelete = async (row) => {
   try {
-    const res = await deletePerformance(row.id)
+    console.log('row.performanceId', row.performanceId)
+    const res = await deletePerformance(row.performanceId)
     if (res.code === '000000') {
       ElMessage.success('删除成功')
       fetchPerformanceList()
