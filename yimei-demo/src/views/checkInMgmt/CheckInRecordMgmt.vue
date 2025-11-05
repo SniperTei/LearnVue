@@ -96,72 +96,70 @@ onMounted(() => {
     <h1 class="page-title">打卡记录管理</h1>
     
     <PullRefresh v-model="refreshing" @refresh="onRefresh">
-      <List
-        v-model:loading="loading"
-        v-model:finished="finished"
-        :offset="20"
-        :total="total"
-        :immediate-check="false"
-        @load="onLoad"
-      >
-        <template #default>
-          <!-- 打卡记录列表 -->
-          <Card
-            v-for="record in checkInRecords"
-            :key="record.id"
-            class="record-card"
-            :desc="`打卡时间: ${formatTime(record.createtime)}`"
-          >
-            <template #title>
-              <div class="record-title">
-                <span>{{ record.user?.username || '未知用户名' }}</span>
-                <Tag color="#07c160" v-if="record.score > 0">已评分</Tag>
-                <Tag color="#f76260" v-else>未评分</Tag>
-              </div>
-            </template>
-            
-            <div class="record-content">
-              <div class="record-user-info">
-                <div class="user-details">
-                  <div><strong>用户ID:</strong> {{ record.user_id }}</div>
-                  <div><strong>物品ID:</strong> {{ record.items_id }}</div>
-                  <div><strong>评分状态:</strong> {{ record.score > 0 ? `已评分 (${record.score})` : '未评分' }}</div>
-                  <div v-if="record.user"><strong>用户昵称:</strong> {{ record.user.nickname }}</div>
-                </div>
-              </div>
-              
-              <div class="record-image">
-                <Image
-                  v-if="record.itemsimage"
-                  :src="record.itemsimage"
-                  fit="cover"
-                  class="item-image"
-                  @click="viewImage(record.itemsimage)"
-                />
-                <div v-else class="no-image">无图片</div>
-              </div>
+      <div v-if="checkInRecords.length > 0" class="record-grid">
+        <!-- 打卡记录网格 -->
+        <Card
+          v-for="record in checkInRecords"
+          :key="record.id"
+          class="record-card"
+          :desc="`打卡时间: ${formatTime(record.createtime)}`"
+        >
+          <template #title>
+            <div class="record-title">
+              <span>{{ record.user?.username || '未知用户名' }}</span>
+              <Tag color="#07c160" v-if="record.score > 0">已评分</Tag>
+              <Tag color="#f76260" v-else>未评分</Tag>
+            </div>
+          </template>
+          
+          <div class="record-content">
+            <div class="record-image">
+              <Image
+                v-if="record.itemsimage"
+                :src="record.itemsimage"
+                fit="cover"
+                class="item-image"
+                @click="viewImage(record.itemsimage)"
+              />
+              <div v-else class="no-image">无图片</div>
             </div>
             
-            <template #footer>
-              <div class="record-actions">
-                <Button size="small" type="primary" v-if="record.score === 0">
-                  评分
-                </Button>
-                <Button size="small" type="default">
-                  详情
-                </Button>
+            <div class="record-user-info">
+              <div class="user-details">
+                <div><strong>用户ID:</strong> {{ record.user_id }}</div>
+                <div><strong>物品ID:</strong> {{ record.items_id }}</div>
+                <div><strong>评分状态:</strong> {{ record.score > 0 ? `已评分 (${record.score})` : '未评分' }}</div>
+                <div v-if="record.user"><strong>用户昵称:</strong> {{ record.user.nickname }}</div>
               </div>
-            </template>
-          </Card>
-        </template>
-        
-        <template #finished>
-          <div v-if="checkInRecords.length > 0" class="finished-text">
-            没有更多数据了
+            </div>
           </div>
-          <Empty v-else image="search" description="暂无打卡记录" />
-        </template>
-      </List>
+          
+          <template #footer>
+            <div class="record-actions">
+              <Button size="small" type="primary" v-if="record.score === 0">
+                评分
+              </Button>
+              <Button size="small" type="default">
+                详情
+              </Button>
+            </div>
+          </template>
+        </Card>
+      </div>
+      
+      <div v-else class="empty-container">
+        <Empty image="search" description="暂无打卡记录" />
+      </div>
+      
+      <!-- 加载状态 -->
+      <div v-if="loading" class="loading-container">
+        <div class="loading-text">加载中...</div>
+      </div>
+      
+      <!-- 没有更多数据提示 -->
+      <div v-if="finished && checkInRecords.length > 0" class="finished-text">
+        没有更多数据了
+      </div>
     </PullRefresh>
   </div>
 </template>
@@ -181,12 +179,21 @@ onMounted(() => {
   text-align: center;
 }
 
+/* 网格布局 */
+.record-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+}
+
 .record-card {
-  margin-bottom: 16px;
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   transition: all 0.3s ease;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .record-card:active {
@@ -201,38 +208,20 @@ onMounted(() => {
 
 .record-content {
   display: flex;
-  gap: 16px;
-  margin-top: 12px;
-}
-
-.record-user-info {
-  display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 12px;
+  margin-top: 12px;
   flex: 1;
 }
 
-.user-avatar {
-  width: 60px;
-  height: 60px;
-}
-
-.user-details {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  font-size: 14px;
-  color: #646566;
-}
-
 .record-image {
-  flex-shrink: 0;
   cursor: pointer;
+  align-self: center;
 }
 
 .no-image {
-  width: 120px;
-  height: 120px;
+  width: 100%;
+  height: 180px;
   border-radius: 8px;
   background-color: #f5f5f5;
   display: flex;
@@ -244,15 +233,47 @@ onMounted(() => {
 }
 
 .item-image {
-  width: 120px;
-  height: 120px;
+  width: 100%;
+  height: 180px;
   border-radius: 8px;
+}
+
+.record-user-info {
+  flex: 1;
+}
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 14px;
+  color: #646566;
 }
 
 .record-actions {
   display: flex;
   gap: 8px;
   justify-content: flex-end;
+  margin-top: 12px;
+}
+
+.empty-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 60px 20px;
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.loading-text {
+  color: #969799;
+  font-size: 14px;
 }
 
 .finished-text {
@@ -272,18 +293,20 @@ onMounted(() => {
     font-size: 20px;
   }
   
-  .record-content {
-    flex-direction: column;
+  .record-grid {
+    grid-template-columns: 1fr;
     gap: 12px;
   }
   
-  .record-image {
-    align-self: center;
-  }
-  
-  .item-image {
-    width: 200px;
+  .item-image, .no-image {
     height: 200px;
+  }
+}
+
+/* 中等屏幕设备 */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .record-grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   }
 }
 </style>
