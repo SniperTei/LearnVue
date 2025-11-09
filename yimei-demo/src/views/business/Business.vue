@@ -54,7 +54,7 @@
 
     <!-- 右下角操作按钮 -->
     <div class="action-button">
-      <van-icon name="checked" size="32" />
+      <van-icon name="plus" size="32" />
     </div>
   </div>
 </template>
