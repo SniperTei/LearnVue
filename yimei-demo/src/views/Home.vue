@@ -19,6 +19,8 @@
           class="feature-card item-card"
           :border="false"
           :shadow="false"
+          @click="navigateToBusiness"
+          style="cursor: pointer;"
         >
           <template #content>
             <div class="card-content">
@@ -162,6 +164,11 @@ const handleQuickAction = (type) => {
       // 备忘录功能
       break;
   }
+};
+
+// 跳转到业务页面
+const navigateToBusiness = () => {
+  router.push('/business');
 };
 </script>
 
