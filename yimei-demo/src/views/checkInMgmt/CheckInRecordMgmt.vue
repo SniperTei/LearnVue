@@ -41,16 +41,16 @@ const fetchCheckInRecords = async (page = 1, refresh = false) => {
     };
 
     const response = await checkInList(params);
-    
+
     if (response.code === 1) {
       const newRecords = response.data.rows || [];
-      
+
       if (refresh) {
         checkInRecords.value = newRecords;
       } else {
         checkInRecords.value = [...checkInRecords.value, ...newRecords];
       }
-      
+
       total.value = response.data.total || 0;
       finished.value = checkInRecords.value.length >= total.value;
       currentPage.value = page;
@@ -94,7 +94,7 @@ onMounted(() => {
 <template>
   <div class="check-in-record-container">
     <h1 class="page-title">打卡记录管理</h1>
-    
+
     <PullRefresh v-model="refreshing" @refresh="onRefresh">
       <div v-if="checkInRecords.length > 0" class="record-grid">
         <!-- 打卡记录网格 -->
@@ -111,7 +111,7 @@ onMounted(() => {
               <Tag color="#f76260" v-else>未评分</Tag>
             </div>
           </template>
-          
+
           <div class="record-content">
             <div class="record-image">
               <Image
@@ -123,7 +123,7 @@ onMounted(() => {
               />
               <div v-else class="no-image">无图片</div>
             </div>
-            
+
             <div class="record-user-info">
               <div class="user-details">
                 <div><strong>用户ID:</strong> {{ record.user_id }}</div>
@@ -133,7 +133,7 @@ onMounted(() => {
               </div>
             </div>
           </div>
-          
+
           <template #footer>
             <div class="record-actions">
               <Button size="small" type="primary" v-if="record.score === 0">
@@ -146,16 +146,16 @@ onMounted(() => {
           </template>
         </Card>
       </div>
-      
+
       <div v-else class="empty-container">
         <Empty image="search" description="暂无打卡记录" />
       </div>
-      
+
       <!-- 加载状态 -->
       <div v-if="loading" class="loading-container">
         <div class="loading-text">加载中...</div>
       </div>
-      
+
       <!-- 没有更多数据提示 -->
       <div v-if="finished && checkInRecords.length > 0" class="finished-text">
         没有更多数据了
@@ -288,16 +288,16 @@ onMounted(() => {
   .check-in-record-container {
     padding: 12px;
   }
-  
+
   .page-title {
     font-size: 20px;
   }
-  
+
   .record-grid {
     grid-template-columns: 1fr;
     gap: 12px;
   }
-  
+
   .item-image, .no-image {
     height: 200px;
   }
