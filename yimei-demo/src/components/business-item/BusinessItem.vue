@@ -30,7 +30,8 @@ defineProps({
 </script>
 
 <style lang="scss" scoped>
-@import '../../styles/variables.scss';
+// @import '../../styles/variables.scss';
+@use '../../styles/variables.scss' as *;
 
 .business-item {
   background-color: $bg-primary;
@@ -39,7 +40,7 @@ defineProps({
   padding: $spacing-base;
   cursor: pointer;
   transition: background-color 0.2s ease;
-  
+
   &:active {
     background-color: #f5f5f5;
   }

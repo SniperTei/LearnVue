@@ -130,7 +130,8 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
-@import '../../styles/variables.scss';
+// @import '../../styles/variables.scss';
+@use '../../styles/variables.scss' as *;
 
 // 混合器
 @mixin flex-center {

@@ -218,7 +218,7 @@ const checkIn = () => {
 
 <style lang="scss" scoped>
 // 引入变量
-@import '../../styles/variables.scss';
+@use '../../styles/variables.scss' as *;
 
 // 变量别名，解决未定义变量问题
 $spacing-large: $spacing-lg;
