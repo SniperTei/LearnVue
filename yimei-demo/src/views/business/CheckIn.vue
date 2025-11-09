@@ -129,21 +129,25 @@ const currentImage = ref(''); // 现在的图片
 const showCategoryPicker = ref(false);
 const selectedItem = ref({
   id: '',
-  name: ''
+  name: '',
+  image: ''
 });
 
 // 获取路由参数
 onMounted(() => {
   const itemId = route.query.itemId;
   const itemName = route.query.itemName;
+  const itemImage = route.query.itemImage;
 
   if (itemId && itemName) {
     selectedItem.value = {
       id: itemId,
-      name: itemName
+      name: itemName,
+      image: itemImage
     };
     // 可以根据需要在这里设置默认分类或加载相关数据
   }
+  templateImage.value = itemImage;
 });
 
 // 分类数据
@@ -179,7 +183,7 @@ const checkIn = () => {
       // 确保设置currentImage值，这样模板中的v-if="currentImage"条件会被满足
       currentImage.value = result.data.imageUrl;
       console.log('图片已设置:', currentImage.value);
-      
+
       // 调用打卡API
       checkInApi({
         category: selectedCategory.value,

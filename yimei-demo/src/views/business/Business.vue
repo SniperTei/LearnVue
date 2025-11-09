@@ -117,7 +117,8 @@ const navigateToCheckIn = (item) => {
     path: '/check-in',
     query: {
       itemId: item.id,
-      itemName: item.title
+      itemName: item.title,
+      itemImage: item.image
     }
   });
 };
