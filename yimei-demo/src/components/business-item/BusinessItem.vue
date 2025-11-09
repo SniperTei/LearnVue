@@ -1,5 +1,5 @@
 <template>
-  <div class="business-item">
+  <div class="business-item" @click="$emit('click')">
     <div class="item-content">
       <div class="item-info">
         <div class="item-title">{{ item.title }}</div>
@@ -37,6 +37,12 @@ defineProps({
   border-radius: $border-radius;
   margin-bottom: $spacing-small;
   padding: $spacing-base;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  
+  &:active {
+    background-color: #f5f5f5;
+  }
 
   .item-content {
     display: flex;

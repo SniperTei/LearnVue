@@ -42,6 +42,7 @@
           v-for="(item, index) in businessItems"
           :key="index"
           :item="item"
+          @click="navigateToCheckIn(item)"
         />
 
         <!-- 空状态 -->
@@ -107,6 +108,18 @@ const fetchItemList = async () => {
   } finally {
     loading.value = false;
   }
+};
+
+// 跳转到打卡页面
+const navigateToCheckIn = (item) => {
+  // 传递选中的物品信息到打卡页面
+  router.push({
+    path: '/check-in',
+    query: {
+      itemId: item.id,
+      itemName: item.title
+    }
+  });
 };
 
 // 组件挂载时获取数据
