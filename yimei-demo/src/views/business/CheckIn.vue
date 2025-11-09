@@ -179,22 +179,24 @@ const takePhoto = (type) => {
 const checkIn = () => {
   // 实际项目中这里会调用打卡API
   device.takePhoto('current', (result) => {
+    console.log('拍照结果:', result);
+    
     if (result.success && result.data && result.data.imageUrl) {
       // 确保设置currentImage值，这样模板中的v-if="currentImage"条件会被满足
       currentImage.value = result.data.imageUrl;
-      console.log('图片已设置:', currentImage.value);
+      console.log('图片URL已设置到currentImage:', currentImage.value);
 
       // 调用打卡API
       checkInApi({
         category: selectedCategory.value,
         imageUrl: result.data.imageUrl
       }).then(response => {
-        if (response.success) {
+        if (response && response.code === 1) {
           // 打卡成功处理
           alert('출퇴근 성공!');
         } else {
           // 打卡失败处理
-          alert('출퇴근 실패: ' + response.message);
+          alert('출퇴근 실패: ' + (response?.message || '未知错误'));
         }
       }).catch(error => {
         // 网络错误处理
@@ -205,14 +207,6 @@ const checkIn = () => {
       alert('촬영 실패: ' + (result.message || '未知错误'));
     }
   });
-
-  // console.log('打卡操作', {
-  //   category: selectedCategory.value,
-  //   hasImage: !!currentImage.value
-  // });
-
-  // // 模拟打卡成功
-  // alert('출퇴근 성공!');
 };
 </script>
 

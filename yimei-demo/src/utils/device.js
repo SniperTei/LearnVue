@@ -132,8 +132,32 @@ class DeviceBridge {
       };
       input.click();
     } else {
-      // 调用原生方法
-      this.callNative('takePhoto', { type }, callback);
+      // 调用原生方法，需要处理不同的数据格式
+      this.callNative('takePhoto', { type }, (nativeResult) => {
+        // 处理安卓原生返回的数据格式
+        if (nativeResult.code === '000000' && nativeResult.data && nativeResult.data.imageBase64) {
+          // 将base64字符串转换为可显示的图片URL
+          const base64String = nativeResult.data.imageBase64;
+          // 确保base64字符串前面有正确的前缀
+          const imageUrl = base64String.startsWith('data:image/') 
+            ? base64String 
+            : `data:image/jpeg;base64,${base64String}`;
+          
+          // 返回格式化后的结果
+          callback({
+            success: true,
+            data: {
+              imageUrl: imageUrl
+            }
+          });
+        } else {
+          // 处理失败情况
+          callback({
+            success: false,
+            message: nativeResult.message || '拍照失败'
+          });
+        }
+      });
     }
   }
 

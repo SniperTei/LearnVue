@@ -122,10 +122,118 @@ const navigateToCheckIn = (item) => {
     }
   });
 };
+const fetchMockItemList = async () => {
+    // loading.value = true;
+    const response = {
+        "code": 1,
+        "msg": "返回成功",
+        "time": "1762657911",
+        "data": {
+            "total": 11,
+            "page": 1,
+            "rows": [
+                {
+                    "id": 2,
+                    "name": "笔记本",
+                    "content": "笔记本样品",
+                    "itemimage": "/uploads/20251027/0a0c7a91d1c417d83a0b6189f8b02f5c.png",
+                    "createtime": 1761048715,
+                    "updatetime": 1761542637
+                },
+                {
+                    "id": 3,
+                    "name": "手机",
+                    "content": "手机样品",
+                    "itemimage": "/uploads/20251027/8e97fe95bf24b6c618eb8ac485602012.jpg",
+                    "createtime": 1761301664,
+                    "updatetime": 1761542629
+                },
+                {
+                    "id": 4,
+                    "name": "桌面",
+                    "content": "桌面",
+                    "itemimage": "/uploads/20251027/a13ca981b7ac3eb0dd9d4f04bf745b7b.jpg",
+                    "createtime": 1761542596,
+                    "updatetime": 1761542596
+                },
+                {
+                    "id": 5,
+                    "name": "头疼",
+                    "content": "嘎嘎嘎",
+                    "itemimage": "/uploads/20251101/70dc083f72f29ab27528abd0e20a07f2.jpg",
+                    "createtime": 1761985290,
+                    "updatetime": 1761985290
+                },
+                {
+                    "id": 6,
+                    "name": "郑楠的物品A",
+                    "content": "描述棒棒棒",
+                    "itemimage": "/uploads/20251101/3e1dfae9e08c4eece1b64334a2b07d02.jpg",
+                    "createtime": 1761985799,
+                    "updatetime": 1761985799
+                },
+                {
+                    "id": 7,
+                    "name": "郑楠的物品A",
+                    "content": "描述棒棒棒",
+                    "itemimage": "uploads/20251101/3e1dfae9e08c4eece1b64334a2b07d02.jpg",
+                    "createtime": 1762351256,
+                    "updatetime": 1762351256
+                },
+                {
+                    "id": 8,
+                    "name": "手机",
+                    "content": "手机样品",
+                    "itemimage": "/uploads/20251027/8e97fe95bf24b6c618eb8ac485602012.jpg",
+                    "createtime": 1762498938,
+                    "updatetime": 1762498938
+                },
+                {
+                    "id": 9,
+                    "name": "笔记本",
+                    "content": "笔记本样品",
+                    "itemimage": "/uploads/20251027/0a0c7a91d1c417d83a0b6189f8b02f5c.png",
+                    "createtime": 1762498996,
+                    "updatetime": 1762498996
+                },
+                {
+                    "id": 10,
+                    "name": "笔记本",
+                    "content": "笔记本样品",
+                    "itemimage": "/uploads/20251027/0a0c7a91d1c417d83a0b6189f8b02f5c.png",
+                    "createtime": 1762499029,
+                    "updatetime": 1762499029
+                },
+                {
+                    "id": 11,
+                    "name": "笔记本",
+                    "content": "笔记本样品",
+                    "itemimage": "/uploads/20251027/0a0c7a91d1c417d83a0b6189f8b02f5c.png",
+                    "createtime": 1762499103,
+                    "updatetime": 1762499103
+                },
+                {
+                    "id": 12,
+                    "name": "头疼",
+                    "content": "嘎嘎嘎",
+                    "itemimage": "/uploads/20251101/70dc083f72f29ab27528abd0e20a07f2.jpg",
+                    "createtime": 1762500382,
+                    "updatetime": 1762500382
+                }
+            ]
+        }
+    }
+    businessItems.value = response.data.rows.map(item => ({
+        title: item.name, // 使用name作为标题
+        tag: '物品', // 可以根据实际情况设置标签
+        image: item.itemimage ? `${import.meta.env.VITE_APP_API_URL}${item.itemimage}` : 'https://via.placeholder.com/80/CCCCCC/FFFFFF?text=PIC'
+      }));
+};
 
 // 组件挂载时获取数据
 onMounted(() => {
-  fetchItemList();
+  // fetchItemList();
+  fetchMockItemList();
 });
 </script>
 
