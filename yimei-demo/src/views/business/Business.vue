@@ -1,11 +1,11 @@
 <template>
   <div class="business-container">
-    <!-- 顶部标题栏 -->
-    <div class="header">
-      <div class="header-title">업무</div>
-      <van-icon name="search" size="24" class="search-icon" />
+    <!-- 导航栏 -->
+    <div class="navbar">
+      <van-icon name="arrow-left" size="24" class="back-icon" @click="goBack" />
+      <div class="navbar-title">업무</div>
+      <div class="navbar-right"></div>
     </div>
-
     <!-- 搜索框 -->
     <div class="search-container">
       <van-field
@@ -30,11 +30,25 @@
 
     <!-- 业务列表 -->
     <div class="business-list">
-      <BusinessItem
-        v-for="(item, index) in businessItems"
-        :key="index"
-        :item="item"
-      />
+      <!-- 加载状态 -->
+      <div v-if="loading" class="loading-container">
+        <van-loading type="spinner" color="#07c160" />
+        <span class="loading-text">加载中...</span>
+      </div>
+
+      <!-- 列表内容 -->
+      <template v-else>
+        <BusinessItem
+          v-for="(item, index) in businessItems"
+          :key="index"
+          :item="item"
+        />
+
+        <!-- 空状态 -->
+        <div v-if="businessItems.length === 0" class="empty-state">
+          <van-empty description="暂无数据" />
+        </div>
+      </template>
     </div>
 
     <!-- 右下角操作按钮 -->
@@ -46,9 +60,18 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { Field, Icon } from 'vant';
+import { useRouter } from 'vue-router';
+import { Field, Icon, Loading, Empty } from 'vant';
 import BusinessItem from '../../components/business-item/BusinessItem.vue';
 import { itemList } from '../../api/itemApi.js';
+
+// 路由实例
+const router = useRouter();
+
+// 返回上一页
+const goBack = () => {
+  router.back();
+};
 
 // 状态管理
 const searchQuery = ref('');
@@ -103,28 +126,35 @@ onMounted(() => {
 }
 
 .business-container {
-  min-height: 100vh;
-  background-color: $bg-secondary;
-  padding-bottom: 70px; // 为底部操作按钮留出空间
+    min-height: 100vh;
+    background-color: $bg-secondary;
+    padding-bottom: 70px; // 为底部操作按钮留出空间
 
-  // 顶部标题栏
-  .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 16px $spacing-base 12px;
-    background-color: $bg-primary;
+    // 导航栏
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px $spacing-base 12px;
+      background-color: $bg-primary;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 
-    .header-title {
-      font-size: 18px;
-      font-weight: 600;
-      color: $text-primary;
+      .back-icon {
+        color: $text-primary;
+        cursor: pointer;
+      }
+
+      .navbar-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: $text-primary;
+        margin: 0 auto;
+      }
+
+      .navbar-right {
+        width: 24px; // 占位，保持标题居中
+      }
     }
-
-    .search-icon {
-      color: $text-primary;
-    }
-  }
 
   // 搜索框
   .search-container {
@@ -165,6 +195,27 @@ onMounted(() => {
   // 业务列表
   .business-list {
     padding: 0 $spacing-base;
+    min-height: 300px;
+
+    // 加载状态容器
+    .loading-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 0;
+
+      .loading-text {
+        margin-top: 12px;
+        font-size: 14px;
+        color: $text-secondary;
+      }
+    }
+
+    // 空状态容器
+    .empty-state {
+      padding: 40px 0;
+    }
   }
 
   // 右下角操作按钮
