@@ -111,6 +111,7 @@
 import { ref, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { Button, Icon, Field, Popup } from 'vant';
+import device from '@/utils/device.js';
 
 // 路由实例
 const router = useRouter();
@@ -173,13 +174,41 @@ const takePhoto = (type) => {
 // 打卡
 const checkIn = () => {
   // 实际项目中这里会调用打卡API
-  console.log('打卡操作', {
-    category: selectedCategory.value,
-    hasImage: !!currentImage.value
+  device.takePhoto('current', (result) => {
+    if (result.success && result.data && result.data.imageUrl) {
+      // 确保设置currentImage值，这样模板中的v-if="currentImage"条件会被满足
+      currentImage.value = result.data.imageUrl;
+      console.log('图片已设置:', currentImage.value);
+      
+      // 调用打卡API
+      checkInApi({
+        category: selectedCategory.value,
+        imageUrl: result.data.imageUrl
+      }).then(response => {
+        if (response.success) {
+          // 打卡成功处理
+          alert('출퇴근 성공!');
+        } else {
+          // 打卡失败处理
+          alert('출퇴근 실패: ' + response.message);
+        }
+      }).catch(error => {
+        // 网络错误处理
+        alert('네트워크 오류: ' + error.message);
+      });
+    } else {
+      // 拍照失败处理
+      alert('촬영 실패: ' + (result.message || '未知错误'));
+    }
   });
 
-  // 模拟打卡成功
-  alert('출퇴근 성공!');
+  // console.log('打卡操作', {
+  //   category: selectedCategory.value,
+  //   hasImage: !!currentImage.value
+  // });
+
+  // // 模拟打卡成功
+  // alert('출퇴근 성공!');
 };
 </script>
 
