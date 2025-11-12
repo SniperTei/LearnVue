@@ -100,6 +100,7 @@ const fetchItemList = async () => {
       businessItems.value = response.data.rows.map(item => ({
         title: item.name, // 使用name作为标题
         tag: '物品', // 可以根据实际情况设置标签
+        id: item.id,
         image: item.itemimage ? `${import.meta.env.VITE_APP_API_URL}${item.itemimage}` : 'https://via.placeholder.com/80/CCCCCC/FFFFFF?text=PIC'
       }));
     }
@@ -112,6 +113,11 @@ const fetchItemList = async () => {
 
 // 跳转到打卡页面
 const navigateToCheckIn = (item) => {
+  // 检查是否有id
+  if (!item.id) {
+    console.warn('物品ID不存在，无法跳转打卡页面');
+    return;
+  }
   // 传递选中的物品信息到打卡页面
   router.push({
     path: '/check-in',
@@ -226,14 +232,15 @@ const fetchMockItemList = async () => {
     businessItems.value = response.data.rows.map(item => ({
         title: item.name, // 使用name作为标题
         tag: '物品', // 可以根据实际情况设置标签
+        id: item.id,
         image: item.itemimage ? `${import.meta.env.VITE_APP_API_URL}${item.itemimage}` : 'https://via.placeholder.com/80/CCCCCC/FFFFFF?text=PIC'
       }));
 };
 
 // 组件挂载时获取数据
 onMounted(() => {
-  // fetchItemList();
-  fetchMockItemList();
+  fetchItemList();
+  // fetchMockItemList();
 });
 </script>
 

@@ -139,7 +139,7 @@ const userInfo = {
   "mobile": "",
   "avatar": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZlcnNpb249IjEuMSIgaGVpZ2h0PSIxMDAiIHdpZHRoPSIxMDAiPjxyZWN0IGZpbGw9InJnYigyMTQsMTYwLDIyOSkiIHg9IjAiIHk9IjAiIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj48L3JlY3Q+PHRleHQgeD0iNTAiIHk9IjUwIiBmb250LXNpemU9IjUwIiB0ZXh0LWNvcHk9ImZhc3QiIGZpbGw9IiNmZmZmZmYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIHRleHQtcmlnaHRzPSJhZG1pbiIgZG9taW5hbnQtYmFzZWxpbmU9ImNlbnRyYWwiPlo8L3RleHQ+PC9zdmc+",
   "score": 0,
-  "token": "xxx",
+  "token": "b8b2bf9f-96f7-4209-b550-a60ca27a3b06",
   "user_id": 5,
   "createtime": 1762653588,
   "expiretime": 1765245588,
@@ -396,35 +396,43 @@ const navigateToBusiness = () => {
   --tabbar-height: 50px;
 
   .custom-tabbar-item {
-    // 默认状态 - 绿色图标
-    --tabbar-item-active-color: $text-secondary;
-    color: $text-secondary;
+    // 覆盖Vant默认的激活颜色变量
+    --tabbar-item-active-color: $text-primary;
+  }
 
-    &:not(.van-tabbar-item--active) {
+  // 默认状态 - 非选中项样式
+  .custom-tabbar-item:not(.van-tabbar-item--active) {
+    color: $text-secondary;
+    
+    // 确保图标颜色正确应用到Vant实际的DOM结构
+    .van-tabbar-item__icon {
       .van-icon {
-        color: $primary-color;
+        color: $primary-color !important;
       }
     }
+  }
 
-    // 选中状态 - 黑色文字，绿色背景
-    &.van-tabbar-item--active {
-      --tabbar-item-active-color: $text-primary;
-      color: $text-primary;
-
-      .van-tabbar-item__icon {
-        background-color: $primary-color;
-        border-radius: $border-radius-full;
-        width: 32px;
-        height: 32px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 2px;
-
-        .van-icon {
-          color: white;
-          font-size: 18px;
-        }
+  // 选中状态 - 黑色文字，绿色背景
+  .custom-tabbar-item.van-tabbar-item--active {
+    color: $text-primary;
+    
+    // 调整图标容器样式，使用!important确保覆盖Vant默认样式
+    .van-tabbar-item__icon {
+      background-color: $primary-color !important;
+      border-radius: $border-radius-full !important;
+      width: 32px !important;
+      height: 32px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      margin: 0 auto 2px !important;
+      padding: 0 !important;
+      box-sizing: border-box !important;
+      
+      // 确保图标在选中状态下为白色
+      .van-icon {
+        color: white !important;
+        font-size: 18px !important;
       }
     }
   }

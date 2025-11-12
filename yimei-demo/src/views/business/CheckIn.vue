@@ -64,21 +64,29 @@
             <div v-else class="placeholder-image">
               <van-icon name="photo" size="48" color="#CCCCCC" />
             </div>
+
+            <!-- 分数显示组件 -->
+            <div v-if="showScore && score > 0" class="score-display">
+              <div class="score-circle">
+                <div class="score-number">{{ score }}</div>
+                <div class="score-label">점수</div>
+              </div>
+            </div>
           </div>
         </div>
 
         <!-- 拍照/选择图片按钮 -->
-        <!-- <div class="action-section">
+        <div class="action-section">
           <div class="image-actions">
-            <van-button type="primary" size="large" @click="takePhoto('template')" class="photo-btn">样板</van-button>
-            <van-button type="default" size="large" @click="takePhoto('current')" class="comparison-btn">现在</van-button>
+            <van-button type="default" size="small" class="comparison-btn" >样板</van-button>
+            <van-button type="primary" size="small" @click="takePhoto('current')" class="photo-btn">拍照</van-button>
           </div>
-        </div> -->
+        </div>
       </div>
 
       <!-- 打卡按钮 -->
       <div class="checkin-button-section">
-        <van-button type="primary" size="large" @click="checkIn" class="checkin-btn">촬영</van-button>
+        <van-button type="primary" size="large" @click="checkInClick" class="checkin-btn" :disabled="isLoading">{{ isLoading ? '진행중입니다...' : '출퇴근' }}</van-button>
       </div>
 
       <!-- 提示信息 -->
@@ -104,6 +112,14 @@
         </div>
       </div>
     </van-popup>
+
+    <!-- 全局加载遮罩 -->
+    <div v-if="isLoading" class="loading-overlay">
+      <div class="loading-content">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">최선을 다해서 로딩중...</div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -112,6 +128,8 @@ import { ref, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { Button, Icon, Field, Popup } from 'vant';
 import device from '@/utils/device.js';
+import { checkIn } from '@/api/checkInApi';
+import { uploadFile } from '@/api/uploadApi';
 
 // 路由实例
 const router = useRouter();
@@ -133,21 +151,39 @@ const selectedItem = ref({
   image: ''
 });
 
+// 分数展示相关状态
+const score = ref(0);
+const showScore = ref(false);
+
+// 重置分数显示
+const resetScore = () => {
+  score.value = 0;
+  showScore.value = false;
+};
+
 // 获取路由参数
 onMounted(() => {
-  const itemId = route.query.itemId;
-  const itemName = route.query.itemName;
-  const itemImage = route.query.itemImage;
+  // 输出所有路由参数，方便调试
+  console.log('路由参数:', route.query);
 
-  if (itemId && itemName) {
-    selectedItem.value = {
-      id: itemId,
-      name: itemName,
-      image: itemImage
-    };
-    // 可以根据需要在这里设置默认分类或加载相关数据
+  const itemId = route.query.itemId || route.query.id || '';
+  const itemName = route.query.itemName || route.query.name || '';
+  const itemImage = route.query.itemImage || route.query.image || '';
+
+  // 设置selectedItem，无论是否有参数都提供默认值
+  selectedItem.value = {
+    id: itemId,
+    name: itemName || '未命名项目',
+    image: itemImage
+  };
+
+  // 如果没有提供itemId，记录警告信息
+  if (!itemId) {
+    console.warn('未收到项目ID，请检查上一页是否正确传递了参数');
   }
-  templateImage.value = itemImage;
+
+  // 设置模板图片，提供默认值以防为空
+  templateImage.value = itemImage || 'https://via.placeholder.com/300x200/CCCCCC/000000?text=模板图片';
 });
 
 // 分类数据
@@ -166,46 +202,105 @@ const selectCategory = (category) => {
 
 // 拍照/选择图片
 const takePhoto = (type) => {
+  // 拍照前重置分数显示
+  resetScore();
+
   // 实际项目中这里会调用摄像头或图片选择器
   // 这里使用占位图片模拟
-  if (type === 'template') {
-    templateImage.value = 'https://via.placeholder.com/300x200/CCCCCC/000000?text=样板';
-  } else {
-    currentImage.value = 'https://via.placeholder.com/300x200/CCCCCC/000000?text=现在';
-  }
-};
-
-// 打卡
-const checkIn = () => {
-  // 实际项目中这里会调用打卡API
+  // if (type === 'template') {
+  //   templateImage.value = 'https://via.placeholder.com/300x200/CCCCCC/000000?text=样板';
+  // } else {
+  //   currentImage.value = 'https://via.placeholder.com/300x200/CCCCCC/000000?text=现在';
+  // }
   device.takePhoto('current', (result) => {
     console.log('拍照结果:', result);
-    
+
     if (result.success && result.data && result.data.imageUrl) {
       // 确保设置currentImage值，这样模板中的v-if="currentImage"条件会被满足
       currentImage.value = result.data.imageUrl;
       console.log('图片URL已设置到currentImage:', currentImage.value);
-
-      // 调用打卡API
-      checkInApi({
-        category: selectedCategory.value,
-        imageUrl: result.data.imageUrl
-      }).then(response => {
-        if (response && response.code === 1) {
-          // 打卡成功处理
-          alert('출퇴근 성공!');
-        } else {
-          // 打卡失败处理
-          alert('출퇴근 실패: ' + (response?.message || '未知错误'));
-        }
-      }).catch(error => {
-        // 网络错误处理
-        alert('네트워크 오류: ' + error.message);
-      });
     } else {
       // 拍照失败处理
       alert('촬영 실패: ' + (result.message || '未知错误'));
     }
+  });
+};
+
+// 加载状态
+const isLoading = ref(false);
+
+// 打卡
+const checkInClick = () => {
+  // 先检查是否有图片
+  if (!currentImage.value) {
+    // 添加更友好的提示，包括项目名称
+    alert(`请先拍摄打卡照片\n项目ID: ${selectedItem.value.id || '未提供'}\n项目名称: ${selectedItem.value.name}`);
+    return;
+  }
+
+  // 检查是否有项目ID
+  if (!selectedItem.value.id) {
+    alert('警告: 未获取到项目ID，请确认上一页是否正确传递参数');
+  }
+
+  // 开始加载
+  isLoading.value = true;
+
+  // 将base64图片转换为File对象以便上传
+  const base64ToFile = (base64, filename) => {
+    const arr = base64.split(',');
+    const mime = arr[0].match(/:(.*?);/)[1];
+    const bstr = atob(arr[1]);
+    let n = bstr.length;
+    const u8arr = new Uint8Array(n);
+
+    while (n--) {
+      u8arr[n] = bstr.charCodeAt(n);
+    }
+
+    return new File([u8arr], filename, { type: mime });
+  };
+
+  // 创建文件对象
+  const timestamp = new Date().getTime();
+  const file = base64ToFile(currentImage.value, `checkin_${timestamp}.jpg`);
+
+  // 先上传文件
+  uploadFile(file).then(uploadResponse => {
+    // 检查上传是否成功并获取URL
+    if (uploadResponse && uploadResponse.code === 1 && uploadResponse.data) {
+      const imageUrl = uploadResponse.data.url || uploadResponse.data;
+
+      // 使用上传后的URL调用打卡API
+      return checkIn({
+        items_id: selectedItem.value.id,
+        file_name: imageUrl
+      });
+    } else {
+      throw new Error('文件上传失败: ' + (uploadResponse?.message || '未知错误'));
+    }
+  }).then(checkInResponse => {
+    if (checkInResponse && checkInResponse.code === 1) {
+      // 打卡成功处理
+      // 提取分数并显示
+      if (checkInResponse.data && checkInResponse.data.score !== undefined) {
+        score.value = checkInResponse.data.score;
+        showScore.value = true;
+        console.log('显示分数:', score.value);
+        alert(`출퇴근 성공! 점수: ${score.value}`);
+      } else {
+        alert('출퇴근 성공!');
+      }
+    } else {
+      // 打卡失败处理
+      alert('출퇴근 실패: ' + (checkInResponse?.message || '未知错误'));
+    }
+  }).catch(error => {
+    // 错误处理
+    alert('处理失败: ' + error.message);
+  }).finally(() => {
+    // 无论成功失败都结束加载
+    isLoading.value = false;
   });
 };
 </script>
@@ -264,12 +359,12 @@ $background-color: $bg-secondary; // 使用已定义的背景色变量
     .selected-item-info {
       margin-bottom: $spacing-base;
       padding: $spacing-base;
-      background-color: #e6f7ff;
+      background-color: $bg-primary;
       border-radius: $border-radius-small;
 
       .item-name {
         margin: 0;
-        color: #1890ff;
+        color: $text-primary;
         font-size: 14px;
         text-align: center;
       }
@@ -341,39 +436,84 @@ $background-color: $bg-secondary; // 使用已定义的背景色变量
     }
 
     .image-container {
-      flex: 1;
-      min-width: 200px;
-      max-width: 300px;
-      height: 200px;
-      background-color: $bg-primary;
-      border-radius: $border-radius-small;
-      overflow: hidden;
-      margin-bottom: $spacing-base;
-      border: 1px solid $border-color;
-
-      .image-label {
+        flex: 1;
+        min-width: 200px;
+        max-width: 300px;
+        height: 200px;
         background-color: $bg-primary;
-        padding: 8px;
-        font-size: $font-size-sm;
-        color: $text-secondary;
-        border-bottom: 1px solid $border-color;
-        font-weight: 500;
-      }
+        border-radius: $border-radius-small;
+        overflow: hidden;
+        margin-bottom: $spacing-base;
+        border: 1px solid $border-color;
+        position: relative;
 
-      .display-image {
-        width: 100%;
-        height: auto;
-        max-height: 250px;
-        object-fit: contain;
-      }
+        .image-label {
+          background-color: $bg-primary;
+          padding: 8px;
+          font-size: $font-size-sm;
+          color: $text-secondary;
+          border-bottom: 1px solid $border-color;
+          font-weight: 500;
+        }
 
-      .placeholder-image {
-        width: 100%;
-        height: 100%;
-        @include flex-center;
-        background-color: #f5f5f5;
+        .display-image {
+          width: 100%;
+          height: auto;
+          max-height: 250px;
+          object-fit: contain;
+        }
+
+        .placeholder-image {
+          width: 100%;
+          height: 100%;
+          @include flex-center;
+          background-color: #f5f5f5;
+        }
+
+        // 分数展示样式
+        .score-display {
+          position: absolute;
+          bottom: 10px;
+          right: 10px;
+          z-index: 10;
+        }
+
+        .score-circle {
+          width: 70px;
+          height: 70px;
+          border-radius: 50%;
+          background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 99%, #fad0c4 100%);
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          color: white;
+          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+          animation: scoreAppear 0.5s ease-out;
+        }
+
+        .score-number {
+          font-size: 18px;
+          font-weight: bold;
+          line-height: 1;
+        }
+
+        .score-label {
+          font-size: 12px;
+          margin-top: 2px;
+        }
+
+        @keyframes scoreAppear {
+          from {
+            transform: scale(0);
+            opacity: 0;
+          }
+          to {
+            transform: scale(1);
+            opacity: 1;
+          }
+        }
       }
-    }
 
     .action-section {
       margin-top: 16px;
@@ -422,6 +562,49 @@ $background-color: $bg-secondary; // 使用已定义的背景色变量
       text-align: center;
       line-height: 1.5;
     }
+  }
+
+  /* 加载遮罩样式 */
+  .loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+
+  .loading-content {
+    background-color: white;
+    padding: $spacing-base $spacing-large;
+    border-radius: $border-radius-small;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid $primary-color;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 10px;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  .loading-text {
+    font-size: $font-size-md;
+    color: $text-primary;
   }
 
   // 分类选择器样式
