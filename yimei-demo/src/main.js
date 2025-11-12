@@ -1,5 +1,6 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
+import VConsole from 'vconsole'
 
 import App from './App.vue'
 import router from './router'
@@ -12,5 +13,7 @@ const app = createApp(App)
 app.use(createPinia())
 app.use(router)
 app.use(Vant); // 全局注册所有组件
+
+new VConsole()
 
 app.mount('#app')

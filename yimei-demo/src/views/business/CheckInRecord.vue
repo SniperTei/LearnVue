@@ -48,7 +48,7 @@
             <img :src="record.image" alt="打卡图片" class="item-image" />
           </div>
           <div class="record-info">
-            <div class="record-title">{{ record.itemName }}</div>
+            <div class="record-title">{{ record.checkInPerson }}</div>
             <div class="record-meta">
               <span class="record-date">{{ formatDate(record.createtime) }}</span>
               <span class="record-score">점수: {{ record.score }}</span>
@@ -136,7 +136,7 @@ const fetchClockList = async () => {
     if (response.code === 1 && response.data && response.data.rows) {
       records.value = response.data.rows.map(item => ({
         id: item.id,
-        itemName: item.items_name || '未命名物品',
+        checkInPerson: item.user.nickname || '未知',
         image: item.itemsimage ? `${import.meta.env.VITE_APP_API_URL}${item.itemsimage}` : 'https://via.placeholder.com/80/CCCCCC/FFFFFF?text=PIC',
         score: item.score || 0,
         createtime: item.createtime,
@@ -235,10 +235,10 @@ const handleSearch = () => {
 // 组件挂载时获取数据
 onMounted(() => {
   // 优先使用模拟数据进行开发测试
-  fetchMockClockList();
+  // fetchMockClockList();
 
   // 实际项目中使用真实API
-  // fetchClockList();
+  fetchClockList();
 });
 </script>
 

@@ -34,6 +34,8 @@
           class="feature-card meeting-card"
           :border="false"
           :shadow="false"
+          @click="navigateToCheckInRecord"
+          style="cursor: pointer;"
         >
           <template #content>
             <div class="card-content">
@@ -109,6 +111,7 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { Icon, Card, Tabbar, TabbarItem } from 'vant';
+// import { testApi } from '../api/checkInApi.js';
 
 const router = useRouter();
 const active = ref(0);
@@ -169,6 +172,14 @@ const handleQuickAction = (type) => {
 // 跳转到业务页面
 const navigateToBusiness = () => {
   router.push('/business');
+  // testApi().then(res => {
+  //   console.log('testApi', res);
+  // });
+};
+
+// 跳转到打卡记录页面
+const navigateToCheckInRecord = () => {
+  router.push('/check-in-records');
 };
 </script>
 
@@ -403,7 +414,7 @@ const navigateToBusiness = () => {
   // 默认状态 - 非选中项样式
   .custom-tabbar-item:not(.van-tabbar-item--active) {
     color: $text-secondary;
-    
+
     // 确保图标颜色正确应用到Vant实际的DOM结构
     .van-tabbar-item__icon {
       .van-icon {
@@ -415,7 +426,7 @@ const navigateToBusiness = () => {
   // 选中状态 - 黑色文字，绿色背景
   .custom-tabbar-item.van-tabbar-item--active {
     color: $text-primary;
-    
+
     // 调整图标容器样式，使用!important确保覆盖Vant默认样式
     .van-tabbar-item__icon {
       background-color: $primary-color !important;
@@ -428,7 +439,7 @@ const navigateToBusiness = () => {
       margin: 0 auto 2px !important;
       padding: 0 !important;
       box-sizing: border-box !important;
-      
+
       // 确保图标在选中状态下为白色
       .van-icon {
         color: white !important;
