@@ -108,9 +108,10 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { Icon, Card, Tabbar, TabbarItem } from 'vant';
+import device from '@/utils/device.js';
 // import { testApi } from '../api/checkInApi.js';
 
 const router = useRouter();
@@ -135,6 +136,7 @@ const TAB_ITEMS = [
   { icon: 'setting-o', to: '/settings', text: '노트' }
 ];
 
+// const userInfo = ref({});
 const userInfo = {
   "id": 5,
   "username": "zhengnan",
@@ -151,6 +153,19 @@ const userInfo = {
   "role_code": "team_leader",
   "role_name": "팀장"
 };
+
+// 获取用户信息
+onMounted(() => {
+  // device.getUserInfo((res) => {
+  //   console.log('获取用户信息res:', res);
+  //   if (res.code === "000000") {
+  //     userInfo.value = res.data;
+  //     console.log('获取用户信息userInfo.value:', userInfo.value);
+  //   } else {
+  //     console.error('获取用户信息失败:', res.message);
+  //   }
+  // });
+});
 
 // 处理快捷操作点击
 const handleQuickAction = (type) => {

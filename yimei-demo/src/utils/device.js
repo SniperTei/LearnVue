@@ -139,10 +139,10 @@ class DeviceBridge {
           // 将base64字符串转换为可显示的图片URL
           const base64String = nativeResult.data.imageBase64;
           // 确保base64字符串前面有正确的前缀
-          const imageUrl = base64String.startsWith('data:image/') 
-            ? base64String 
+          const imageUrl = base64String.startsWith('data:image/')
+            ? base64String
             : `data:image/jpeg;base64,${base64String}`;
-          
+
           // 返回格式化后的结果
           callback({
             success: true,
@@ -185,6 +185,14 @@ class DeviceBridge {
    */
   getDeviceInfo(callback) {
     this.callNative('getDeviceInfo', {}, callback);
+  }
+
+  /**
+   * 获取用户信息
+   * @param {function} callback - 回调函数
+   */
+  getUserInfo(callback) {
+    this.callNative('getUserInfo', {}, callback);
   }
 
   /**
