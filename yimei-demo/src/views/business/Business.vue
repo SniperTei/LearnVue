@@ -10,7 +10,7 @@
     <div class="search-container">
       <van-field
         v-model="searchQuery"
-        placeholder="검색"
+        placeholder="搜索"
         left-icon="search"
         class="search-field"
       />
@@ -79,7 +79,7 @@ const searchQuery = ref('');
 const activeCategory = ref(0);
 
 // 地点分类数据
-const categories = ['전체', '위치1', '위치2'];
+const categories = ['全体', '广东', '广西'];
 
 // 业务列表数据
 const businessItems = ref([]);

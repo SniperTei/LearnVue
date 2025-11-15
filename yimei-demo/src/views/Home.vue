@@ -15,35 +15,25 @@
     <div class="main-content">
       <!-- 功能卡片 -->
       <div class="feature-cards">
-        <van-card
-          class="feature-card item-card"
-          :border="false"
-          :shadow="false"
+        <div
+          class="feature-card item-card card-content"
           @click="navigateToBusiness"
           style="cursor: pointer;"
         >
-          <template #content>
-            <div class="card-content">
-              <span class="card-title">{{ BUSINESS_CATEGORY.business }}</span>
-              <van-icon name="briefcase" size="28" />
-            </div>
-          </template>
-        </van-card>
+          <div style="padding: 40px 0;">
+            <span class="card-title" style="color: #323233 !important;">{{ BUSINESS_CATEGORY?.business }}</span>
+          </div>
+          <!-- <van-icon name="briefcase" size="28" /> -->
+        </div>
 
-        <van-card
-          class="feature-card meeting-card"
-          :border="false"
-          :shadow="false"
+        <div
+          class="feature-card meeting-card card-content"
           @click="navigateToCheckInRecord"
           style="cursor: pointer;"
         >
-          <template #content>
-            <div class="card-content">
-              <span class="card-title">{{ BUSINESS_CATEGORY.meeting }}</span>
-              <van-icon name="todo-list" size="28" />
-            </div>
-          </template>
-        </van-card>
+          <span class="card-title" style="color: #323233 !important;">{{ BUSINESS_CATEGORY?.meeting }}</span>
+          <!-- <van-icon name="todo-list" size="28" /> -->
+        </div>
       </div>
 
       <!-- 快捷操作按钮 -->
@@ -65,20 +55,20 @@
       <!-- 影像区域 -->
       <div class="video-section">
         <div class="section-header">
-          <span class="section-title">교육 영상</span>
+          <span class="section-title">影像</span>
         </div>
         <div class="video-items">
           <div class="video-item completed">
             <div class="video-check">
               <van-icon name="success" size="24" class="check-icon" />
             </div>
-            <div class="video-text">엽상 1</div>
+            <div class="video-text">影像1</div>
           </div>
           <div class="video-item completed">
             <div class="video-check">
               <van-icon name="success" size="24" class="check-icon" />
             </div>
-            <div class="video-text">엽상 1</div>
+            <div class="video-text">影像 2</div>
           </div>
         </div>
       </div>
@@ -86,7 +76,7 @@
       <!-- 通知区域 -->
       <div class="notice-section">
         <div class="section-header">
-          <span class="section-title">공지사항</span>
+          <span class="section-title">公告</span>
           <span class="date-text">12.10.2024</span>
         </div>
         <van-card class="notice-card" :border="false" :shadow="false">
@@ -121,38 +111,38 @@ const active = ref(0);
 // 定义名称常量
 // 业务目录
 const BUSINESS_CATEGORY = {
-  'business': '업무',
-  'meeting': '회의'
+  'business': '打卡',
+  'meeting': '打卡记录'
 };
 const QUICK_ACTIONS = {
-  education: '교육',
-  note: '노트',
-  my_level: '나의둥급'
+  education: '教育',
+  note: '公告',
+  my_level: '等级'
 };
 const TAB_ITEMS = [
-  { icon: 'home-o', to: '/', text: '홈' },
-  { icon: 'briefcase-o', to: '/tasks', text: '업무' },
-  { icon: 'calendar-o', to: '/schedule', text: '고육' },
-  { icon: 'user-o', to: '/profile', text: '재고' },
-  { icon: 'setting-o', to: '/settings', text: '노트' }
+  { icon: 'home-o', to: '/', text: '首页' },
+  { icon: 'briefcase-o', to: '/tasks', text: '业务' },
+  { icon: 'calendar-o', to: '/schedule', text: '排班' },
+  { icon: 'user-o', to: '/profile', text: '信息' },
+  { icon: 'setting-o', to: '/settings', text: '我的' }
 ];
 
 const userInfo = ref({});
 const mockUserInfo = {
   "id": 5,
   "username": "zhengnan",
-  "nickname": "김연호",
+  "nickname": "李敬男",
   "mobile": "",
   "avatar": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZlcnNpb249IjEuMSIgaGVpZ2h0PSIxMDAiIHdpZHRoPSIxMDAiPjxyZWN0IGZpbGw9InJnYigyMTQsMTYwLDIyOSkiIHg9IjAiIHk9IjAiIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj48L3JlY3Q+PHRleHQgeD0iNTAiIHk9IjUwIiBmb250LXNpemU9IjUwIiB0ZXh0LWNvcHk9ImZhc3QiIGZpbGw9IiNmZmZmZmYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIHRleHQtcmlnaHRzPSJhZG1pbiIgZG9taW5hbnQtYmFzZWxpbmU9ImNlbnRyYWwiPlo8L3RleHQ+PC9zdmc+",
   "score": 0,
-  "token": "xx",
+  "token": "ec0663aa-54b4-495a-adbe-219646bcbf65",
   "user_id": 5,
   "createtime": 1762653588,
   "expiretime": 1765245588,
   "expires_in": 2592000,
   // need to add
   "role_code": "team_leader",
-  "role_name": "팀장"
+  "role_name": "总管理员"
 };
 
 // 获取用户信息
@@ -276,38 +266,41 @@ const navigateToCheckInRecord = () => {
     gap: 20px;
 
     // 功能卡片
-    .feature-cards {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: $spacing-small;
+        .feature-cards {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: $spacing-small;
 
-      .feature-card {
-        border-radius: $border-radius;
-        overflow: hidden;
-        height: 100px;
-        @include flex-center;
+          .feature-card {
+            border-radius: $border-radius;
+            overflow: hidden;
+            height: 100px;
+            @include flex-center;
 
-        &.item-card {
-          background-color: $bg-success;
-        }
+            &.item-card {
+              background-color: $bg-success;
+            }
 
-        &.meeting-card {
-          background-color: $bg-info;
-        }
+            &.meeting-card {
+              background-color: $bg-info;
+            }
+          }
 
-        .card-content {
-          @include flex-col-center;
-          height: 100%;
-          color: $text-primary;
+          .card-content {
+            @include flex-col-center;
+            height: 100%;
+            color: $text-primary;
+            width: 100%;
 
-          .card-title {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: $spacing-tiny;
+            .card-title {
+              font-size: 18px;
+              font-weight: 600;
+              margin-bottom: $spacing-tiny;
+              color: $text-primary !important;
+              display: block;
+            }
           }
         }
-      }
-    }
 
     // 快捷操作
     .quick-actions {

@@ -3,7 +3,7 @@
     <!-- 导航栏 -->
     <div class="navbar">
       <van-icon name="arrow-left" size="24" class="back-icon" @click="goBack" />
-      <div class="navbar-title">업무</div>
+      <div class="navbar-title">打卡</div>
       <div class="navbar-right"></div>
     </div>
 
@@ -11,7 +11,7 @@
       <div class="checkin-content">
         <!-- 选中的物品信息 -->
         <div v-if="selectedItem.name" class="selected-item-info">
-          <p class="item-name">선택된 항목: {{ selectedItem.name }}</p>
+          <p class="item-name">选择的物品: {{ selectedItem.name }}</p>
         </div>
 
         <!-- 标题和序号 -->
@@ -26,7 +26,7 @@
         <div class="category-selector">
           <van-field
             v-model="selectedCategory"
-            placeholder="관련 택스트 상자"
+            placeholder="选择分类"
             readonly
             clickable
             @click="showCategoryPicker = true"
@@ -69,7 +69,7 @@
             <div v-if="showScore && score > 0" class="score-display">
               <div class="score-circle">
                 <div class="score-number">{{ score }}</div>
-                <div class="score-label">점수</div>
+                <div class="score-label">分数</div>
               </div>
             </div>
           </div>
@@ -86,12 +86,12 @@
 
       <!-- 打卡按钮 -->
       <div class="checkin-button-section">
-        <van-button type="primary" size="large" @click="checkInClick" class="checkin-btn" :disabled="isLoading">{{ isLoading ? '진행중입니다...' : '출퇴근' }}</van-button>
+        <van-button type="primary" size="large" @click="checkInClick" class="checkin-btn" :disabled="isLoading">{{ isLoading ? '打卡中...' : '打卡' }}</van-button>
       </div>
 
       <!-- 提示信息 -->
       <div class="notice-section">
-        <p class="notice-text">원본사진처럼 정리 밑 수정후 사진촬영</p>
+        <p class="notice-text">请以样板照片为准，进行整理和调整后，再进行拍照</p>
       </div>
     </div>
 
@@ -117,7 +117,7 @@
     <div v-if="isLoading" class="loading-overlay">
       <div class="loading-content">
         <div class="loading-spinner"></div>
-        <div class="loading-text">최선을 다해서 로딩중...</div>
+        <div class="loading-text">正在打卡中，请稍后...</div>
       </div>
     </div>
   </div>
@@ -141,7 +141,7 @@ const goBack = () => {
 };
 
 // 状态管理
-const selectedCategory = ref('관리센터상자');
+const selectedCategory = ref('管理');
 const templateImage = ref(''); // 样板图片
 const currentImage = ref(''); // 现在的图片
 const showCategoryPicker = ref(false);
@@ -188,10 +188,10 @@ onMounted(() => {
 
 // 分类数据
 const categories = [
-  '관리센터상자',
-  '위치1',
-  '위치2',
-  '위치3'
+  '管理',
+  '广东',
+  '广西',
+  '其他'
 ];
 
 // 选择分类
@@ -221,7 +221,7 @@ const takePhoto = (type) => {
       console.log('图片URL已设置到currentImage:', currentImage.value);
     } else {
       // 拍照失败处理
-      alert('촬영 실패: ' + (result.message || '未知错误'));
+      alert('拍照失败: ' + (result.message || '未知错误'));
     }
   });
 };
@@ -287,13 +287,13 @@ const checkInClick = () => {
         score.value = checkInResponse.data.score;
         showScore.value = true;
         console.log('显示分数:', score.value);
-        alert(`출퇴근 성공! 점수: ${score.value}`);
+        alert(`打卡成功! 分数: ${score.value}`);
       } else {
-        alert('출퇴근 성공!');
+        alert('打卡成功!');
       }
     } else {
       // 打卡失败处理
-      alert('출퇴근 실패: ' + (checkInResponse?.message || '未知错误'));
+      alert('打卡失败: ' + (checkInResponse?.message || '未知错误'));
     }
   }).catch(error => {
     // 错误处理
