@@ -43,6 +43,7 @@
           v-for="(record, index) in filteredRecords"
           :key="index"
           class="record-item"
+          @click="navigateToCheckInDetail(record)"
         >
           <div class="record-image">
             <img :src="record.image" alt="打卡图片" class="item-image" />
@@ -230,6 +231,20 @@ const fetchMockClockList = async () => {
 const handleSearch = () => {
   // 搜索逻辑已通过computed属性处理
   console.log('搜索关键词:', searchQuery.value);
+};
+
+// 跳转到打卡详情页面
+const navigateToCheckInDetail = (record) => {
+  router.push({
+    path: '/check-in-detail',
+    query: {
+      id: record.id,
+      fromRecord: 'true', // 标记来源为记录页面
+      itemId: record.items_id || '',
+      itemName: record.itemName || record.checkInPerson || '',
+      image: record.image,
+    }
+  });
 };
 
 // 组件挂载时获取数据
