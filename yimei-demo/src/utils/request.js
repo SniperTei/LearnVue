@@ -16,19 +16,19 @@ service.interceptors.request.use(
     const userStore = useUserStore();
     // 打印config
     console.log('userStore:', userStore);
-    const token = userStore.getToken();
+    const token = userStore.userInfo.token;
     // 打印token
     console.log('token:', token);
     if (token) {
       config.headers['token'] = token;
     }
     // 如果token还是空 就从localstorage获取
-    if (!token) {
-      let token2 = localStorage.getItem('token');
-      if (token2) {
-        config.headers['token'] = token2;
-      }
-    }
+    // if (!token) {
+    //   let token2 = localStorage.getItem('token');
+    //   if (token2) {
+    //     config.headers['token'] = token2;
+    //   }
+    // }
     return config;
   },
   error => {

@@ -5,13 +5,18 @@ import Business from '../views/business/Business.vue';
 import CheckIn from '@/views/business/CheckIn.vue';
 import CheckInRecord from '@/views/business/CheckInRecord.vue';
 import CheckInDetail from '@/views/business/CheckInDetail.vue';
-// import Login from '@/views/login/Login.vue';
+import Login from '@/views/login/Login.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: '/',
+      name: 'login',
+      component: Login
+    },
+    {
+      path: '/home',
       name: 'home',
       component: Home
     },
@@ -35,11 +40,6 @@ const router = createRouter({
       name: 'checkInDetail',
       component: CheckInDetail
     },
-    // {
-    //   path: '/',
-    //   name: 'login',
-    //   component: Login
-    // },
   ]
 });
 

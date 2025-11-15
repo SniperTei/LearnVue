@@ -149,7 +149,7 @@ const userInfo = ref({});
 onMounted(() => {
   const userStore = useUserStore();
   // 首先从userStore获取用户信息
-  const storeUserInfo = userStore.getUserInfo;
+  const storeUserInfo = userStore.userInfo;
   console.log('从store获取的用户信息:', storeUserInfo);
 
   // 检查store中是否有有效的username
