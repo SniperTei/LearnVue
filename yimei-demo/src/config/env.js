@@ -4,7 +4,7 @@
  */
 
 // 获取当前环境 - 使用 import.meta.env 替代 process.env
-const env = import.meta.env.MODE || 'development';
+const env = import.meta.env.MODE || 'dev';
 
 // 配置对象
 const config = {
@@ -12,22 +12,23 @@ const config = {
   env,
 
   // 是否为开发环境
-  isDev: env === 'development',
+  isDev: env === 'dev' || env === 'development',
 
   // 是否为测试环境
   isTest: env === 'test',
 
   // 是否为生产环境
-  isProd: env === 'production',
+  isProd: env === 'prod',
 
-  // API基础URL - 使用 import.meta.env 替代 process.env
-  baseURL: import.meta.env.VITE_APP_API_URL || 'http://localhost:8080',
+  // API基础URL
+  baseURL: import.meta.env.VITE_APP_API_URL || '',
 
   // 请求超时时间
-  timeout: 15000,
+  timeout: 45000,
 
   // 是否启用Mock数据
-  mockEnabled: env === 'development',
+  mockEnabled: env === 'dev' || env === 'development',
+  // mockEnabled: false,
 
   // 系统标题 - 使用 import.meta.env 替代 process.env
   title: import.meta.env.VITE_APP_TITLE || 'ArbaDemo'

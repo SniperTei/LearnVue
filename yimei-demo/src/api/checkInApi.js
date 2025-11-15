@@ -32,15 +32,14 @@ export function checkInList(params) {
 }
 
 /**
- * 测试接口
+ * 打卡记录详情
  * @param {Object} params - 查询参数
  * @returns {Promise}
  */
-export function testApi() {
+export function checkInDetail(params) {
   // 转一层，将params转换为data
-  // const data = {
-  //   ...params
-  // }
-  return get('api/v1/items/')
+  const data = {
+    ...params
+  }
+  return post('api/itemrecord/clockinfo/', data)
 }
-

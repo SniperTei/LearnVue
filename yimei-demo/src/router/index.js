@@ -4,6 +4,7 @@ import Home from '../views/Home.vue';
 import Business from '../views/business/Business.vue';
 import CheckIn from '@/views/business/CheckIn.vue';
 import CheckInRecord from '@/views/business/CheckInRecord.vue';
+import CheckInDetail from '@/views/business/CheckInDetail.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -27,6 +28,11 @@ const router = createRouter({
       path: '/check-in-records',
       name: 'checkInRecords',
       component: CheckInRecord
+    },
+    {
+      path: '/check-in-detail',
+      name: 'checkInDetail',
+      component: CheckInDetail
     },
   ]
 });
