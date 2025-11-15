@@ -1,6 +1,7 @@
 import axios from 'axios';
 import envConfig from '@/config/env';
 import { showDialog } from 'vant';
+import { useUserStore } from '@/stores/user';
 
 // 创建axios实例
 const service = axios.create({
@@ -11,14 +12,12 @@ const service = axios.create({
 // 请求拦截器
 service.interceptors.request.use(
   config => {
-    // 从localStorage获取token并添加到请求头
-    // const token = localStorage.getItem('token');
-    // if (token) {
-    //   // config.headers['Authorization'] = `Bearer ${token}`;
-    //   config.headers['token'] = token;
-    // }
-    // TODO 开发时候写死
-      config.headers['token'] = "197dac17-e3ff-4936-9b71-cd6794ddfbeb";
+    // 从user store获取token并添加到请求头
+    const userStore = useUserStore();
+    const token = userStore.getToken();
+    if (token) {
+      config.headers['token'] = token;
+    }
     return config;
   },
   error => {

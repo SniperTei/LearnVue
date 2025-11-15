@@ -110,6 +110,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { useUserStore } from '@/stores/user';
 import { Icon, Card, Tabbar, TabbarItem } from 'vant';
 import device from '@/utils/device.js';
 // import { testApi } from '../api/checkInApi.js';
@@ -136,15 +137,15 @@ const TAB_ITEMS = [
   { icon: 'setting-o', to: '/settings', text: '노트' }
 ];
 
-// const userInfo = ref({});
-const userInfo = {
+const userInfo = ref({});
+const mockUserInfo = {
   "id": 5,
   "username": "zhengnan",
   "nickname": "김연호",
   "mobile": "",
   "avatar": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZlcnNpb249IjEuMSIgaGVpZ2h0PSIxMDAiIHdpZHRoPSIxMDAiPjxyZWN0IGZpbGw9InJnYigyMTQsMTYwLDIyOSkiIHg9IjAiIHk9IjAiIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj48L3JlY3Q+PHRleHQgeD0iNTAiIHk9IjUwIiBmb250LXNpemU9IjUwIiB0ZXh0LWNvcHk9ImZhc3QiIGZpbGw9IiNmZmZmZmYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIHRleHQtcmlnaHRzPSJhZG1pbiIgZG9taW5hbnQtYmFzZWxpbmU9ImNlbnRyYWwiPlo8L3RleHQ+PC9zdmc+",
   "score": 0,
-  "token": "xxx",
+  "token": "xx",
   "user_id": 5,
   "createtime": 1762653588,
   "expiretime": 1765245588,
@@ -156,15 +157,23 @@ const userInfo = {
 
 // 获取用户信息
 onMounted(() => {
-  // device.getUserInfo((res) => {
-  //   console.log('获取用户信息res:', res);
-  //   if (res.code === "000000") {
-  //     userInfo.value = res.data;
-  //     console.log('获取用户信息userInfo.value:', userInfo.value);
-  //   } else {
-  //     console.error('获取用户信息失败:', res.message);
-  //   }
-  // });
+  device.getUserInfo((res) => {
+    console.log('获取用户信息res:', res);
+    if (res.code === "000000") {
+      userInfo.value = res.data;
+      console.log('获取用户信息userInfo.value:', userInfo.value);
+    } else {
+      console.error('获取用户信息失败:', res.message);
+    }
+  });
+  // 如果没拿到，使用模拟数据
+  if (Object.keys(userInfo.value).length === 0) {
+    userInfo.value = mockUserInfo;
+  }
+  // 存到Pinia
+  // 保存用户信息到store
+  const userStore = useUserStore();
+  userStore.setUserInfo(userInfo.value);
 });
 
 // 处理快捷操作点击
