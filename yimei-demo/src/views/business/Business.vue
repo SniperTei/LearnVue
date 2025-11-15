@@ -3,7 +3,7 @@
     <!-- 导航栏 -->
     <div class="navbar">
       <van-icon name="arrow-left" size="24" class="back-icon" @click="goBack" />
-      <div class="navbar-title">업무</div>
+      <div class="navbar-title">打卡</div>
       <div class="navbar-right"></div>
     </div>
     <!-- 搜索框 -->

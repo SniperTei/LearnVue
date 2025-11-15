@@ -3,14 +3,14 @@
     <!-- 导航栏 -->
     <div class="navbar">
       <van-icon name="arrow-left" size="24" class="back-icon" @click="goBack" />
-      <div class="navbar-title">기록</div>
+      <div class="navbar-title">记录</div>
       <div class="navbar-right"></div>
     </div>
     <!-- 搜索框 -->
     <div class="search-container">
       <van-field
         v-model="searchQuery"
-        placeholder="검색"
+        placeholder="搜索"
         left-icon="search"
         class="search-field"
         @input="handleSearch"
@@ -52,7 +52,7 @@
             <div class="record-title">{{ record.checkInPerson }}</div>
             <div class="record-meta">
               <span class="record-date">{{ formatDate(record.createtime) }}</span>
-              <span class="record-score">점수: {{ record.score }}</span>
+              <span class="record-score">分数: {{ record.score }}</span>
             </div>
           </div>
           <div class="record-arrow">
@@ -90,7 +90,7 @@ const records = ref([]);
 const loading = ref(false);
 
 // 分类数据
-const categories = ['전체', '위치1', '위치2', '위치3'];
+const categories = ['全部', '位置1', '位置2', '位置3'];
 
 // 计算过滤后的记录
 const filteredRecords = computed(() => {
@@ -141,7 +141,7 @@ const fetchClockList = async () => {
         image: item.itemsimage ? `${import.meta.env.VITE_APP_API_URL}${item.itemsimage}` : 'https://via.placeholder.com/80/CCCCCC/FFFFFF?text=PIC',
         score: item.score || 0,
         createtime: item.createtime,
-        category: '위치1' // 假设分类信息，实际应从API获取
+        category: '位置1' // 假设分类信息，实际应从API获取
       }));
     }
   } catch (error) {
@@ -221,7 +221,7 @@ const fetchMockClockList = async () => {
     image: item.itemsimage ? `${import.meta.env.VITE_APP_API_URL}${item.itemsimage}` : 'https://via.placeholder.com/80/CCCCCC/FFFFFF?text=PIC',
     score: item.score || 0,
     createtime: item.createtime,
-    category: activeCategory.value === 0 ? '위치1' : categories[activeCategory.value] // 模拟分类数据
+    category: activeCategory.value === 0 ? '位置1' : categories[activeCategory.value] // 模拟分类数据
   }));
 
   loading.value = false;

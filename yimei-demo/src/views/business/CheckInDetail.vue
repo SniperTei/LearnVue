@@ -3,7 +3,7 @@
     <!-- 导航栏 -->
     <div class="navbar">
       <van-icon name="arrow-left" size="24" class="back-icon" @click="goBack" />
-      <div class="navbar-title">업무 상세</div>
+      <div class="navbar-title">业务详情</div>
       <div class="navbar-right"></div>
     </div>
 
@@ -11,7 +11,7 @@
     <div v-if="isLoading" class="loading-overlay">
       <div class="loading-content">
         <div class="loading-spinner"></div>
-        <div class="loading-text">로딩중...</div>
+        <div class="loading-text">加载中...</div>
       </div>
     </div>
 
@@ -19,7 +19,7 @@
     <div v-if="!isLoading" class="checkin-content">
       <!-- 选中的物品信息 -->
       <div v-if="selectedItem.name" class="selected-item-info">
-        <p class="item-name">선택된 항목: {{ selectedItem.name }}</p>
+        <p class="item-name">选择的项目: {{ selectedItem.name }}</p>
       </div>
 
       <!-- 分类标签 -->
@@ -27,7 +27,7 @@
         <div class="category-selector">
           <van-field
             v-model="selectedCategory"
-            placeholder="관련 택스트 상자"
+            placeholder="相关文本框"
             readonly
           />
         </div>
@@ -70,7 +70,7 @@
             <div v-if="showScore && score > 0" class="score-display">
               <div class="score-circle">
                 <div class="score-number">{{ score }}</div>
-                <div class="score-label">점수</div>
+                <div class="score-label">分数</div>
               </div>
             </div>
           </div>
@@ -193,7 +193,7 @@ const fetchCheckInDetailData = async () => {
 
       // 更新打卡信息
       if (data.create_time) {
-        checkInTime.value = new Date(data.create_time).toLocaleString('ko-KR');
+        checkInTime.value = new Date(data.create_time).toLocaleString('zh-CN');
       }
       if (data.location) {
         checkInLocation.value = data.location;
@@ -201,7 +201,7 @@ const fetchCheckInDetailData = async () => {
     }
   } catch (error) {
     console.error('获取打卡详情失败:', error);
-    alert('상세정보를 불러오지 못했습니다.');
+    alert('无法加载详细信息。');
   } finally {
     isLoading.value = false;
   }

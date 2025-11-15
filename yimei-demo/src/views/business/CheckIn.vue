@@ -98,7 +98,7 @@
     <!-- 分类选择器弹窗 -->
     <van-popup v-model:show="showCategoryPicker" position="bottom" round>
       <div class="picker-title">
-        <span>카테고리 선택</span>
+        <span>选择分类</span>
         <van-icon name="cross" @click="showCategoryPicker = false" />
       </div>
       <div class="picker-content">
