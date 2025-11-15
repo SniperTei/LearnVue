@@ -5,11 +5,8 @@ import { defineStore } from 'pinia'
 export const useUserStore = defineStore('user', () => {
   // 用户基本信息
   const userInfo = ref({
-    id: 0,
     nickname: '',
     token: '',
-    avatar: '',
-    phone: '',
     username: '',
     user_id: ''
     // 可根据项目需求添加更多字段
@@ -17,29 +14,29 @@ export const useUserStore = defineStore('user', () => {
 
   // 登录状态
   const isLoggedIn = computed(() => {
-    return !!userInfo.value.token && userInfo.value.id > 0
+    return !!userInfo.value.token && userInfo.value.username !== ''
   })
 
   // 设置用户信息
   function setUserInfo(info) {
-    userInfo.value = {
-      ...userInfo.value,
-      ...info
-    }
-
+    console.log('设置用户信息:', info);
+    userInfo.value = info
+    console.log('更新后的userInfo:', userInfo.value);
     // 存储到本地存储
     localStorage.setItem('userInfo', JSON.stringify(userInfo.value))
+    // 设置token到localStorage
+    if (userInfo.value.token) {
+      localStorage.setItem('token', userInfo.value.token)
+    }
   }
 
   // 清除用户信息
   function clearUserInfo() {
     userInfo.value = {
-      id: 0,
       nickname: '',
       token: '',
-      avatar: '',
-      phone: '',
-      email: ''
+      username: '',
+      user_id: ''
     }
 
     // 清除本地存储

@@ -102,7 +102,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import { Icon, Field, ImagePreview } from 'vant';
+import { Field, ImagePreview } from 'vant';
 import { checkInDetail } from '@/api/checkInApi';
 
 // 路由实例
@@ -171,7 +171,7 @@ const fetchCheckInDetailData = async () => {
       // 更新项目信息
       selectedItem.value = {
         id: data.items_id || recordId,
-        name: data.items.name || '未命名项目',
+        // name: data.items.name || '未命名项目',
         image: data.itemsimage ? `${import.meta.env.VITE_APP_API_URL}${data.itemsimage}` : ''
       };
 
@@ -210,6 +210,7 @@ const fetchCheckInDetailData = async () => {
 // 页面加载时调用
 onMounted(() => {
   console.log('路由参数:', route.query);
+  templateImage.value = route.query.image || '';
   fetchCheckInDetailData();
 });
 </script>

@@ -128,42 +128,49 @@ const TAB_ITEMS = [
 ];
 
 const userInfo = ref({});
-const mockUserInfo = {
-  "id": 5,
-  "username": "zhengnan",
-  "nickname": "李敬男",
-  "mobile": "",
-  "avatar": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZlcnNpb249IjEuMSIgaGVpZ2h0PSIxMDAiIHdpZHRoPSIxMDAiPjxyZWN0IGZpbGw9InJnYigyMTQsMTYwLDIyOSkiIHg9IjAiIHk9IjAiIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj48L3JlY3Q+PHRleHQgeD0iNTAiIHk9IjUwIiBmb250LXNpemU9IjUwIiB0ZXh0LWNvcHk9ImZhc3QiIGZpbGw9IiNmZmZmZmYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIHRleHQtcmlnaHRzPSJhZG1pbiIgZG9taW5hbnQtYmFzZWxpbmU9ImNlbnRyYWwiPlo8L3RleHQ+PC9zdmc+",
-  "score": 0,
-  "token": "xx",
-  "user_id": 5,
-  "createtime": 1762653588,
-  "expiretime": 1765245588,
-  "expires_in": 2592000,
-  // need to add
-  "role_code": "team_leader",
-  "role_name": "总管理员"
-};
+// const mockUserInfo = {
+//   "id": 5,
+//   "username": "zhengnan",
+//   "nickname": "李敬男",
+//   "mobile": "",
+//   "avatar": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZlcnNpb249IjEuMSIgaGVpZ2h0PSIxMDAiIHdpZHRoPSIxMDAiPjxyZWN0IGZpbGw9InJnYigyMTQsMTYwLDIyOSkiIHg9IjAiIHk9IjAiIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj48L3JlY3Q+PHRleHQgeD0iNTAiIHk9IjUwIiBmb250LXNpemU9IjUwIiB0ZXh0LWNvcHk9ImZhc3QiIGZpbGw9IiNmZmZmZmYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIHRleHQtcmlnaHRzPSJhZG1pbiIgZG9taW5hbnQtYmFzZWxpbmU9ImNlbnRyYWwiPlo8L3RleHQ+PC9zdmc+",
+//   "score": 0,
+//   "token": "xxy",
+//   "user_id": 5,
+//   "createtime": 1762653588,
+//   "expiretime": 1765245588,
+//   "expires_in": 2592000,
+//   // need to add
+//   "role_code": "team_leader",
+//   "role_name": "总管理员"
+// };
 
 // 获取用户信息
 onMounted(() => {
-  device.getUserInfo((res) => {
-    console.log('获取用户信息res:', res);
-    if (res.code === "000000") {
-      userInfo.value = res.data;
-      console.log('获取用户信息userInfo.value:', userInfo.value);
-    } else {
-      console.error('获取用户信息失败:', res.message);
-    }
-  });
-  // 如果没拿到，使用模拟数据
-  if (Object.keys(userInfo.value).length === 0) {
-    userInfo.value = mockUserInfo;
-  }
-  // 存到Pinia
-  // 保存用户信息到store
   const userStore = useUserStore();
-  userStore.setUserInfo(userInfo.value);
+  // 首先从userStore获取用户信息
+  const storeUserInfo = userStore.getUserInfo;
+  console.log('从store获取的用户信息:', storeUserInfo);
+
+  // 检查store中是否有有效的username
+  if (storeUserInfo && storeUserInfo.username) {
+    // 如果store中有username，直接使用store中的用户信息
+    userInfo.value = storeUserInfo;
+    console.log('使用store中的用户信息:', userInfo.value);
+  } else {
+    // 如果store中没有username，调用device.getUserInfo获取
+    device.getUserInfo((res) => {
+      console.log('调用device.getUserInfo获取用户信息res:', res);
+      if (res.code === "000000") {
+        userInfo.value = res.data;
+        console.log('获取用户信息userInfo.value:', userInfo.value);
+        // 将获取到的用户信息保存到store
+        userStore.setUserInfo(userInfo.value);
+      } else {
+        console.error('获取用户信息失败:', res.message);
+      }
+    });
+  }
 });
 
 // 处理快捷操作点击
@@ -171,7 +178,16 @@ const handleQuickAction = (type) => {
   console.log('快捷操作:', type);
   switch (type) {
     case 'add':
-      // 添加功能
+      // 添加功能 - 弹出输入框并更新token
+      const newToken = prompt('请输入新的token值:');
+      if (newToken !== null) { // 当用户点击确定而不是取消时
+        mockUserInfo.token = newToken;
+        // 同时更新userInfo响应式对象和store
+        userInfo.value.token = newToken;
+        const userStore = useUserStore();
+        userStore.setUserInfo(userInfo.value);
+        console.log('Token已更新:', newToken);
+      }
       break;
     case 'view':
       // 查看功能

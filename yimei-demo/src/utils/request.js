@@ -14,9 +14,20 @@ service.interceptors.request.use(
   config => {
     // 从user store获取token并添加到请求头
     const userStore = useUserStore();
+    // 打印config
+    console.log('userStore:', userStore);
     const token = userStore.getToken();
+    // 打印token
+    console.log('token:', token);
     if (token) {
       config.headers['token'] = token;
+    }
+    // 如果token还是空 就从localstorage获取
+    if (!token) {
+      let token2 = localStorage.getItem('token');
+      if (token2) {
+        config.headers['token'] = token2;
+      }
     }
     return config;
   },

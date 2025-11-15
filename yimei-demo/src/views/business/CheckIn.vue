@@ -46,6 +46,8 @@
               :src="templateImage"
               alt="样板图片"
               class="display-image"
+              @click="viewImage(templateImage)"
+              style="cursor: pointer;"
             />
             <div v-else class="placeholder-image">
               <van-icon name="photo" size="48" color="#CCCCCC" />
@@ -60,6 +62,8 @@
               :src="currentImage"
               alt="现在的图片"
               class="display-image"
+              @click="viewImage(currentImage)"
+              style="cursor: pointer;"
             />
             <div v-else class="placeholder-image">
               <van-icon name="photo" size="48" color="#CCCCCC" />
@@ -120,6 +124,14 @@
         <div class="loading-text">正在打卡中，请稍后...</div>
       </div>
     </div>
+
+    <!-- 图片预览组件 -->
+    <van-image-preview
+      v-model:show="showImagePreview"
+      :images="previewImages"
+      :start-position="previewIndex"
+      @change="(index) => { previewIndex.value = index }"
+    />
   </div>
 </template>
 
@@ -150,6 +162,11 @@ const selectedItem = ref({
   name: '',
   image: ''
 });
+
+// 图片预览相关状态
+const showImagePreview = ref(false);
+const previewImages = ref([]);
+const previewIndex = ref(0);
 
 // 分数展示相关状态
 const score = ref(0);
@@ -198,6 +215,20 @@ const categories = [
 const selectCategory = (category) => {
   selectedCategory.value = category;
   showCategoryPicker.value = false;
+};
+
+// 查看图片
+const viewImage = (imageUrl) => {
+  if (imageUrl) {
+    // 设置预览图片数组，包含模板和当前图片
+    const images = [];
+    if (templateImage.value) images.push(templateImage.value);
+    if (currentImage.value) images.push(currentImage.value);
+
+    previewImages.value = [...new Set(images)]; // 去重
+    previewIndex.value = previewImages.value.indexOf(imageUrl);
+    showImagePreview.value = true;
+  }
 };
 
 // 拍照/选择图片
