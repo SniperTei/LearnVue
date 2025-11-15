@@ -8,6 +8,7 @@
   },
   "scripts": {
     "dev": "vite",
+    "dev2": "vite --mode dev",
     "test": "vite --mode test",
     "prod": "vite build --mode prod",
     "build": "vite build",

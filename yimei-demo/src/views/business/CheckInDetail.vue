@@ -172,16 +172,13 @@ const fetchCheckInDetailData = async () => {
       selectedItem.value = {
         id: data.items_id || recordId,
         name: data.items.name || '未命名项目',
-        image: data.items.itemsimage ? `${import.meta.env.VITE_APP_API_URL}${data.items.itemsimage}` : ''
+        image: data.itemsimage ? `${import.meta.env.VITE_APP_API_URL}${data.itemsimage}` : ''
       };
 
-      // 设置图片
-      if (data.template_image) {
-        templateImage.value = data.template_image;
-      }
-      if (data.file_name) {
-        currentImage.value = data.file_name;
-      }
+      // 主图片使用根级别的itemsimage
+      templateImage.value = data.items.itemimage ? `${import.meta.env.VITE_APP_API_URL}${data.items.itemimage}` : '';
+      // 当前图片使用items对象中的itemimage，并拼接环境变量URL
+      currentImage.value = selectedItem.value.image;
 
       // 更新分类信息
       if (data.category) {
