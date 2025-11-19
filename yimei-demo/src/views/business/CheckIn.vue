@@ -180,6 +180,11 @@ const resetScore = () => {
 
 // 获取路由参数
 onMounted(() => {
+  // 清理上一次的图片记录，确保每次进入页面都是空白状态
+  currentImage.value = '';
+  // 重置分数显示
+  resetScore();
+
   // 输出所有路由参数，方便调试
   console.log('路由参数:', route.query);
 
@@ -247,6 +252,8 @@ const takePhoto = (type) => {
     console.log('拍照结果:', result);
 
     if (result.success && result.data && result.data.imageUrl) {
+      // 先清理上一次的图片
+      currentImage.value = '';
       // 确保设置currentImage值，这样模板中的v-if="currentImage"条件会被满足
       currentImage.value = result.data.imageUrl;
       console.log('图片URL已设置到currentImage:', currentImage.value);
@@ -311,18 +318,23 @@ const checkInClick = () => {
       throw new Error('文件上传失败: ' + (uploadResponse?.message || '未知错误'));
     }
   }).then(checkInResponse => {
-    if (checkInResponse && checkInResponse.code === 1) {
-      // 打卡成功处理
-      // 提取分数并显示
-      if (checkInResponse.data && checkInResponse.data.score !== undefined) {
-        score.value = checkInResponse.data.score;
-        showScore.value = true;
-        console.log('显示分数:', score.value);
-        alert(`打卡成功! 分数: ${score.value}`);
+      if (checkInResponse && checkInResponse.code === 1) {
+        // 打卡成功处理
+        // 提取分数并显示
+        if (checkInResponse.data && checkInResponse.data.score !== undefined) {
+          // score.value = checkInResponse.data.score;
+          // showScore.value = true;
+          // console.log('显示分数:', score.value);
+          // 显示成功提示后跳转
+          alert(`打卡成功!`);
+        } else {
+          alert('打卡成功!');
+        }
+        // 无论是否有分数，打卡成功后都跳转到打卡记录页面
+        setTimeout(() => {
+          router.push('/check-in-records');
+        }, 500); // 延迟500毫秒跳转，让用户有时间看到提示
       } else {
-        alert('打卡成功!');
-      }
-    } else {
       // 打卡失败处理
       alert('打卡失败: ' + (checkInResponse?.message || '未知错误'));
     }
