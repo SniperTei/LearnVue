@@ -250,16 +250,27 @@ const takePhoto = (type) => {
   // }
   device.takePhoto('current', (result) => {
     console.log('拍照结果:', result);
-
-    if (result.success && result.data && result.data.imageUrl) {
-      // 先清理上一次的图片
-      currentImage.value = '';
-      // 确保设置currentImage值，这样模板中的v-if="currentImage"条件会被满足
-      currentImage.value = result.data.imageUrl;
-      console.log('图片URL已设置到currentImage:', currentImage.value);
+    // 先检查result对象是否存在
+    if (result && result.success && result.data && result.data.imageUrl) {
+      try {
+        // 打印图片url前30位
+        console.log('拍照成功，图片URL前30位:', result.data.imageUrl.substring(0, 30));
+        
+        // 移除重复赋值，使用新变量暂存再赋值，确保Vue响应式系统能正确识别变化
+        const newImageUrl = result.data.imageUrl;
+        console.log('准备设置新图片URL');
+        
+        // 使用setTimeout确保Vue响应式更新正常工作
+        setTimeout(() => {
+          currentImage.value = newImageUrl;
+          console.log('拍照成功after:', currentImage.value.substring(0, 30));
+        }, 0);
+      } catch (error) {
+        console.error('设置图片时出错:', error);
+      }
     } else {
-      // 拍照失败处理
-      alert('拍照失败: ' + (result.message || '未知错误'));
+      // 拍照失败处理，提供更详细的错误信息
+      alert('拍照失败: ' + (result?.message || '未知错误'));
     }
   });
 };
