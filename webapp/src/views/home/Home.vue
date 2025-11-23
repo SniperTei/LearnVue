@@ -213,16 +213,18 @@ const recommendations = ref([
     font-size: 14px;
   }
 
-  // 分类导航
+  // 分类导航 - 放大版
   .category-section {
     background: white;
-    padding: 16px;
-    margin-bottom: 12px;
+    padding: 24px 16px;
+    margin-bottom: 16px;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
 
     .category-grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 12px;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
 
       .category-item {
         display: flex;
@@ -230,17 +232,23 @@ const recommendations = ref([
         align-items: center;
 
         .category-icon {
-          width: 60px;
-          height: 60px;
-          border-radius: 12px;
+          width: 120px;
+          height: 120px;
+          border-radius: 16px;
           display: flex;
           justify-content: center;
           align-items: center;
-          margin-bottom: 8px;
-          font-size: 16px;
+          margin-bottom: 12px;
+          font-size: 28px;
           color: white;
           position: relative;
           overflow: hidden;
+          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+          transition: transform 0.3s ease;
+
+          &:active {
+            transform: scale(0.95);
+          }
 
           &::before {
             content: '';
@@ -257,26 +265,22 @@ const recommendations = ref([
           .van-icon {
             position: relative;
             z-index: 1;
-          }
-
-          &:nth-child(1) {
-            margin-right: 4px;
-          }
-
-          &:nth-child(2) {
-            margin-left: -20px;
+            margin: 0 6px;
           }
         }
 
         .category-name {
-          font-size: 14px;
-          font-weight: 500;
-          margin-bottom: 2px;
+          font-size: 18px;
+          font-weight: 600;
+          margin-bottom: 4px;
         }
 
         .category-count {
-          font-size: 11px;
-          color: #999;
+          font-size: 13px;
+          color: #666;
+          background: #f5f5f5;
+          padding: 2px 12px;
+          border-radius: 12px;
         }
 
         // 分类颜色
