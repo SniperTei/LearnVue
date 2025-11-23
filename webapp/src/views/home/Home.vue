@@ -10,26 +10,39 @@
         </div>
       </div>
     </div>
+    <van-tabbar v-model="active" route>
+      <van-tabbar-item name="home" icon="home-o" to="/">首页</van-tabbar-item>
+      <van-tabbar-item name="learn" icon="medal-o" to="/learn">学习</van-tabbar-item>
+      <van-tabbar-item name="pending" icon="ellipsis" to="/pending">待定</van-tabbar-item>
+      <van-tabbar-item name="mine" icon="user-o" to="/mine">我的</van-tabbar-item>
+    </van-tabbar>
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
+import { Tabbar, TabbarItem } from 'vant'
 
 const features = ref([
   { id: 1, title: '功能一', description: '这是功能一的详细描述' },
   { id: 2, title: '功能二', description: '这是功能二的详细描述' },
   { id: 3, title: '功能三', description: '这是功能三的详细描述' }
 ])
+
+const active = ref('home')
 </script>
 
 <style lang="scss" scoped>
 .home-container {
   min-height: 100vh;
   background-color: $bg-secondary;
+  display: flex;
+  flex-direction: column;
 
   .content-wrapper {
+    flex: 1;
     padding: $spacing-lg;
+    padding-bottom: calc(#{$spacing-lg} + 50px); // 为底部导航栏留出空间
 
     .page-title {
       font-size: $font-size-xl;
@@ -68,6 +81,18 @@ const features = ref([
         }
       }
     }
+  }
+
+  :deep(.van-tabbar) {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 10;
+  }
+
+  :deep(.van-tabbar-item--active .van-tabbar-item__text) {
+    color: $primary-color;
   }
 }
 </style>
