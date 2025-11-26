@@ -1,14 +1,14 @@
 <template>
   <div class="mine-container">
     <van-nav-bar title="我的" />
-    
+
     <!-- 个人信息区域 -->
     <div class="user-info-section">
       <div class="avatar-wrapper">
-        <van-image 
-          round 
-          :src="userInfo.avatar" 
-          fit="cover" 
+        <van-image
+          round
+          :src="userInfo.avatar"
+          fit="cover"
           class="user-avatar"
         />
       </div>
@@ -17,30 +17,30 @@
         <p class="user-id">ID: {{ userInfo.id }}</p>
       </div>
     </div>
-    
+
     <!-- 功能列表 -->
     <div class="function-section">
       <van-list>
-        <van-cell 
-          title="设置" 
-          icon="setting-o" 
-          :right-icon="'arrow'" 
+        <van-cell
+          title="设置"
+          icon="setting-o"
+          :right-icon="'arrow'"
           @click="goToSetting"
         />
-        <van-cell 
-          title="关于" 
-          icon="info-o" 
-          :right-icon="'arrow'" 
+        <van-cell
+          title="关于"
+          icon="info-o"
+          :right-icon="'arrow'"
           @click="goToAbout"
         />
       </van-list>
     </div>
-    
+
     <!-- 退出按钮 -->
     <div class="logout-section">
-      <van-button 
-        type="default" 
-        class="logout-btn" 
+      <van-button
+        type="default"
+        class="logout-btn"
         @click="handleLogout"
       >
         退出登录

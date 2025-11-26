@@ -5,7 +5,7 @@ import SNPTabBar from './components/tabbar/SNPTabBar.vue';
 <template>
   <div class="app-container">
     <router-view />
-    <SNPTabBar />
+    <SNPTabBar class="snptabbar" />
   </div>
 </template>
 

@@ -5,9 +5,19 @@ import router from './router'
 import Vant from 'vant'
 import 'vant/lib/index.css'
 import config from './config/env'
+import { useUserStore } from './stores/user'
 
 // 引入全局SCSS样式
 import './styles/main.scss'
+
+// 开发环境下引入VConsole
+let vconsole = null
+if (import.meta.env.DEV) {
+  import('vconsole').then((VConsole) => {
+    vconsole = new VConsole.default()
+    console.log('VConsole已启用')
+  })
+}
 
 const app = createApp(App)
 
@@ -24,5 +34,9 @@ if (config.debug) {
   console.log('应用配置:', config)
   console.log('当前环境:', config.env)
 }
+
+// 初始化用户状态
+const userStore = useUserStore()
+userStore.initUserStore()
 
 app.mount('#app')

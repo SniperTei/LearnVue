@@ -1,5 +1,6 @@
 // 引入变量文件
-@import './variables.scss';
+// @import './variables.scss';
+@use '@/styles/variables.scss' as *;
 
 // 重置样式
 * {
@@ -62,7 +63,7 @@ html, body {
   padding: $spacing-md;
   box-shadow: $shadow-sm;
   transition: box-shadow 0.3s ease;
-  
+
   &:hover {
     box-shadow: $shadow-md;
   }

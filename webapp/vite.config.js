@@ -11,11 +11,17 @@ export default defineConfig({
     vue(),
     vueDevTools(),
   ],
+  server: {
+    host: '0.0.0.0', // 关键：监听所有IP
+    port: 5173, // 前端服务端口，默认5173
+    open: false
+  },
   css: {
     preprocessorOptions: {
       scss: {
         // 自动导入全局变量文件
-        additionalData: `@import "${path.resolve(__dirname, 'src/styles/variables.scss')}";`,
+        // additionalData: `@import "${path.resolve(__dirname, 'src/styles/variables.scss')}";`,
+        additionalData: `@use '@/styles/variables.scss' as *;`
       },
     },
   },
