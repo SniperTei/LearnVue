@@ -29,7 +29,7 @@ const environmentConfigs = {
     // 是否启用调试模式
     debug: true,
     // 请求超时时间（毫秒）
-    requestTimeout: 15000,
+    requestTimeout: 30000,
   },
   // 生产环境配置
   production: {
@@ -38,7 +38,7 @@ const environmentConfigs = {
     // 是否启用调试模式
     debug: false,
     // 请求超时时间（毫秒）
-    requestTimeout: 10000,
+    requestTimeout: 30000,
   },
 };
 

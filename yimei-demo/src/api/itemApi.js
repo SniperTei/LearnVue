@@ -13,5 +13,5 @@ export function itemList(params) {
   const data = {
     ...params
   }
-  return post('api/items/list/', data)
+  return post('/api/items/list/', data)
 }

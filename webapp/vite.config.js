@@ -11,10 +11,44 @@ export default defineConfig({
     vue(),
     vueDevTools(),
   ],
+  // server: {
+  //   host: '0.0.0.0', // 关键：监听所有IP
+  //   port: 5173, // 前端服务端口，默认5173
+  //   open: false
+  // },
   server: {
-    host: '0.0.0.0', // 关键：监听所有IP
-    port: 5173, // 前端服务端口，默认5173
-    open: false
+    host: '0.0.0.0',
+    port: 5173,
+    cors: true,
+    https: false,
+    proxy: {
+      // 配置API代理，转发到本地后端服务
+      '/api': {
+        target: 'http://localhost:8000', // 假设后端服务运行在8080端口，可根据实际情况修改
+        changeOrigin: true, // 允许跨域
+        secure: false, // 不验证SSL证书
+        // 重写路径，移除/api前缀再转发
+        // rewrite: (path) => path.replace(/^\/api/, ''),
+        // 配置请求头
+        headers: {
+          'Origin': 'http://localhost:5173',
+          'X-Requested-With': 'XMLHttpRequest'
+        },
+        // 配置超时时间
+        timeout: 60000,
+        // 配置错误处理
+        onError: (err, req, res) => {
+          console.error('Proxy error:', err)
+          res.writeHead(500, {
+            'Content-Type': 'application/json'
+          })
+          res.end(JSON.stringify({
+            code: 'PROXY_ERROR',
+            message: '代理服务错误，请检查后端服务是否正常运行'
+          }))
+        }
+      }
+    }
   },
   css: {
     preprocessorOptions: {
@@ -25,23 +59,6 @@ export default defineConfig({
       },
     },
   },
-  // server: {
-  //   host: '0.0.0.0',
-  //   port: 5173,
-  //   cors: true,
-  //   // 禁用类型检查以加快开发速度
-  //   https: false,
-  //   proxy: {
-  //     '/api': {
-  //       target: 'http://localhost',
-  //       changeOrigin: true,
-  //       rewrite: (path) => path.replace(/^\/api/, '/api'),
-  //       headers: {
-  //         'Origin': 'http://localhost'
-  //       }
-  //     }
-  //   }
-  // },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))

@@ -1,6 +1,13 @@
 <template>
   <div class="login-container">
     <div class="login-box">
+      <!-- logo -->
+      <!-- <div>
+        <img src="https://pic1.zhimg.com/v2-e0ca937a1d3296e7463aa0aa096bef48_r.jpg" alt="logo" class="logo-image" style="width: 100px; height: auto;" />
+      </div><br>
+      <div>
+        <img src="https://156.226.180.172/uploads/20251117/39d90de0116c1a09a487a17113f7a52d.jpg" alt="logo" class="logo-image" style="width: 100px; height: auto;" />
+      </div><br> -->
       <h2 class="login-title">用户登录</h2>
       <form @submit.prevent="handleLogin" class="login-form">
         <div class="form-group">

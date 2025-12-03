@@ -15,7 +15,7 @@ export function checkIn(params) {
   const data = {
     ...params
   }
-  return post('api/itemrecord/addclock/', data)
+  return post('/api/itemrecord/addclock/', data)
 }
 
 /**
@@ -28,7 +28,7 @@ export function checkInList(params) {
   const data = {
     ...params
   }
-  return post('api/itemrecord/clocklist/', data)
+  return post('/api/itemrecord/clocklist/', data)
 }
 
 /**
@@ -41,5 +41,5 @@ export function checkInDetail(params) {
   const data = {
     ...params
   }
-  return post('api/itemrecord/clockinfo/', data)
+  return post('/api/itemrecord/clockinfo/', data)
 }

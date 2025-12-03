@@ -13,5 +13,5 @@ export function login(params) {
   const data = {
     ...params
   }
-  return post('api/user/login/', data)
+  return post('/api/user/login/', data)
 }

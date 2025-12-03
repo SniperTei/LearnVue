@@ -120,15 +120,32 @@ const categories = ref([
   { id: 1, name: '吃', desc: '探索各地美食佳肴', iconClass: 'van-icon van-icon-coupon-o', color: 'food', category: 'eat' },
   { id: 2, name: '喝', desc: '品味精致饮品咖啡', iconClass: 'van-icon van-icon-goblet', color: 'drink', category: 'drink' },
   { id: 3, name: '玩', desc: '发现新奇娱乐体验', iconClass: 'van-icon van-icon-game', color: 'play', category: 'play' },
-  { id: 4, name: '乐', desc: '享受精彩文化活动', iconClass: 'van-icon van-icon-music', color: 'entertainment', category: 'entertainment' }
+  { id: 4, name: '乐', desc: '享受精彩文化活动', iconClass: 'van-icon van-icon-music', color: 'fun', category: 'fun' }
 ])
 
 // 处理分类点击
 const handleCategoryClick = (category) => {
-  router.push({
-    path: '/home/enjoy-list',
-    query: { category: category.category }
-  })
+  if (category.category === 'eat') { // 吃
+    router.push({
+      path: '/food',
+      query: { category: category.category }
+    })
+  } else if (category.category === 'drink') { // 喝
+    router.push({
+      path: '/drink',
+      query: { category: category.category }
+    })
+  } else if (category.category === 'play') { // 玩
+    router.push({
+      path: '/play',
+      query: { category: category.category }
+    })
+  } else if (category.category === 'fun') { // 乐
+    router.push({
+      path: '/fun',
+      query: { category: category.category }
+    })
+  }
 }
 
 // 快速入口数据
@@ -153,8 +170,8 @@ const handleImageError = (event, item) => {
 }
 
 const mockUserInfoFromApp = {
-    "token": "xxx",
-    "tokenType": "yyy",
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NjQ1Njg2ODgsInN1YiI6IjY5MjE0MWM5Y2YxMzUwMDU2ZDE1ZmI2NSJ9.l554iAoPj3iNNAQAu8aL21i9vOlojEkKU6V-rtB5mPc",
+    "tokenType": "Bearer",
     "userInfo": {
         "created_at": "2025-11-22T04:53:29.135000",
         "email": "test001@example.com",
@@ -203,12 +220,12 @@ const fetchAndStoreUserInfo = async () => {
             updated_at: actualData.userInfo.updated_at
           }
         }
-
+        console.log('构建的用户数据:', userData)
         // 更新到userStore
         userStore.setUserData(userData)
 
         console.log('用户信息已成功存储到userStore:', {
-          token: !!userData.token,
+          token: userData.token,
           hasUserInfo: !!userData.userInfo,
           username: userData.userInfo.username
         })
@@ -425,7 +442,7 @@ onMounted(() => {
           background: linear-gradient(135deg, #48dbfb, #1dd1a1);
         }
 
-        .entertainment {
+        .fun {
           background: linear-gradient(135deg, #ff9ff3, #5f27cd);
         }
       }
