@@ -44,7 +44,7 @@ service.interceptors.response.use(
     console.log('接口返回:', res);
 
     // 如果响应码不是000000，认为请求有错误
-    if (res.code !== 1) {
+    if (res.code !== '000000') {
       console.error('接口返回错误:', res.msg);
 
       // 可以在这里处理特定错误码，例如token过期等
@@ -77,6 +77,28 @@ service.interceptors.response.use(
 );
 
 /**
+ * 过滤对象中的空字段
+ * @param {Object} obj - 要过滤的对象
+ * @returns {Object} - 过滤后的对象
+ */
+function filterEmptyFields(obj) {
+  if (!obj || typeof obj !== 'object') {
+    return obj;
+  }
+  const filteredObj = {};
+  for (const key in obj) {
+    if (obj.hasOwnProperty(key)) {
+      const value = obj[key];
+      // 过滤掉 null、undefined 和空字符串
+      if (value !== null && value !== undefined && value !== '') {
+        filteredObj[key] = value;
+      }
+    }
+  }
+  return filteredObj;
+}
+
+/**
  * 封装GET请求
  * @param {string} url - 请求URL
  * @param {Object} params - 请求参数
@@ -84,10 +106,12 @@ service.interceptors.response.use(
  * @returns {Promise} - 返回请求的Promise
  */
 export function get(url, params, autoShowError = true) {
+  // 过滤空字段
+  const filteredParams = filterEmptyFields(params);
   return service({
     url,
     method: 'get',
-    params
+    params: filteredParams
   }).catch(error => {
     if (autoShowError) {
       // 使用服务器返回的错误消息
@@ -105,10 +129,12 @@ export function get(url, params, autoShowError = true) {
  * @returns {Promise} - 返回请求的Promise
  */
 export function post(url, data, autoShowError = true) {
+  // 过滤空字段
+  const filteredData = filterEmptyFields(data);
   return service({
     url,
     method: 'post',
-    data
+    data: filteredData
   }).catch(error => {
     if (autoShowError) {
       // 使用服务器返回的错误消息
@@ -126,10 +152,12 @@ export function post(url, data, autoShowError = true) {
  * @returns {Promise} - 返回请求的Promise
  */
 export function put(url, data, autoShowError = true) {
+  // 过滤空字段
+  const filteredData = filterEmptyFields(data);
   return service({
     url,
     method: 'put',
-    data
+    data: filteredData
   }).catch(error => {
     if (autoShowError) {
       // 使用服务器返回的错误消息
@@ -146,12 +174,20 @@ export function put(url, data, autoShowError = true) {
  * @param {boolean} autoShowError - 是否自动显示错误提示，默认为true
  * @returns {Promise} - 返回请求的Promise
  */
-export function del(url, data) {
+export function del(url, data, autoShowError = true) {
+  // 过滤空字段
+  const filteredData = filterEmptyFields(data);
   return service({
     url,
     method: 'delete',
-    data // 直接传入 data 作为请求体
-  })
+    data: filteredData // 直接传入过滤后的数据作为请求体
+  }).catch(error => {
+    if (autoShowError) {
+      // 使用服务器返回的错误消息
+      showDialog({ message: error.message || '请求失败' });
+    }
+    return Promise.reject(error);
+  });
 }
 
 export default service;
