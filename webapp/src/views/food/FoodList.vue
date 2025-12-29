@@ -76,6 +76,7 @@
           v-for="item in foodList"
           :key="item.id"
           class="food-item"
+          @click="navigateToDetail(item.id)"
         >
           <!-- 封面图 -->
           <div class="item-cover">
@@ -125,6 +126,16 @@
         <p class="empty-text">暂无美食记录</p>
         <p class="empty-hint">去发现更多美味佳肴吧</p>
       </div>
+      
+      <!-- 新增按钮 -->
+      <Button 
+        type="primary" 
+        class="create-btn"
+        @click="navigateToCreate"
+        round
+      >
+        新增美食
+      </Button>
     </div>
   </div>
 </template>
@@ -134,16 +145,16 @@ import { ref, onMounted, watch, onBeforeUnmount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import placeholderImage from '@/assets/images/placeholder.png'
 import { getFoodList } from '@/api/foodApi.js'
-import { NavBar } from 'vant';
+import { NavBar, Button } from 'vant';
 
 // 路由
 const route = useRoute()
-  const router = useRouter()
+const router = useRouter()
 
-  // 返回上一页
-  const goBack = () => {
-    router.back()
-  }
+// 返回上一页
+const goBack = () => {
+  router.back()
+}
 
 // 搜索参数 - 适配API文档中的参数
 const searchParams = ref({
@@ -293,6 +304,9 @@ const loadData = async () => {
 
     // 只传递API支持的参数
     const requestParams = { ...searchParams.value }
+    // page = 1 count = 10
+    requestParams.page = 1
+    requestParams.count = 10
 
     try {
       console.log("请求参数:", requestParams)
@@ -307,8 +321,8 @@ const loadData = async () => {
     } catch (apiError) {
       console.log('API调用失败，使用模拟数据:', apiError)
       // 使用模拟数据
-      const response = JSON.parse(JSON.stringify(mockData))
-      processResponseData(response)
+      // const response = JSON.parse(JSON.stringify(mockData))
+      // processResponseData(response)
     }
   } catch (error) {
     console.error('请求失败:', error)
@@ -409,17 +423,27 @@ const hideTabBar = () => {
 }
 
 // 显示底部导航栏
-const showTabBar = () => {
-  if (document && document.body) {
-    document.body.classList.remove('hide-tabbar')
+  const showTabBar = () => {
+    if (document && document.body) {
+      document.body.classList.remove('hide-tabbar')
+    }
+
+    // 也直接显示SNPTabBar组件
+    const tabBar = document.querySelector('.snptabbar')
+    if (tabBar) {
+      tabBar.style.display = ''
+    }
   }
 
-  // 也直接显示SNPTabBar组件
-  const tabBar = document.querySelector('.snptabbar')
-  if (tabBar) {
-    tabBar.style.display = ''
+  // 跳转到详情页
+  const navigateToDetail = (foodId) => {
+    router.push(`/food/detail/${foodId}`)
   }
-}
+  
+  // 跳转到新增页面
+  const navigateToCreate = () => {
+    router.push('/food/create')
+  }
 </script>
 
 <style lang="scss" scoped>
@@ -595,6 +619,11 @@ const showTabBar = () => {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
+.food-item {
+  cursor: pointer;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+}
+
 .item-cover {
   position: relative;
   height: 180px;
@@ -736,6 +765,27 @@ const showTabBar = () => {
   justify-content: center;
   padding: 60px 0;
   color: #999;
+}
+
+/* 新增按钮样式 */
+.create-btn {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  max-width: 400px;
+  background-color: #fa541c;
+  border: none;
+  box-shadow: 0 4px 12px rgba(250, 84, 28, 0.4);
+  z-index: 10;
+}
+
+/* 适配iOS安全区域 */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .create-btn {
+    bottom: calc(80px + env(safe-area-inset-bottom));
+  }
 }
 
 .empty-icon {

@@ -4,6 +4,8 @@ import Study from '@/views/study/Study.vue'
 import What from '@/views/what/What.vue'
 import Mine from '@/views/mine/Mine.vue'
 import Food from '@/views/food/FoodList.vue'
+import FoodDetail from '@/views/food/FoodDetail.vue'
+import FoodCreate from '@/views/food/FoodCreate.vue'
 import Drink from '@/views/drink/DrinkList.vue'
 import Fun from '@/views/fun/FunList.vue'
 // import EnjoyList from '@/views/home/EnjoyList.vue'
@@ -35,6 +37,19 @@ const router = createRouter({
       path: '/food',
       name: 'food',
       component: Food,
+    },
+    {
+      path: '/food/detail/:id',
+      name: 'foodDetail',
+      component: FoodDetail,
+    },
+    {
+      path: '/food/create',
+      name: 'FoodCreate',
+      component: FoodCreate,
+      meta: {
+        title: '新增美食'
+      }
     },
     {
       path: '/drink',

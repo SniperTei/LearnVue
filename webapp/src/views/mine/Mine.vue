@@ -79,6 +79,14 @@ const goToAbout = () => {
 const handleLogout = () => {
   // 这里可以添加退出登录的逻辑
   console.log('退出登录')
+  deviceBridge.logout().then((result) => {
+    console.log('退出登录结果:', result);
+    // 处理退出登录后的逻辑，例如跳转到登录页面
+    // router.push('/login');
+  }).catch((error) => {
+    console.error('退出登录失败:', error);
+    // 处理退出登录失败的逻辑
+  });
 }
 </script>
 

@@ -136,16 +136,34 @@ const handleCategoryClick = (category) => {
       query: { category: category.category }
     })
   } else if (category.category === 'play') { // 玩
-    router.push({
-      path: '/play',
-      query: { category: category.category }
-    })
+    // router.push({
+    //   path: '/play',
+    //   query: { category: category.category }
+    // })
+      testFun1()
   } else if (category.category === 'fun') { // 乐
     router.push({
       path: '/fun',
       query: { category: category.category }
     })
   }
+}
+
+const getUserInfoFromApp = async () => {
+  return await deviceBridge.getUserInfoFromApp();
+  // await deviceBridge.getUserInfoFromApp((result) => {
+  //     console.log('通过回调获取的用户信息:', result);
+  // })
+}
+
+const testFun1 = async () => {
+  fetchAndStoreUserInfo()
+  // await deviceBridge.getUserInfoFromApp((result) => {
+  //     console.log('通过回调获取的用户信息:', result);
+  // })
+  // await deviceBridge.getDeviceInfo((code, msg, data) => {
+  //   console.log('通过回调获取的设备信息:', code, msg, data);
+  // })
 }
 
 // 快速入口数据
@@ -187,11 +205,23 @@ const mockUserInfoFromApp = {
 const fetchAndStoreUserInfo = async () => {
   try {
     // 调用device.js中的getUserInfoFromApp方法，支持可选的回调函数
-    // const userInfoFromApp = await deviceBridge.getUserInfoFromApp((result) => {
-    //   console.log('通过回调获取的用户信息:', result);
-    // })
+    console.log('调用device.js中的getUserInfoFromApp方法，支持可选的回调函数')
+    // 调用device.js中的getUserInfoFromApp方法，支持可选的回调函数
+    const userInfoFromApp = await deviceBridge.getUserInfoFromApp((result) => {
+      console.log('通过回调获取的用户信息:', result);
+      // code == 000000 表示成功
+      if (result.code != '000000') {
+        console.error('获取用户信息失败:', result);
+        return;
+      }
+      // 解析用户信息
+      const userData = JSON.parse(result.data);
+      console.log('解析后的用户数据:', userData);
+      // userStore存储用户信息
+      userStore.setUserData(userData)
+    })
 
-    const userInfoFromApp = mockUserInfoFromApp
+    // const userInfoFromApp = mockUserInfoFromApp
 
     console.log('从App获取的用户信息:', userInfoFromApp)
 
@@ -263,6 +293,8 @@ const fetchAndStoreUserInfo = async () => {
 
 // 组件挂载时执行
 onMounted(() => {
+  console.log('组件挂载时执行')
+  console.log('userStore', userStore)
   // 仅当用户未认证时才尝试从App获取信息
   if (!userStore.isAuthenticated || !userStore.userInfo) {
     fetchAndStoreUserInfo()

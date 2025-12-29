@@ -45,9 +45,15 @@ class DeviceBridge {
 
     if (callbackId && callback) {
       console.log('注册回调:', { callbackId });
-      // 注册回调函数
-      window[callbackId] = (result) => {
-        console.log('收到原生回调:', { callbackId, result });
+      // 注册回调函数，处理原生传递的三个独立参数
+      window[callbackId] = (code, msg, data) => {
+        console.log('收到原生回调:', { callbackId, code, msg, data });
+        // 将三个独立参数转换为包含code、msg、data的对象格式
+        const result = {
+          code,
+          msg,
+          data
+        };
         callback(result);
         // 清理回调函数
         setTimeout(() => {
@@ -94,7 +100,7 @@ class DeviceBridge {
       // Android通过addJavascriptInterface注入的对象调用原生
       if (window.Android && window.Android.callNative) {
         console.log('调用Android原生方法:', { method, params, callbackId });
-        // 直接调用Android.callNative，参数顺序为method, params, callbackId
+        // 直接传递三个参数给原生，不需要JSON序列化
         window.Android.callNative(method, JSON.stringify(params), callbackId);
         console.log('Android原生方法调用成功');
       } else {
@@ -130,6 +136,8 @@ class DeviceBridge {
   async callWithCallback(method, params = {}, callback = null) {
     try {
       const result = await this.call(method, params);
+      // 打印完整结果
+      console.log('App回调:', result);
       // 如果提供了回调，则调用它，传递完整的原始结果
       if (typeof callback === 'function') {
         callback(result);
@@ -160,6 +168,15 @@ class DeviceBridge {
    */
   async getUserInfoFromApp(callback = null) {
     return this.callWithCallback('userInfo.getUserInfoFromApp', {}, callback);
+  }
+
+  /**
+   * 退出登录
+   * @param {function} callback - 可选的回调函数，接收完整的原始结果（包含code、msg、data）
+   * @returns {Promise} 返回Promise对象，resolve整个原始结果
+   */
+  async logout(callback = null) {
+    return this.callWithCallback('userInfo.logout', {}, callback);
   }
 
   /**
@@ -211,16 +228,30 @@ try {
 export default deviceBridge;
 
 // 供原生调用的全局方法，用于处理回调
-window.nativeCallback = function(callbackId, result) {
+// 支持两种调用方式：
+// 1. window.nativeCallback(callbackId, code, msg, data) - 原生直接调用
+// 2. window.callbackId(code, msg, data) - 通过JSBridge调用
+window.nativeCallback = function(callbackId, code, msg, data) {
   if (window[callbackId] && typeof window[callbackId] === 'function') {
     try {
-      // 尝试解析JSON字符串（如果result是字符串）
-      const parsedResult = typeof result === 'string' ? JSON.parse(result) : result;
-      window[callbackId](parsedResult);
+      // 检查是否是三个独立参数的形式（code, msg, data）
+      if (arguments.length === 4) {
+        // 将三个独立参数转换为包含code、msg、data的对象格式
+        const result = {
+          code,
+          msg,
+          data: typeof data === 'string' ? JSON.parse(data) : data
+        };
+        window[callbackId](result);
+      } else if (arguments.length === 2) {
+        // 旧格式：callbackId, result（兼容旧版调用）
+        const parsedResult = typeof code === 'string' ? JSON.parse(code) : code;
+        window[callbackId](parsedResult);
+      }
     } catch (e) {
       console.error('处理原生回调时出错:', e);
-      // 如果解析失败，直接传递原始结果
-      window[callbackId](result);
+      // 如果解析失败，传递原始数据
+      window[callbackId]({code: '999999', msg: '回调处理失败', data: null});
     }
   }
 };

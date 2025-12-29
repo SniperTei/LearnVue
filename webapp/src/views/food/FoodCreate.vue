@@ -1,0 +1,573 @@
+<template>
+  <div class="food-create-container">
+    <!-- 导航栏 -->
+    <NavBar
+      title="新增美食"
+      left-text=""
+      left-arrow
+      @click-left="goBack"
+      right-text="保存"
+      @click-right="handleSubmit"
+      fixed
+      placeholder
+    />
+
+    <!-- 表单内容 -->
+    <div class="form-container">
+      <!-- 封面图选择 -->
+      <div class="form-section">
+        <label class="form-label">封面图 *</label>
+        <div class="cover-upload" @click="handleCoverUpload">
+          <img
+            v-if="formData.cover"
+            :src="formData.cover"
+            alt="封面图预览"
+            class="cover-preview"
+          />
+          <div v-else class="upload-placeholder">
+            <div class="upload-icon">📷</div>
+            <p class="upload-text">点击选择封面图</p>
+          </div>
+        </div>
+        <p class="form-hint">点击将随机选择一张预设图片</p>
+        <span v-if="errors.cover" class="error-message">{{ errors.cover }}</span>
+      </div>
+
+      <!-- 标题 --><div class="form-section">
+        <label class="form-label">美食名称 *</label>
+        <input
+          type="text"
+          v-model="formData.title"
+          placeholder="请输入美食名称"
+          class="form-input"
+        />
+        <span v-if="errors.title" class="error-message">{{ errors.title }}</span>
+      </div>
+
+      <!-- 描述 --><div class="form-section">
+        <label class="form-label">美食描述 *</label>
+        <textarea
+          v-model="formData.content"
+          placeholder="请输入美食描述"
+          rows="4"
+          class="form-textarea"
+        ></textarea>
+        <span v-if="errors.content" class="error-message">{{ errors.content }}</span>
+      </div>
+
+      <!-- 口味 --><div class="form-section">
+        <label class="form-label">口味 *</label>
+        <div class="flavor-options">
+          <span
+            v-for="option in flavorOptions"
+            :key="option.value"
+            class="flavor-option"
+            :class="{ active: formData.flavor === option.value }"
+            @click="selectFlavor(option.value)"
+          >
+            {{ option.text }}
+          </span>
+        </div>
+        <span v-if="errors.flavor" class="error-message">{{ errors.flavor }}</span>
+      </div>
+
+      <!-- 评分 --><div class="form-section">
+        <label class="form-label">评分 *</label>
+        <div class="rating-selector">
+          <span
+            v-for="star in 5"
+            :key="star"
+            class="star-item"
+            :class="{ active: formData.star >= star }"
+            @click="setRating(star)"
+          >★</span>
+          <span class="rating-text">{{ formData.star }}星</span>
+        </div>
+      </div>
+
+      <!-- 制作者 --><div class="form-section">
+        <label class="form-label">制作者 *</label>
+        <input
+          type="text"
+          v-model="formData.maker"
+          placeholder="请输入制作者名称"
+          class="form-input"
+        />
+        <span v-if="errors.maker" class="error-message">{{ errors.maker }}</span>
+      </div>
+
+      <!-- 标签 --><div class="form-section">
+        <label class="form-label">标签（选填）</label>
+        <div class="tags-input-container">
+          <div
+            v-for="(tag, index) in formData.tags"
+            :key="index"
+            class="tag-item"
+          >
+            <span class="tag-text">{{ tag }}</span>
+            <span class="tag-remove" @click="removeTag(index)">×</span>
+          </div>
+          <input
+            type="text"
+            v-model="tagInput"
+            placeholder="输入标签后按回车添加"
+            @keyup.enter="addTag"
+            class="tags-input"
+          />
+        </div>
+        <p class="form-hint">最多添加5个标签，每个标签不超过8个字符</p>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { ref, reactive, onMounted, onBeforeUnmount } from 'vue'
+import { useRouter } from 'vue-router'
+import { NavBar, showToast } from 'vant'
+import { createFood } from '@/api/foodApi'
+
+// 路由
+const router = useRouter()
+
+// 表单数据
+const formData = reactive({
+  title: '',
+  content: '',
+  cover: '',
+  images: [], // 暂时用默认空数组
+  tags: [],
+  star: 0,
+  maker: '',
+  flavor: '',
+  user_id: '1' // 模拟用户ID
+})
+
+// 标签输入
+const tagInput = ref('')
+
+// 错误提示
+const errors = reactive({})
+
+// 口味选项
+const flavorOptions = [
+  { text: '麻辣', value: '麻辣' },
+  { text: '酸甜', value: '酸甜' },
+  { text: '咸鲜', value: '咸鲜' },
+  { text: '清淡', value: '清淡' },
+  { text: '香辣', value: '香辣' },
+  { text: '其他', value: '其他' }
+]
+
+// 返回上一页
+const goBack = () => {
+  router.back()
+}
+
+// 选择口味
+const selectFlavor = (flavor) => {
+  formData.flavor = flavor
+  delete errors.flavor
+}
+
+// 设置评分
+const setRating = (rating) => {
+  formData.star = rating
+}
+
+// 添加标签
+const addTag = () => {
+  const tag = tagInput.value.trim()
+  if (tag) {
+    if (formData.tags.length >= 5) {
+      showToast('最多添加5个标签')
+      return
+    }
+    if (tag.length > 8) {
+      showToast('每个标签不超过8个字符')
+      return
+    }
+    if (!formData.tags.includes(tag)) {
+      formData.tags.push(tag)
+      tagInput.value = ''
+    }
+  }
+}
+
+// 移除标签
+const removeTag = (index) => {
+  formData.tags.splice(index, 1)
+}
+
+// 预设的mock图片URL列表
+// const mockImages = [
+//   'http://snpfiles.sniper14.online/paigupaigu/1.jpg',
+//   'http://snpfiles.sniper14.online/paigupaigu/2.jpg',
+//   'http://snpfiles.sniper14.online/paigupaigu/3.jpg',
+//   'http://snpfiles.sniper14.online/paigupaigu/4.jpg',
+//   'http://snpfiles.sniper14.online/paigupaigu/5.jpg'
+// ]
+
+// 处理封面图选择
+const handleCoverUpload = () => {
+  // 随机选择一张mock图片
+  // const randomIndex = Math.floor(Math.random() * mockImages.length)
+  // formData.cover = mockImages[randomIndex]
+  // mockImages
+  formData.cover = 'http://snpfiles.sniper14.online/paigupaigu'
+  delete errors.cover
+  showToast('已选择封面图')
+}
+
+// 表单验证
+const validateForm = () => {
+  // 清空之前的错误
+  Object.keys(errors).forEach(key => delete errors[key])
+
+  let isValid = true
+
+  // 验证必填字段
+  if (!formData.title.trim()) {
+    errors.title = '请输入美食名称'
+    isValid = false
+  }
+
+  if (!formData.content.trim()) {
+    errors.content = '请输入美食描述'
+    isValid = false
+  }
+
+  if (!formData.cover) {
+    errors.cover = '请上传封面图'
+    isValid = false
+  }
+
+  if (!formData.flavor) {
+    errors.flavor = '请选择口味'
+    isValid = false
+  }
+
+  if (!formData.maker.trim()) {
+    errors.maker = '请输入制作者名称'
+    isValid = false
+  }
+
+  if (formData.star === 0) {
+    errors.star = '请设置评分'
+    isValid = false
+  }
+
+  return isValid
+}
+
+// 提交表单
+const handleSubmit = async () => {
+  // 验证表单
+  if (!validateForm()) {
+    showToast('请完善必填信息')
+    return
+  }
+
+  try {
+    // 准备提交数据
+    const submitData = {
+      ...formData,
+      // 格式化数据，确保与API期望格式一致
+      star: Number(formData.star),
+      // 这里可以添加更多数据处理逻辑，如图片上传等
+    }
+
+    // 调用API创建美食
+    const response = await createFood(submitData)
+
+    if (response.code === '000000') {
+      showToast('创建成功')
+      // 创建成功后返回列表页
+      setTimeout(() => {
+        router.push('/food')
+      }, 1500)
+    } else {
+      showToast(response.msg || '创建失败')
+      // 失败时不跳转，停留在当前页面
+    }
+  } catch (error) {
+    console.error('创建美食失败:', error)
+    showToast('创建失败，请稍后重试')
+    // 错误时不跳转，停留在当前页面
+  }
+}
+
+// 初始化
+onMounted(() => {
+  // 隐藏底部导航栏
+  setTimeout(() => {
+    hideTabBar()
+  }, 100)
+})
+
+// 组件卸载时恢复tabbar显示
+onBeforeUnmount(() => {
+  showTabBar()
+})
+
+// 隐藏底部导航栏
+const hideTabBar = () => {
+  if (document && document.body) {
+    document.body.classList.add('hide-tabbar')
+  }
+
+  // 也直接隐藏SNPTabBar组件
+  const tabBar = document.querySelector('.snptabbar')
+  if (tabBar) {
+    tabBar.style.display = 'none'
+  }
+}
+
+// 显示底部导航栏
+const showTabBar = () => {
+  if (document && document.body) {
+    document.body.classList.remove('hide-tabbar')
+  }
+
+  // 也直接显示SNPTabBar组件
+  const tabBar = document.querySelector('.snptabbar')
+  if (tabBar) {
+    tabBar.style.display = ''
+  }
+}
+</script>
+
+<style lang="scss" scoped>
+/* 主容器样式 */
+.food-create-container {
+  background-color: #f5f5f5;
+  min-height: 100vh;
+  position: relative;
+}
+
+/* 表单容器 */
+.form-container {
+  padding: 16px;
+  margin-top: 52px; /* 适配导航栏高度 */
+}
+
+/* 表单区块 */
+.form-section {
+  background-color: white;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+/* 表单标签 */
+.form-label {
+  display: block;
+  font-size: 15px;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 12px;
+}
+
+/* 表单输入框 */
+.form-input,
+.form-textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #e8e8e8;
+  border-radius: 6px;
+  font-size: 15px;
+  color: #333;
+  background-color: #fafafa;
+  transition: border-color 0.3s;
+  box-sizing: border-box;
+}
+
+.form-input:focus,
+.form-textarea:focus {
+  outline: none;
+  border-color: #fa541c;
+  background-color: white;
+}
+
+.form-textarea {
+  resize: none;
+  min-height: 100px;
+}
+
+/* 错误提示 */
+.error-message {
+  display: block;
+  font-size: 13px;
+  color: #ff4d4f;
+  margin-top: 6px;
+}
+
+/* 提示文字 */
+.form-hint {
+  font-size: 13px;
+  color: #999;
+  margin-top: 8px;
+  margin-bottom: 0;
+}
+
+/* 封面图上传 */
+.cover-upload {
+  position: relative;
+  width: 100%;
+  height: 180px;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  background-color: #f5f5f5;
+}
+
+.upload-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: #999;
+}
+
+.upload-icon {
+  font-size: 32px;
+  margin-bottom: 8px;
+}
+
+.upload-text {
+  font-size: 14px;
+  margin: 0;
+}
+
+.cover-preview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.file-input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+/* 口味选择 */
+.flavor-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.flavor-option {
+  padding: 8px 16px;
+  border: 1px solid #e8e8e8;
+  border-radius: 18px;
+  font-size: 14px;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.flavor-option:hover {
+  border-color: #fa541c;
+  color: #fa541c;
+}
+
+.flavor-option.active {
+  background-color: #fa541c;
+  border-color: #fa541c;
+  color: white;
+}
+
+/* 评分选择器 */
+.rating-selector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.star-item {
+  font-size: 24px;
+  color: #ddd;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+.star-item:hover,
+.star-item.active {
+  color: #ffd700;
+}
+
+.rating-text {
+  font-size: 16px;
+  color: #666;
+  margin-left: 8px;
+}
+
+/* 标签输入 */
+.tags-input-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 8px;
+  border: 1px solid #e8e8e8;
+  border-radius: 6px;
+  min-height: 80px;
+  align-content: flex-start;
+}
+
+.tag-item {
+  display: inline-flex;
+  align-items: center;
+  background-color: #fff2e8;
+  color: #fa541c;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 13px;
+  gap: 4px;
+}
+
+.tag-remove {
+  font-size: 16px;
+  cursor: pointer;
+  padding: 0 2px;
+}
+
+.tags-input {
+  flex: 1;
+  min-width: 120px;
+  padding: 6px 0;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  background: transparent;
+}
+
+/* 媒体查询适配 */
+@media (min-width: 768px) {
+  .food-create-container {
+    max-width: 768px;
+    margin: 0 auto;
+    border-left: 1px solid #e8e8e8;
+    border-right: 1px solid #e8e8e8;
+  }
+
+  .cover-upload {
+    height: 240px;
+  }
+}
+
+/* iOS安全区域适配 */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .food-create-container {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+</style>
