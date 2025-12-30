@@ -33,7 +33,28 @@
         <span v-if="errors.cover" class="error-message">{{ errors.cover }}</span>
       </div>
 
-      <!-- 标题 --><div class="form-section">
+      <!-- 图片上传 -->
+      <div class="form-section">
+        <label class="form-label">图片（选填）</label>
+        <div class="images-container">
+          <div
+            v-for="(image, index) in formData.images"
+            :key="index"
+            class="image-item"
+          >
+            <img :src="image" alt="食品图片" class="image-preview" />
+            <span class="image-remove" @click="removeImage(index)">×</span>
+          </div>
+          <div v-if="formData.images.length < 5" class="image-upload" @click="handleImageUpload">
+            <div class="upload-icon">+</div>
+            <p class="upload-text">添加图片</p>
+          </div>
+        </div>
+        <p class="form-hint">最多添加5张图片</p>
+      </div>
+
+      <!-- 标题 -->
+      <div class="form-section">
         <label class="form-label">美食名称 *</label>
         <input
           type="text"
@@ -44,7 +65,8 @@
         <span v-if="errors.title" class="error-message">{{ errors.title }}</span>
       </div>
 
-      <!-- 描述 --><div class="form-section">
+      <!-- 描述 -->
+      <div class="form-section">
         <label class="form-label">美食描述 *</label>
         <textarea
           v-model="formData.content"
@@ -55,7 +77,8 @@
         <span v-if="errors.content" class="error-message">{{ errors.content }}</span>
       </div>
 
-      <!-- 口味 --><div class="form-section">
+      <!-- 口味 -->
+      <div class="form-section">
         <label class="form-label">口味 *</label>
         <div class="flavor-options">
           <span
@@ -71,7 +94,8 @@
         <span v-if="errors.flavor" class="error-message">{{ errors.flavor }}</span>
       </div>
 
-      <!-- 评分 --><div class="form-section">
+      <!-- 评分 -->
+      <div class="form-section">
         <label class="form-label">评分 *</label>
         <div class="rating-selector">
           <span
@@ -85,7 +109,8 @@
         </div>
       </div>
 
-      <!-- 制作者 --><div class="form-section">
+      <!-- 制作者 -->
+      <div class="form-section">
         <label class="form-label">制作者 *</label>
         <input
           type="text"
@@ -96,7 +121,8 @@
         <span v-if="errors.maker" class="error-message">{{ errors.maker }}</span>
       </div>
 
-      <!-- 标签 --><div class="form-section">
+      <!-- 标签 -->
+      <div class="form-section">
         <label class="form-label">标签（选填）</label>
         <div class="tags-input-container">
           <div
@@ -126,6 +152,7 @@ import { ref, reactive, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 import { NavBar, showToast } from 'vant'
 import { createFood } from '@/api/foodApi'
+import deviceBridge from '@/utils/device'
 
 // 路由
 const router = useRouter()
@@ -208,15 +235,76 @@ const removeTag = (index) => {
 //   'http://snpfiles.sniper14.online/paigupaigu/5.jpg'
 // ]
 
+// 预设的mock图片URL列表
+const mockImages = [
+  'http://snpfiles.sniper14.online/paigupaigu/1.jpg',
+  'http://snpfiles.sniper14.online/paigupaigu/2.jpg',
+  'http://snpfiles.sniper14.online/paigupaigu/3.jpg',
+  'http://snpfiles.sniper14.online/paigupaigu/4.jpg',
+  'http://snpfiles.sniper14.online/paigupaigu/5.jpg'
+]
+
 // 处理封面图选择
-const handleCoverUpload = () => {
-  // 随机选择一张mock图片
-  // const randomIndex = Math.floor(Math.random() * mockImages.length)
-  // formData.cover = mockImages[randomIndex]
-  // mockImages
-  formData.cover = 'http://snpfiles.sniper14.online/paigupaigu'
-  delete errors.cover
-  showToast('已选择封面图')
+const handleCoverUpload = async () => {
+  try {
+    // 调用app方法选择图片
+    const result = await deviceBridge.selectImage()
+    if (result.code === '000000' && result.data && result.data.length > 0) {
+      // 选择第一张图片作为封面，并确保包含正确的Base64前缀
+      formData.cover = ensureBase64Prefix(result.data[0])
+      delete errors.cover
+      showToast('已选择封面图')
+    } else {
+      showToast('未选择图片')
+    }
+  } catch (error) {
+    console.error('选择封面图失败:', error)
+    showToast('选择封面图失败')
+  }
+}
+
+// 处理图片上传
+const handleImageUpload = async () => {
+  try {
+    if (formData.images.length >= 5) {
+      showToast('最多添加5张图片')
+      return
+    }
+    // 调用app方法选择图片
+    const result = await deviceBridge.selectImage()
+    if (result.code === '000000' && result.data && result.data.length > 0) {
+      // 将选择的图片添加到图片数组中，并确保包含正确的Base64前缀
+      const newImages = result.data.map(img => ensureBase64Prefix(img))
+      formData.images = [...formData.images, ...newImages]
+      // 限制最多5张图片
+      if (formData.images.length > 5) {
+        formData.images = formData.images.slice(0, 5)
+      }
+      showToast('已添加图片')
+    } else {
+      showToast('未选择图片')
+    }
+  } catch (error) {
+    console.error('选择图片失败:', error)
+    showToast('选择图片失败')
+  }
+}
+
+// 移除图片
+const removeImage = (index) => {
+  formData.images.splice(index, 1)
+  showToast('已移除图片')
+}
+
+// 确保Base64图片字符串包含正确的前缀
+const ensureBase64Prefix = (base64Str) => {
+  if (!base64Str) return base64Str
+  // 如果已经包含data:image前缀，则直接返回
+  if (base64Str.startsWith('data:image/')) {
+    return base64Str
+  }
+  // 否则添加默认的jpg前缀
+  return `data:image/jpeg;base64,${base64Str}`
 }
 
 // 表单验证
@@ -446,6 +534,64 @@ const showTabBar = () => {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+/* 图片上传区域 */
+.images-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.image-item {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: #f5f5f5;
+}
+
+.image-preview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.image-remove {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 20px;
+  height: 20px;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.image-upload {
+  width: 100px;
+  height: 100px;
+  border: 2px dashed #d9d9d9;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background-color: #fafafa;
+  color: #999;
+}
+
+.image-upload:hover {
+  border-color: #1890ff;
+  color: #1890ff;
 }
 
 .file-input {

@@ -16,7 +16,7 @@ service.interceptors.request.use(
     const userStore = useUserStore();
     // 打印config
     console.log('userStore:', userStore);
-    const token = userStore.userInfo.token;
+    const token = userStore.token;
     // 打印token
     console.log('token:', token);
     if (token) {

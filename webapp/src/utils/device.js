@@ -180,6 +180,15 @@ class DeviceBridge {
   }
 
   /**
+   * 打开相册选择图片
+   * @param {function} callback - 可选的回调函数，接收完整的原始结果（包含code、msg、data）
+   * @returns {Promise} 返回Promise对象，resolve整个原始结果
+   */
+  async selectImage(callback = null) {
+    return this.callWithCallback('camera.selectImage', {}, callback);
+  }
+
+  /**
    * 执行耗时操作
    * @param {function} callback - 可选的回调函数，接收完整的原始结果（包含code、msg、data）
    * @returns {Promise} 返回Promise对象，resolve整个原始结果

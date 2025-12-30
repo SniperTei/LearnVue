@@ -313,7 +313,6 @@ const loadData = async () => {
 
       // 调用真实API，直接传递对象参数
       const response = await getFoodList(requestParams)
-      console.log('API响应:', response)
 
       if (response.code === '000000') {
         processResponseData(response)

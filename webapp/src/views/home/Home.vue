@@ -103,6 +103,7 @@ import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import deviceBridge from '@/utils/device.js'
 import placeholderImage from '@/assets/images/placeholder.png'
+import { getMe } from '@/api/userApi'
 
 // 路由
 const router = useRouter()
@@ -149,15 +150,9 @@ const handleCategoryClick = (category) => {
   }
 }
 
-const getUserInfoFromApp = async () => {
-  return await deviceBridge.getUserInfoFromApp();
-  // await deviceBridge.getUserInfoFromApp((result) => {
-  //     console.log('通过回调获取的用户信息:', result);
-  // })
-}
-
 const testFun1 = async () => {
-  fetchAndStoreUserInfo()
+  // fetchAndStoreUserInfo()
+  fetchUserInfo()
   // await deviceBridge.getUserInfoFromApp((result) => {
   //     console.log('通过回调获取的用户信息:', result);
   // })
@@ -187,20 +182,21 @@ const handleImageError = (event, item) => {
   console.warn(`图片加载失败: ${item.image}`)
 }
 
-const mockUserInfoFromApp = {
-    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NjQ1Njg2ODgsInN1YiI6IjY5MjE0MWM5Y2YxMzUwMDU2ZDE1ZmI2NSJ9.l554iAoPj3iNNAQAu8aL21i9vOlojEkKU6V-rtB5mPc",
-    "tokenType": "Bearer",
-    "userInfo": {
-        "created_at": "2025-11-22T04:53:29.135000",
-        "email": "test001@example.com",
-        "id": "692141c9cf1350056d15fb65",
-        "is_active": true,
+const fetchUserInfo = async () => {
+  try {
+    const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NjcwNTk3ODcsInN1YiI6IjY5NTMyMjU3M2M3N2EyMjNlMzU0NTQ4ZCJ9.ZRwi3aJcGR6OzUNWH5JCFBuT8-_ala6q1Nrh0AhJnLY"
+    const userInfo = {
+        "id": "695322573c77a223e354548d",
+        "email": "teinan@123.com",
+        "username": "teinan",
         "mobile": "13800000001",
-        "updated_at": "2025-11-22T04:53:29.135000",
-        "username": "test001"
     }
+    userStore.setUserData({ token: token, tokenType: 'Bearer', userInfo: userInfo })
+    console.log('用户信息已存储到userStore:', userStore)
+  } catch (error) {
+    console.error('获取用户信息失败:', error)
+  }
 }
-
 // 从App获取用户信息并存储
 const fetchAndStoreUserInfo = async () => {
   try {
@@ -220,10 +216,6 @@ const fetchAndStoreUserInfo = async () => {
       // userStore存储用户信息
       userStore.setUserData(userData)
     })
-
-    // const userInfoFromApp = mockUserInfoFromApp
-
-    console.log('从App获取的用户信息:', userInfoFromApp)
 
     // 检查是否获取到有效的用户信息 - 适配可能的数据格式变化
     // 支持直接数据格式和嵌套在data字段中的格式
@@ -294,11 +286,12 @@ const fetchAndStoreUserInfo = async () => {
 // 组件挂载时执行
 onMounted(() => {
   console.log('组件挂载时执行')
-  console.log('userStore', userStore)
   // 仅当用户未认证时才尝试从App获取信息
-  if (!userStore.isAuthenticated || !userStore.userInfo) {
-    fetchAndStoreUserInfo()
-  }
+  // if (!userStore.isAuthenticated || !userStore.userInfo) {
+  //   console.log('用户未认证或缺少用户信息，尝试从App获取用户信息')
+  //   fetchAndStoreUserInfo()
+  // }
+  fetchUserInfo()
 })
 </script>
 
