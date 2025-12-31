@@ -3,11 +3,12 @@
     <!-- 导航栏 -->
     <NavBar
       title="美食详情"
-      left-text=""
+      left-text="返回"
       left-arrow
       @click-left="goBack"
       fixed
       placeholder
+      safe-area-inset-top
     />
 
     <!-- 加载状态 -->
@@ -319,6 +320,18 @@ const showTabBar = () => {
   position: relative;
   display: flex;
   flex-direction: column;
+  padding-top: 46px; /* 为固定导航栏预留空间 */
+}
+
+/* 导航栏样式覆盖 */
+:deep(.van-nav-bar) {
+  z-index: 100;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
 }
 
 /* 加载状态 */
