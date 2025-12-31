@@ -20,7 +20,7 @@ service.interceptors.request.use(
     // 打印token
     console.log('token:', token);
     if (token) {
-      config.headers['token'] = token;
+      config.headers['Authorization'] = `Bearer ${token}`;
     }
     // 如果token还是空 就从localstorage获取
     // if (!token) {
