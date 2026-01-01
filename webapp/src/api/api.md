@@ -589,6 +589,234 @@
   "timestamp": "2025-11-27 13:44:02"
 }
 
+## 饭店管理接口
+
+### 1. 创建饭店
+**POST** `/enjoys/`
+
+创建新的饭店记录。
+
+**认证**: 需要Bearer Token
+
+**请求参数**:
+```json
+{
+  "title": "老川菜馆",
+  "content": "正宗川菜，环境优雅，服务周到",
+  "cover": "https://example.com/enjoys/sichuan-restaurant.jpg",
+  "images": [
+    "https://example.com/enjoys/sichuan-restaurant-1.jpg",
+    "https://example.com/enjoys/sichuan-restaurant-2.jpg"
+  ],
+  "tags": ["川菜", "正宗", "环境优雅", "服务周到"],
+  "star": 4.5,
+  "maker": "美食推荐官",
+  "flavor": "麻辣",
+  "location": "北京市朝阳区建国路88号",
+  "price_per_person": 120,
+  "recommend_dishes": ["宫保鸡丁", "麻婆豆腐", "水煮鱼"]
+}
+```
+
+**参数说明**：
+- `title` (必填): 饭店名称
+- `content` (可选): 饭店介绍/就餐体验/评价
+- `cover` (可选): 饭店封面图/招牌菜图片URL
+- `images` (可选): 菜品图/店内环境图URL集合
+- `tags` (可选): 标签数组
+- `star` (可选): 评分(1-5之间的数值)
+- `maker` (必填): 推荐来源/推荐人
+- `flavor` (可选): 主打口味
+- `location` (必填): 饭店详细地址
+- `price_per_person` (可选): 人均消费(元)
+- `recommend_dishes` (可选): 推荐菜品/招牌菜
+
+**响应示例**:
+```json
+{
+  "code": "000000",
+  "statusCode": 201,
+  "msg": "饭店创建成功",
+  "data": {
+    "id": "6562c5a5b1d4e3f2e4a1b2c3",
+    "title": "老川菜馆",
+    "content": "正宗川菜，环境优雅，服务周到",
+    "cover": "https://example.com/enjoys/sichuan-restaurant.jpg",
+    "images": ["https://example.com/enjoys/sichuan-restaurant-1.jpg"],
+    "tags": ["川菜", "正宗"],
+    "star": 4.5,
+    "maker": "美食推荐官",
+    "flavor": "麻辣",
+    "location": "北京市朝阳区建国路88号",
+    "price_per_person": 120,
+    "recommend_dishes": ["宫保鸡丁", "麻婆豆腐", "水煮鱼"],
+    "created_by": "1",
+    "updated_by": "1",
+    "create_time": "2024-01-01T00:00:00",
+    "update_time": "2024-01-01T00:00:00"
+  },
+  "timestamp": "2025-11-27 13:44:02"
+}
+```
+
+### 2. 获取饭店列表
+**GET** `/enjoys/`
+
+获取饭店记录列表，支持分页和多种条件查询。
+
+**查询参数**:
+- `page` (可选): 页码，从1开始，默认1
+- `count` (可选): 每页数量，默认10
+- `title` (可选): 标题模糊查询
+- `location` (可选): 地址模糊查询
+- `maker` (可选): 推荐来源精确查询
+- `min_star` (可选): 最低评分，支持小数
+- `max_star` (可选): 最高评分，支持小数
+- `flavor` (可选): 口味精确查询
+- `tag` (可选): 标签包含查询
+
+**响应示例**:
+```json
+{
+  "code": "000000",
+  "statusCode": 200,
+  "msg": "获取饭店列表成功",
+  "data": {
+    "enjoys": [
+      {
+        "id": "6562c5a5b1d4e3f2e4a1b2c3",
+        "title": "老川菜馆",
+        "content": "正宗川菜，环境优雅，服务周到",
+        "cover": "https://example.com/enjoys/sichuan-restaurant.jpg",
+        "images": [],
+        "tags": ["川菜", "正宗"],
+        "star": 4.5,
+        "maker": "美食推荐官",
+        "flavor": "麻辣",
+        "location": "北京市朝阳区建国路88号",
+        "price_per_person": 120,
+        "recommend_dishes": ["宫保鸡丁", "麻婆豆腐", "水煮鱼"],
+        "created_by": "1",
+        "updated_by": "1",
+        "create_time": "2024-01-01T00:00:00",
+        "update_time": "2024-01-01T00:00:00"
+      }
+    ],
+    "total": 1,
+    "page": 1,
+    "count": 10
+  },
+  "timestamp": "2025-11-27 13:44:02"
+}
+```
+
+### 3. 获取单个饭店
+**GET** `/enjoys/{enjoy_id}`
+
+根据ID获取单个饭店的详细信息。
+
+**路径参数**:
+- `enjoy_id`: 饭店ID
+
+**响应示例**:
+```json
+{
+  "code": "000000",
+  "statusCode": 200,
+  "msg": "获取饭店成功",
+  "data": {
+    "id": "6562c5a5b1d4e3f2e4a1b2c3",
+    "title": "老川菜馆",
+    "content": "正宗川菜，环境优雅，服务周到",
+    "cover": "https://example.com/enjoys/sichuan-restaurant.jpg",
+    "images": ["https://example.com/enjoys/sichuan-restaurant-1.jpg"],
+    "tags": ["川菜", "正宗", "环境优雅", "服务周到"],
+    "star": 4.5,
+    "maker": "美食推荐官",
+    "flavor": "麻辣",
+    "location": "北京市朝阳区建国路88号",
+    "price_per_person": 120,
+    "recommend_dishes": ["宫保鸡丁", "麻婆豆腐", "水煮鱼"],
+    "created_by": "1",
+    "updated_by": "1",
+    "create_time": "2024-01-01T00:00:00",
+    "update_time": "2024-01-01T12:00:00"
+  },
+  "timestamp": "2025-11-27 13:44:02"
+}
+```
+
+### 4. 更新饭店
+**PUT** `/enjoys/{enjoy_id}`
+
+根据ID更新单个饭店的信息。
+
+**认证**: 需要Bearer Token
+
+**路径参数**:
+- `enjoy_id`: 饭店ID
+
+**请求参数**:
+```json
+{
+  "title": "正宗老川菜馆",
+  "content": "正宗川菜，环境优雅，服务周到，新增特色菜品",
+  "star": 5,
+  "price_per_person": 130,
+  "recommend_dishes": ["宫保鸡丁", "麻婆豆腐", "水煮鱼", "夫妻肺片"]
+}
+```
+
+**说明**: 只需要提供需要更新的字段，未提供的字段保持不变。
+
+**响应示例**:
+```json
+{
+  "code": "000000",
+  "statusCode": 200,
+  "msg": "更新成功",
+  "data": {
+    "id": "6562c5a5b1d4e3f2e4a1b2c3",
+    "title": "正宗老川菜馆",
+    "content": "正宗川菜，环境优雅，服务周到，新增特色菜品",
+    "cover": "https://example.com/enjoys/sichuan-restaurant.jpg",
+    "images": ["https://example.com/enjoys/sichuan-restaurant-1.jpg"],
+    "tags": ["川菜", "正宗", "环境优雅", "服务周到"],
+    "star": 5,
+    "maker": "美食推荐官",
+    "flavor": "麻辣",
+    "location": "北京市朝阳区建国路88号",
+    "price_per_person": 130,
+    "recommend_dishes": ["宫保鸡丁", "麻婆豆腐", "水煮鱼", "夫妻肺片"],
+    "created_by": "1",
+    "updated_by": "1",
+    "create_time": "2024-01-01T00:00:00",
+    "update_time": "2024-01-02T10:00:00"
+  },
+  "timestamp": "2025-11-27 13:44:02"
+}
+```
+
+### 5. 删除饭店
+**DELETE** `/enjoys/{enjoy_id}`
+
+根据ID删除单个饭店。
+
+**认证**: 需要Bearer Token
+
+**路径参数**:
+- `enjoy_id`: 饭店ID
+
+**响应示例**:
+```json
+{
+  "code": "000000",
+  "statusCode": 200,
+  "msg": "删除成功",
+  "data": null,
+  "timestamp": "2025-11-27 13:44:02"
+}
+
 ## 系统接口
 
 ### 1. 健康检查

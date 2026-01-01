@@ -120,7 +120,7 @@ const displayName = computed(() => {
 const categories = ref([
   { id: 1, name: '吃', desc: '探索各地美食佳肴', iconClass: 'van-icon van-icon-coupon-o', color: 'food', category: 'eat' },
   { id: 2, name: '喝', desc: '品味精致饮品咖啡', iconClass: 'van-icon van-icon-goblet', color: 'drink', category: 'drink' },
-  { id: 3, name: '玩', desc: '发现新奇娱乐体验', iconClass: 'van-icon van-icon-game', color: 'play', category: 'play' },
+  { id: 3, name: '玩', desc: '发现新奇娱乐体验', iconClass: 'van-icon van-icon-game', color: 'enjoy', category: 'enjoy' },
   { id: 4, name: '乐', desc: '享受精彩文化活动', iconClass: 'van-icon van-icon-music', color: 'fun', category: 'fun' }
 ])
 
@@ -136,12 +136,12 @@ const handleCategoryClick = (category) => {
       path: '/drink',
       query: { category: category.category }
     })
-  } else if (category.category === 'play') { // 玩
-    // router.push({
-    //   path: '/play',
-    //   query: { category: category.category }
-    // })
-      testFun1()
+  } else if (category.category === 'enjoy') { // 玩
+    router.push({
+      path: '/enjoy',
+      query: { category: category.category }
+    })
+      // testFun1()
   } else if (category.category === 'fun') { // 乐
     router.push({
       path: '/fun',
@@ -463,7 +463,7 @@ onMounted(() => {
           background: linear-gradient(135deg, #4ecdc4, #44a08d);
         }
 
-        .play {
+        .enjoy {
           background: linear-gradient(135deg, #48dbfb, #1dd1a1);
         }
 
