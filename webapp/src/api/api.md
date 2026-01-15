@@ -817,6 +817,222 @@
   "timestamp": "2025-11-27 13:44:02"
 }
 
+## LLM管理接口
+
+### 1. 生成文本（非流式）
+**POST** `/llm/generate`
+
+使用大语言模型生成文本，非流式输出。
+
+**请求参数**:
+```json
+{
+  "model": "deepseek-r1:1.5b",
+  "prompt": "请介绍一下人工智能的发展历史",
+  "stream": false,
+  "temperature": 0.8,
+  "top_p": 0.9,
+  "max_tokens": 500,
+  "num_ctx": 2048
+}
+```
+
+**参数说明**：
+- `model` (必填): 模型名称，如 deepseek-r1:1.5b
+- `prompt` (必填): 输入提示词
+- `stream` (可选): 是否流式输出，默认false
+- `temperature` (可选): 控制随机性，0-2，默认0.8
+- `top_p` (可选): 核采样参数，0-1，默认0.9
+- `max_tokens` (可选): 最大生成token数，默认500
+- `num_ctx` (可选): 上下文窗口大小，默认2048
+
+**响应示例**:
+```json
+{
+  "code": "000000",
+  "statusCode": 200,
+  "msg": "文本生成成功",
+  "data": {
+    "response": "人工智能的发展历史可以追溯到20世纪50年代...",
+    "model": "deepseek-r1:1.5b",
+    "done": true,
+    "context": [1, 2, 3, 4, 5],
+    "total_duration": 1234567890,
+    "load_duration": 12345678,
+    "prompt_eval_count": 10,
+    "eval_count": 50
+  },
+  "timestamp": "2025-01-14 10:00:00.000"
+}
+```
+
+### 2. 生成文本（流式）
+**POST** `/llm/generate/stream`
+
+使用大语言模型生成文本，流式输出。
+
+**请求参数**: 与非流式生成相同
+
+**响应**: 返回流式文本，Content-Type为text/plain
+
+**说明**: 流式响应会实时返回生成的文本片段，适合需要实时展示生成过程的场景。
+
+### 3. 对话模式（非流式）
+**POST** `/llm/chat`
+
+使用大语言模型进行对话，非流式输出。
+
+**请求参数**:
+```json
+{
+  "model": "deepseek-r1:1.5b",
+  "messages": [
+    {
+      "role": "system",
+      "content": "你是一个专业的AI助手"
+    },
+    {
+      "role": "user",
+      "content": "你好，请介绍一下你自己"
+    }
+  ],
+  "stream": false,
+  "temperature": 0.8,
+  "top_p": 0.9,
+  "max_tokens": 500,
+  "num_ctx": 2048
+}
+```
+
+**参数说明**：
+- `model` (必填): 模型名称
+- `messages` (必填): 对话消息列表，每条消息包含role和content
+  - `role`: 消息角色，可选值为 system、user、assistant
+  - `content`: 消息内容
+- 其他参数与文本生成相同
+
+**响应示例**:
+```json
+{
+  "code": "000000",
+  "statusCode": 200,
+  "msg": "对话成功",
+  "data": {
+    "message": {
+      "role": "assistant",
+      "content": "你好！我是一个AI助手，可以帮助你解答问题..."
+    },
+    "model": "deepseek-r1:1.5b",
+    "done": true,
+    "total_duration": 1234567890,
+    "load_duration": 12345678,
+    "prompt_eval_count": 15,
+    "eval_count": 60
+  },
+  "timestamp": "2025-01-14 10:00:00.000"
+}
+```
+
+### 4. 对话模式（流式）
+**POST** `/llm/chat/stream`
+
+使用大语言模型进行对话，流式输出。
+
+**请求参数**: 与非流式对话相同
+
+**响应**: 返回流式文本，Content-Type为text/plain
+
+**说明**: 流式响应会实时返回生成的对话内容，适合需要实时展示对话过程的场景。
+
+### 5. 获取可用模型列表
+**GET** `/llm/models`
+
+获取当前可用的所有大语言模型列表。
+
+**响应示例**:
+```json
+{
+  "code": "000000",
+  "statusCode": 200,
+  "msg": "获取模型列表成功",
+  "data": {
+    "models": [
+      {
+        "name": "deepseek-r1:1.5b",
+        "modified_at": "2025-01-01T00:00:00.000000Z",
+        "size": 1073741824,
+        "digest": "sha256:abc123...",
+        "details": {
+          "format": "gguf",
+          "family": "deepseek",
+          "families": ["deepseek"],
+          "parameter_size": "1.5B",
+          "quantization_level": "Q4_0"
+        }
+      },
+      {
+        "name": "llama2:7b",
+        "modified_at": "2025-01-01T00:00:00.000000Z",
+        "size": 4294967296,
+        "digest": "sha256:def456...",
+        "details": {
+          "format": "gguf",
+          "family": "llama",
+          "families": ["llama"],
+          "parameter_size": "7B",
+          "quantization_level": "Q4_0"
+        }
+      }
+    ],
+    "total": 2
+  },
+  "timestamp": "2025-01-14 10:00:00.000"
+}
+```
+
+### LLM接口测试示例
+
+#### 生成文本
+```bash
+curl -X POST "http://localhost:8000/api/v1/llm/generate" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "deepseek-r1:1.5b",
+    "prompt": "请介绍一下Python编程语言",
+    "temperature": 0.8
+  }'
+```
+
+#### 对话
+```bash
+curl -X POST "http://localhost:8000/api/v1/llm/chat" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "deepseek-r1:1.5b",
+    "messages": [
+      {
+        "role": "user",
+        "content": "你好，请帮我写一个快速排序算法"
+      }
+    ]
+  }'
+```
+
+#### 获取模型列表
+```bash
+curl -X GET "http://localhost:8000/api/v1/llm/models"
+```
+
+#### 流式生成文本
+```bash
+curl -X POST "http://localhost:8000/api/v1/llm/generate/stream" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "deepseek-r1:1.5b",
+    "prompt": "请写一首关于春天的诗"
+  }'
+```
+
 ## 系统接口
 
 ### 1. 健康检查

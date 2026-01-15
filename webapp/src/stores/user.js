@@ -33,7 +33,7 @@ export const useUserStore = defineStore('user', () => {
 
       // 模拟登录响应
       const mockResponse = {
-        "token": "mock_jwt_token_123456",
+        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NjQ4Mjk0NDYsInN1YiI6IjY5MjE0MWM5Y2YxMzUwMDU2ZDE1ZmI2NSJ9.Ag5UReLQYQAP-BUNjkJBGjWzL4IXwm5Vt9MBSyOTpEo",
         "tokenType": "Bearer",
         "userInfo": {
           "id": "692141c9cf1350056d15fb65",

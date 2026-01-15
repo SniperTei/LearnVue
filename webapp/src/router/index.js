@@ -15,6 +15,8 @@ import EnjoyDetail from '@/views/enjoy/EnjoyDetail.vue'
 import EnjoyCreate from '@/views/enjoy/EnjoyCreate.vue'
 // 乐
 import Fun from '@/views/fun/FunList.vue'
+// AI聊天
+import AIChat from '@/views/study/AIChat.vue'
 
 
 const router = createRouter({
@@ -89,6 +91,12 @@ const router = createRouter({
       path: '/fun',
       name: 'fun',
       component: Fun,
+    },
+    // AI聊天
+    {
+      path: '/large-language-model',
+      name: 'largeLanguageModel',
+      component: AIChat,
     },
   ],
 })

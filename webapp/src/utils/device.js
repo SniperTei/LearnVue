@@ -185,6 +185,7 @@ class DeviceBridge {
    * @returns {Promise} 返回Promise对象，resolve整个原始结果
    */
   async selectImage(callback = null) {
+    // 如果是web环境，直接调用浏览器的文件选择器
     return this.callWithCallback('camera.selectImage', {}, callback);
   }
 

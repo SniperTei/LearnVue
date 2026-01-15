@@ -85,17 +85,19 @@ const tags = ref(['全部', 'AI技术', 'OCR识别', '图像处理', '人脸识�
 const functionItems = ref([
   {
     id: '1',
-    name: 'AI图片生成',
-    description: '基于Stable Diffusion和DALL-E的图像生成实战，实现文本到图像的智能转换',
+    name: '大语言模型',
+    description: '调用自己部署的大语言模型，实现文本生成、问答等功能',
     type: 'page',
-    url: '/ai-image-generation',
-    categories: ['AI技术', '图像处理']
+    functionName: 'largeLanguageModel',
+    url: '/large-language-model',
+    categories: ['AI技术']
   },
   {
     id: '2',
     name: 'OCR文字识别',
     description: '探索Tesseract、PaddleOCR技术，实现高精度的图片文字识别和结构化提取',
     type: 'app',
+    functionName: 'ocrRecognition',
     appMethod: 'ocr.recognize',
     categories: ['OCR识别']
   },
@@ -104,6 +106,7 @@ const functionItems = ref([
     name: '二维码扫描',
     description: '研究ZXing、QRCode.js等库，实现稳定的二维码识别、解析功能',
     type: 'app',
+    functionName: 'qrcodeScan',
     appMethod: 'qrcode.scan',
     categories: ['二维码扫描']
   },
@@ -112,6 +115,7 @@ const functionItems = ref([
     name: '图像增强技术',
     description: '深入学习图像降噪、去雾、色彩还原等技术和算法，提升图片质量',
     type: 'api',
+    functionName: 'imageEnhance',
     apiEndpoint: '/api/image/enhance',
     categories: ['图像处理']
   },
@@ -120,6 +124,7 @@ const functionItems = ref([
     name: '人脸识别系统',
     description: '研究OpenCV、ArcFace算法，构建高精度的人脸识别、身份验证系统',
     type: 'app',
+
     appMethod: 'face.detect',
     categories: ['人脸识别', 'AI技术']
   },
@@ -128,6 +133,7 @@ const functionItems = ref([
     name: 'AI抠图技术',
     description: '探索Deep-Lab、MODNet模型，实现精确的图像分割和智能背景替换',
     type: 'api',
+    functionName: 'imageSegment',
     apiEndpoint: '/api/image/segment',
     categories: ['AI技术', '图像处理']
   },
@@ -136,6 +142,7 @@ const functionItems = ref([
     name: '文本分析',
     description: '自然语言处理入门，包括情感分析、关键词提取和文本分类技术',
     type: 'page',
+    functionName: 'textAnalysis',
     url: '/text-analysis',
     categories: ['AI技术']
   },
@@ -144,6 +151,7 @@ const functionItems = ref([
     name: '语音识别',
     description: '研究Speech Recognition和DeepSpeech等库，实现语音转文字功能',
     type: 'app',
+    functionName: 'speechRecognition',
     appMethod: 'speech.recognize',
     categories: ['AI技术']
   }
