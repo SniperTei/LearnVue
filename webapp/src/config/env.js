@@ -24,8 +24,8 @@ const baseConfig = {
 const environmentConfigs = {
   // 开发环境配置
   development: {
-    // API基础URL - 匹配后端FastAPI端口8000
-    apiBaseUrl: import.meta.env.VITE_APP_API_URL || 'http://localhost:8000',
+    // API基础URL - 使用空值合并运算符，空字符串不会被覆盖
+    apiBaseUrl: import.meta.env.VITE_APP_API_URL ?? 'http://localhost:8000',
     // 是否启用调试模式
     debug: true,
     // 请求超时时间（毫秒）
@@ -34,7 +34,7 @@ const environmentConfigs = {
   // 生产环境配置
   production: {
     // API基础URL
-    apiBaseUrl: import.meta.env.VITE_APP_API_URL || 'https://api.example.com',
+    apiBaseUrl: import.meta.env.VITE_APP_API_URL ?? 'https://api.example.com',
     // 是否启用调试模式
     debug: false,
     // 请求超时时间（毫秒）

@@ -24,11 +24,9 @@ export default defineConfig({
     proxy: {
       // 配置API代理，转发到本地后端服务
       '/api': {
-        target: 'http://localhost:8000', // 假设后端服务运行在8080端口，可根据实际情况修改
+        target: 'http://localhost:8000', // 本地后端服务地址
         changeOrigin: true, // 允许跨域
         secure: false, // 不验证SSL证书
-        // 重写路径，移除/api前缀再转发
-        // rewrite: (path) => path.replace(/^\/api/, ''),
         // 配置请求头
         headers: {
           'Origin': 'http://localhost:5173',
