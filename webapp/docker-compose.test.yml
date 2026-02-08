@@ -15,7 +15,7 @@ services:
     ports:
       - "3001:80"  # 测试环境使用 3001 端口
     networks:
-      - sniper_network_test
+      - sniper_test_network
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/health"]
       interval: 30s
@@ -29,6 +29,6 @@ services:
         max-file: "3"
 
 networks:
-  sniper_network_test:
-    external: true  # 连接到后端的网络
-    name: sniper_network_test
+  sniper_test_network:
+    external: true  # 连接到后端的测试网络
+    name: sniper_test_network

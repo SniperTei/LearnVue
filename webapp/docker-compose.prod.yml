@@ -16,7 +16,7 @@ services:
       - "80:80"    # HTTP
       - "443:443"  # HTTPS（如需 SSL）
     networks:
-      - sniper_network_prod
+      - sniper_prod_network
     deploy:
       resources:
         limits:
@@ -38,6 +38,6 @@ services:
         max-file: "5"
 
 networks:
-  sniper_network_prod:
-    external: true  # 连接到后端的网络
-    name: sniper_network_prod
+  sniper_prod_network:
+    external: true  # 连接到后端的生产网络
+    name: sniper_prod_network

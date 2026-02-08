@@ -33,7 +33,7 @@
 |------|---------|---------|
 | **用途** | 开发测试 | 线上服务 |
 | **Web 端口** | 3001 | 80/443 |
-| **网络** | sniper_network_test | sniper_network_prod |
+| **网络** | sniper_test_network | sniper_prod_network |
 | **资源限制** | 无 | 1 CPU / 512M RAM |
 | **重启策略** | unless-stopped | always |
 
@@ -111,10 +111,13 @@ curl http://localhost/
    # 修改 VITE_APP_API_URL 为实际的后端地址
    ```
 
-2. **创建 Docker 网络**
+2. **确认后端网络已存在**
    ```bash
-   docker network create sniper_network_test
-   docker network create sniper_network_prod
+   # 测试环境
+   docker network ls | grep sniper_test_network
+
+   # 生产环境
+   docker network ls | grep sniper_prod_network
    ```
 
 3. **配置防火墙**
@@ -131,11 +134,13 @@ curl http://localhost/
 **确保前后端使用相同的 Docker 网络**：
 ```bash
 # 查看网络
-docker network ls
+docker network ls | grep sniper
 
 # 应该看到：
-# sniper_network_test  (前后端共享)
-# sniper_network_prod  (前后端共享)
+# sniper_test_network    (测试环境 - 前后端共享)
+# sniper_prod_network    (生产环境 - 前后端共享)
+
+# 前端会自动加入对应的网络
 ```
 
 **API 地址配置**：
@@ -193,8 +198,8 @@ Docker Network: sniper_network_test
 - [ ] 服务器已准备
 - [ ] Docker 已安装
 - [ ] 代码已上传
+- [ ] 后端网络已确认
 - [ ] .env.prod 已配置
-- [ ] Docker 网络已创建
 - [ ] 防火墙已配置
 - [ ] 测试环境已部署
 - [ ] 生产环境已部署

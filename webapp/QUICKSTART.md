@@ -55,17 +55,7 @@ vim .env.prod
 VITE_APP_API_URL=https://your-api-domain.com
 ```
 
-### 第五步：创建 Docker 网络（首次部署）
-
-```bash
-# 创建测试环境网络（与后端共享）
-docker network create sniper_network_test
-
-# 创建生产环境网络（与后端共享）
-docker network create sniper_network_prod
-```
-
-### 第六步：部署测试环境
+### 第五步：部署测试环境
 
 ```bash
 # 1. 构建镜像
@@ -78,7 +68,7 @@ docker network create sniper_network_prod
 ./deploy.sh test ps
 ```
 
-### 第七步：验证测试环境
+### 第六步：验证测试环境
 
 ```bash
 # 检查服务状态
@@ -91,7 +81,7 @@ curl http://localhost:3001/health
 # http://your-server-ip:3001
 ```
 
-### 第八步：部署生产环境（可选）
+### 第七步：部署生产环境（可选）
 
 ```bash
 # 1. 确认已配置 .env.prod
@@ -135,11 +125,27 @@ cat .env.prod | grep VITE_APP_API_URL
 
 ```bash
 # 查看网络列表
-docker network ls
+docker network ls | grep sniper
 
 # 前后端应该使用相同的网络
-# sniper_network_test  (测试环境)
-# sniper_network_prod  (生产环境)
+# sniper_test_network  (测试环境)
+# sniper_prod_network  (生产环境)
+```
+
+**测试环境网络创建**：
+```bash
+# 如果网络不存在，创建测试网络
+docker network create sniper_test_network
+
+# 或者使用后端提供的启动脚本
+cd /opt/services/sniper-yolo-backend
+./start-services.sh  # 会自动创建网络
+```
+
+**生产环境网络创建**：
+```bash
+# 生产环境需要单独创建网络
+docker network create sniper_prod_network
 ```
 
 ### 修改 API 地址

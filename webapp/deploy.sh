@@ -121,6 +121,19 @@ get_env_port() {
     esac
 }
 
+# 获取网络名称
+get_network_name() {
+    local env=$1
+    case $env in
+        test)
+            echo "sniper_test_network"
+            ;;
+        prod)
+            echo "sniper_prod_network"
+            ;;
+    esac
+}
+
 # 构建镜像
 build_image() {
     local env=$1
@@ -140,14 +153,17 @@ start_services() {
     local env=$1
     local compose_file=$(get_compose_file $env)
     local port=$(get_env_port $env)
+    local network_name=$(get_network_name $env)
 
     print_step "启动 $env 环境服务..."
 
     # 检查网络是否存在，不存在则创建
-    local network_name="sniper_network_${env}"
     if ! docker network ls | grep -q "$network_name"; then
         print_warning "网络 $network_name 不存在，正在创建..."
         docker network create "$network_name"
+        print_info "✅ 网络 $network_name 已创建"
+    else
+        print_info "✅ 网络 $network_name 已存在"
     fi
 
     # 启动服务
