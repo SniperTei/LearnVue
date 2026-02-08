@@ -23,13 +23,18 @@
             :src="formData.cover"
             alt="封面图预览"
             class="cover-preview"
+            @error="handleCoverImageError"
+            @load="handleCoverImageLoad"
           />
           <div v-else class="upload-placeholder">
             <div class="upload-icon">📷</div>
             <p class="upload-text">点击选择封面图</p>
           </div>
         </div>
-        <p class="form-hint">点击将随机选择一张预设图片</p>
+        <p class="form-hint">支持 JPG、PNG、GIF 格式，文件大小不超过10MB</p>
+        <div v-if="formData.cover" class="debug-info" style="background: #f0f0f0; padding: 8px; margin-top: 8px; font-size: 12px; word-break: break-all;">
+          <strong>图片URL:</strong> {{ formData.cover }}
+        </div>
         <span v-if="errors.cover" class="error-message">{{ errors.cover }}</span>
       </div>
 
@@ -150,8 +155,9 @@
 <script setup>
 import { ref, reactive, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
-import { NavBar, showToast } from 'vant'
+import { NavBar, showToast, showLoadingToast, closeToast } from 'vant'
 import { createFood } from '@/api/foodApi'
+import { uploadBase64Image } from '@/api/uploadApi'
 import deviceBridge from '@/utils/device'
 
 // 路由
@@ -226,45 +232,47 @@ const removeTag = (index) => {
   formData.tags.splice(index, 1)
 }
 
-// 预设的mock图片URL列表
-// const mockImages = [
-//   'http://snpfiles.sniper14.online/paigupaigu/1.jpg',
-//   'http://snpfiles.sniper14.online/paigupaigu/2.jpg',
-//   'http://snpfiles.sniper14.online/paigupaigu/3.jpg',
-//   'http://snpfiles.sniper14.online/paigupaigu/4.jpg',
-//   'http://snpfiles.sniper14.online/paigupaigu/5.jpg'
-// ]
-
-// 预设的mock图片URL列表
-const mockImages = [
-  'http://snpfiles.sniper14.online/paigupaigu/1.jpg',
-  'http://snpfiles.sniper14.online/paigupaigu/2.jpg',
-  'http://snpfiles.sniper14.online/paigupaigu/3.jpg',
-  'http://snpfiles.sniper14.online/paigupaigu/4.jpg',
-  'http://snpfiles.sniper14.online/paigupaigu/5.jpg'
-]
-
 // 处理封面图选择
 const handleCoverUpload = async () => {
-  // try {
-    // const mockImgUrl = "http://snpfiles.sniper14.online/haixiantang.jpg"
-    const mockImgUrl = "http://snpfiles.sniper14.online/haixianxiaoka.png"
-    formData.cover = mockImgUrl
-    delete errors.cover
-  //   // 调用app方法选择图片
-  //   const result = await deviceBridge.selectImage()
-  //   if (result.code === '000000' && result.data && result.data.length > 0) {
-  //     // 选择第一张图片作为封面，并确保包含正确的Base64前缀
-  //     formData.cover = ensureBase64Prefix(result.data[0])
-  //     delete errors.cover
-  //     showToast('已选择封面图')
-  //   } else {
-  //     showToast('未选择图片')
-  //   }
-  // } catch (error) {
-  //   console.error('选择封面图失败:', error)
-  //   showToast('选择封面图失败')
-  // }
+  try {
+    // 调用app方法选择图片
+    const result = await deviceBridge.selectImage()
+    if (result.code === '000000' && result.data && result.data.length > 0) {
+      // 选择第一张图片作为封面
+      const base64Image = ensureBase64Prefix(result.data[0])
+
+      // 显示加载提示
+      showLoadingToast({
+        message: '正在上传...',
+        forbidClick: true,
+        duration: 0
+      })
+
+      // 上传图片到服务器
+      const uploadResponse = await uploadBase64Image(base64Image)
+
+      // 关闭加载提示
+      closeToast()
+
+      if (uploadResponse.code === '000000' && uploadResponse.data) {
+        // 使用服务器返回的图片URL
+        const imageUrl = uploadResponse.data.url || uploadResponse.data
+        console.log('设置封面图URL:', imageUrl)
+        formData.cover = imageUrl
+        delete errors.cover
+        console.log('formData.cover:', formData.cover)
+        showToast('封面图上传成功')
+      } else {
+        showToast('上传失败')
+      }
+    } else {
+      showToast('未选择图片')
+    }
+  } catch (error) {
+    closeToast()
+    console.error('选择封面图失败:', error)
+    showToast('选择封面图失败')
+  }
 }
 
 // 处理图片上传
@@ -274,23 +282,78 @@ const handleImageUpload = async () => {
       showToast('最多添加5张图片')
       return
     }
+
     // 调用app方法选择图片
     const result = await deviceBridge.selectImage()
     if (result.code === '000000' && result.data && result.data.length > 0) {
-      // 将选择的图片添加到图片数组中，并确保包含正确的Base64前缀
-      const newImages = result.data.map(img => ensureBase64Prefix(img))
-      formData.images = [...formData.images, ...newImages]
-      // 限制最多5张图片
-      if (formData.images.length > 5) {
-        formData.images = formData.images.slice(0, 5)
+      console.log('选择了', result.data.length, '张图片')
+
+      // 显示加载提示
+      showLoadingToast({
+        message: `正在上传${result.data.length}张图片...`,
+        forbidClick: true,
+        duration: 0
+      })
+
+      // 逐个上传图片
+      const uploadPromises = result.data.map(async (img, index) => {
+        const base64Image = ensureBase64Prefix(img)
+        console.log(`开始上传第${index + 1}张图片`)
+        try {
+          const response = await uploadBase64Image(base64Image)
+          console.log(`第${index + 1}张图片上传成功:`, response)
+          return response
+        } catch (error) {
+          console.error(`第${index + 1}张图片上传失败:`, error)
+          throw error
+        }
+      })
+
+      const uploadResponses = await Promise.all(uploadPromises)
+
+      // 关闭加载提示
+      closeToast()
+
+      // 提取上传成功后的URL
+      const successUrls = []
+      const failedCount = []
+
+      uploadResponses.forEach((res, index) => {
+        if (res.code === '000000' && res.data) {
+          const url = res.data.url || res.data
+          successUrls.push(url)
+          console.log(`图片${index + 1} URL:`, url)
+        } else {
+          failedCount.push(index + 1)
+        }
+      })
+
+      if (successUrls.length > 0) {
+        // 将上传后的图片URL添加到数组中
+        formData.images.push(...successUrls)
+        console.log('当前图片数组:', formData.images)
+
+        // 限制最多5张图片
+        if (formData.images.length > 5) {
+          formData.images = formData.images.slice(0, 5)
+        }
+
+        // 显示成功提示
+        if (failedCount.length > 0) {
+          showToast(`成功上传${successUrls.length}张，失败${failedCount.length}张（第${failedCount.join(',')}张）`)
+        } else {
+          showToast(`成功上传${successUrls.length}张图片`)
+        }
+      } else {
+        showToast('图片上传失败，请重试')
       }
-      showToast('已添加图片')
     } else {
       showToast('未选择图片')
     }
   } catch (error) {
+    closeToast()
     console.error('选择图片失败:', error)
-    showToast('选择图片失败')
+    showToast('选择图片失败，请重试')
   }
 }
 
@@ -298,6 +361,17 @@ const handleImageUpload = async () => {
 const removeImage = (index) => {
   formData.images.splice(index, 1)
   showToast('已移除图片')
+}
+
+// 封面图加载成功
+const handleCoverImageLoad = () => {
+  console.log('封面图加载成功')
+}
+
+// 封面图加载失败
+const handleCoverImageError = (event) => {
+  console.error('封面图加载失败:', event)
+  showToast('图片加载失败，请重试')
 }
 
 // 确保Base64图片字符串包含正确的前缀

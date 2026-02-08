@@ -1,41 +1,54 @@
 <template>
   <div class="fun-container">
-    <!-- 使用Vant的NavBar组件 -->
-    <NavBar
-      title="娱乐休闲"
-      left-text=""
-      left-arrow
-      @click-left="goBack"
-      fixed
-      placeholder
-    />
+    <!-- Hero Background with Gradient -->
+    <div class="hero-bg">
+      <div class="gradient-layer"></div>
+      <div class="pattern-layer"></div>
+      <div class="floating-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+      </div>
+    </div>
 
-    <!-- 搜索筛选栏 -->
-    <div class="filter-bar">
-      <div class="search-section">
-        <div class="search-box">
-          <div class="search-icon">🔍</div>
-          <input
-            v-model="searchParams.name"
-            type="text"
-            placeholder="搜索娱乐活动"
-            class="search-input"
-            @keyup.enter="handleSearch"
-          />
-        </div>
-        <button @click="handleSearch" class="search-btn">
-          搜索
+    <!-- Header Section -->
+    <div class="header-section">
+      <button class="back-btn" @click="goBack">
+        <i class="van-icon van-icon-arrow-left"></i>
+      </button>
+      <h1 class="page-title">娱乐探索</h1>
+      <div class="header-actions">
+        <button class="action-btn" @click="navigateToCreate">
+          <i class="van-icon van-icon-plus"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Floating Filter Card -->
+    <div class="filter-card">
+      <!-- Search Bar -->
+      <div class="search-bar">
+        <i class="van-icon van-icon-search search-icon"></i>
+        <input
+          v-model="searchParams.name"
+          type="text"
+          placeholder="搜索娱乐活动..."
+          class="search-input"
+          @keyup.enter="handleSearch"
+        />
+        <button v-if="searchParams.name" @click="clearSearch" class="clear-btn">
+          <i class="van-icon van-icon-clear"></i>
         </button>
       </div>
 
-      <!-- 类型筛选 -->
-      <div class="type-filter">
-        <span class="filter-label">类型:</span>
-        <div class="type-options">
+      <!-- Type Filter -->
+      <div class="filter-section">
+        <div class="filter-label">类型</div>
+        <div class="filter-options">
           <span
             v-for="option in typeOptions"
             :key="option.value"
-            class="type-option"
+            class="filter-tag"
             :class="{ active: searchParams.type === option.value }"
             @click="selectType(option.value)"
           >
@@ -44,14 +57,14 @@
         </div>
       </div>
 
-      <!-- 适用人数筛选 -->
-      <div class="people-filter">
-        <span class="filter-label">适用人数:</span>
-        <div class="people-options">
+      <!-- People Filter -->
+      <div class="filter-section">
+        <div class="filter-label">人数</div>
+        <div class="filter-options">
           <span
             v-for="option in peopleOptions"
             :key="option.value"
-            class="people-option"
+            class="filter-tag"
             :class="{ active: searchParams.people === option.value }"
             @click="selectPeople(option.value)"
           >
@@ -61,109 +74,122 @@
       </div>
     </div>
 
-    <!-- 数据列表展示 -->
-    <div class="fun-list">
-      <!-- 直接显示数据 -->
-      <div v-if="funList.length > 0">
-        <div class="list-header">
-          <span class="result-count">找到 {{ totalCount }} 个娱乐项目</span>
-          <span v-if="searchParams.type" class="active-filter">
-            当前筛选: {{ getTypeText(searchParams.type) }}
+    <!-- Content Section -->
+    <div class="content-section">
+      <!-- Result Header -->
+      <div v-if="funList.length > 0" class="result-header">
+        <span class="result-count">共 {{ totalCount }} 个娱乐活动</span>
+        <div v-if="hasActiveFilters" class="active-filters">
+          <span
+            v-if="searchParams.type"
+            class="filter-chip"
+            @click="selectType('')"
+          >
+            {{ getTypeText(searchParams.type) }}
+            <i class="van-icon van-icon-cross"></i>
+          </span>
+          <span
+            v-if="searchParams.people"
+            class="filter-chip"
+            @click="selectPeople('')"
+          >
+            {{ getPeopleText(searchParams.people) }}
+            <i class="van-icon van-icon-cross"></i>
           </span>
         </div>
+      </div>
 
+      <!-- Card List -->
+      <div v-if="funList.length > 0" class="card-list">
         <div
           v-for="item in funList"
           :key="item.id"
-          class="fun-item"
+          class="fun-card"
+          @click="goToDetail(item.id)"
         >
-          <!-- 封面图 -->
-          <div class="item-cover">
+          <div class="card-image-wrapper">
             <img
               :src="item.image"
-              alt="{{ item.name }}"
+              :alt="item.name"
               @error="handleImageError"
-              class="cover-image"
+              class="card-image"
             />
-            <div class="rating-tag">
-              <span class="rating-star">★</span>
-              <span class="rating-score">{{ item.star }}</span>
+            <div class="card-overlay"></div>
+            <div class="rating-badge">
+              <i class="van-icon van-icon-star"></i>
+              <span>{{ item.star }}</span>
             </div>
           </div>
 
-          <!-- 内容信息 -->
-          <div class="item-content">
-            <h3 class="item-title">{{ item.name }}</h3>
+          <div class="card-content">
+            <h3 class="card-title">{{ item.name }}</h3>
 
-            <!-- 标签 -->
-            <div class="fun-tags">
-              <span v-if="item.type" class="type-badge">{{ item.type }}</span>
-              <span v-if="item.people" class="people-badge">{{ item.people }}人</span>
-              <span v-for="(tag, index) in item.tags" :key="index" class="fun-tag">{{ tag }}</span>
+            <div class="card-tags">
+              <span v-if="item.type" class="tag type-tag">{{ item.type }}</span>
+              <span v-if="item.people" class="tag people-tag">{{ item.people }}人</span>
+              <span v-for="(tag, idx) in item.tags" :key="idx" class="tag">
+                {{ tag }}
+              </span>
             </div>
 
-            <!-- 简介 -->
-            <p class="item-description">{{ item.description }}</p>
+            <p class="card-description">{{ item.description }}</p>
 
-            <!-- 相关信息 -->
-            <div class="fun-info">
-              <span class="location">📍 {{ item.location }}</span>
-              <span class="price">¥{{ item.price }}</span>
+            <div class="card-footer">
+              <div class="location">
+                <i class="van-icon van-icon-location-o"></i>
+                <span>{{ item.location }}</span>
+              </div>
+              <div class="price">¥{{ item.price }}</div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- 加载状态 -->
+      <!-- Loading State -->
       <div v-else-if="loading" class="loading-state">
         <div class="loading-spinner"></div>
-        <p>正在加载娱乐项目...</p>
+        <p>正在加载精彩活动...</p>
       </div>
 
-      <!-- 空状态 -->
+      <!-- Empty State -->
       <div v-else class="empty-state">
         <div class="empty-icon">🎮</div>
-        <p class="empty-text">暂无娱乐记录</p>
-        <p class="empty-hint">去发现更多有趣的活动吧</p>
+        <h3>暂无娱乐活动</h3>
+        <p>发现更多有趣的活动吧</p>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, watch, onBeforeUnmount } from 'vue'
+import { ref, onMounted, computed, onBeforeUnmount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import placeholderImage from '@/assets/images/placeholder.png'
-import { NavBar } from 'vant';
 
-// 路由
 const route = useRoute()
 const router = useRouter()
 
-// 返回上一页
 const goBack = () => {
   router.back()
 }
 
-// 搜索参数
+const navigateToCreate = () => {
+  router.push('/fun/create')
+}
+
 const searchParams = ref({
-  page: 1, // 页码，默认1
-  count: 10, // 每页数量，默认10
-  name: '', // 名称模糊查询
-  type: '', // 类型精确查询
-  people: '', // 适用人数
-  location: '', // 地点模糊查询
-  min_price: '', // 最低价格
-  max_price: '' // 最高价格
+  page: 1,
+  count: 10,
+  name: '',
+  type: '',
+  people: ''
 })
 
-// 列表数据
 const funList = ref([])
 const loading = ref(false)
 const finished = ref(false)
 const totalCount = ref(0)
 
-// 类型筛选选项
 const typeOptions = [
   { text: '全部', value: '' },
   { text: '电影', value: '电影' },
@@ -175,16 +201,14 @@ const typeOptions = [
   { text: '展览', value: '展览' }
 ]
 
-// 人数筛选选项
 const peopleOptions = [
   { text: '不限', value: '' },
   { text: '1-2人', value: '2' },
   { text: '3-5人', value: '5' },
   { text: '6-10人', value: '10' },
-  { text: '10人以上', value: '10+' }
+  { text: '10人+', value: '10+' }
 ]
 
-// 模拟娱乐数据
 const mockData = {
   "code": "000000",
   "statusCode": 200,
@@ -196,7 +220,7 @@ const mockData = {
         "name": "星际影城",
         "description": "豪华IMAX影城，提供最新电影放映，舒适的观影环境",
         "image": "https://via.placeholder.com/400x300?text=星际影城",
-        "tags": ["电影", "IMAX", "休闲"],
+        "tags": ["IMAX", "休闲"],
         "star": 4.7,
         "type": "电影",
         "people": "不限",
@@ -209,7 +233,7 @@ const mockData = {
         "name": "欢乐桌游吧",
         "description": "提供百余种桌游，专业的游戏指导，适合朋友聚会",
         "image": "https://via.placeholder.com/400x300?text=欢乐桌游吧",
-        "tags": ["桌游", "聚会", "社交"],
+        "tags": ["聚会", "社交"],
         "star": 4.5,
         "type": "桌游",
         "people": "3-5人",
@@ -222,7 +246,7 @@ const mockData = {
         "name": "星际密室逃脱",
         "description": "高科技密室逃脱，多种主题场景，挑战你的智商",
         "image": "https://via.placeholder.com/400x300?text=星际密室逃脱",
-        "tags": ["密室", "解谜", "刺激"],
+        "tags": ["解谜", "刺激"],
         "star": 4.8,
         "type": "密室逃脱",
         "people": "4-6人",
@@ -235,7 +259,7 @@ const mockData = {
         "name": "乐动KTV",
         "description": "专业音响设备，海量曲库，私人包厢设计",
         "image": "https://via.placeholder.com/400x300?text=乐动KTV",
-        "tags": ["K歌", "聚会", "音乐"],
+        "tags": ["K歌", "音乐"],
         "star": 4.6,
         "type": "KTV",
         "people": "5-10人",
@@ -248,7 +272,7 @@ const mockData = {
         "name": "未来游戏体验馆",
         "description": "VR游戏、体感游戏、主机游戏一站式体验",
         "image": "https://via.placeholder.com/400x300?text=未来游戏体验馆",
-        "tags": ["游戏", "VR", "科技"],
+        "tags": ["VR", "科技"],
         "star": 4.9,
         "type": "游戏",
         "people": "不限",
@@ -261,7 +285,7 @@ const mockData = {
         "name": "现代艺术展",
         "description": "当代艺术家作品展览，沉浸式艺术体验",
         "image": "https://via.placeholder.com/400x300?text=现代艺术展",
-        "tags": ["艺术", "展览", "文化"],
+        "tags": ["艺术", "文化"],
         "star": 4.4,
         "type": "展览",
         "people": "不限",
@@ -277,18 +301,29 @@ const mockData = {
   "timestamp": "2025-11-27 13:44:02"
 }
 
-// 获取类型文本
+const hasActiveFilters = computed(() => {
+  return !!(searchParams.value.type || searchParams.value.people)
+})
+
 const getTypeText = (type) => {
   const option = typeOptions.find(opt => opt.value === type)
   return option ? option.text : type
 }
 
-// 处理图片加载失败
+const getPeopleText = (people) => {
+  const option = peopleOptions.find(opt => opt.value === people)
+  return option ? option.text : people
+}
+
 const handleImageError = (event) => {
   event.target.src = placeholderImage
 }
 
-// 选择类型
+const clearSearch = () => {
+  searchParams.value.name = ''
+  handleSearch()
+}
+
 const selectType = (type) => {
   searchParams.value.type = type
   searchParams.value.page = 1
@@ -296,7 +331,6 @@ const selectType = (type) => {
   loadData()
 }
 
-// 选择人数
 const selectPeople = (people) => {
   searchParams.value.people = people
   searchParams.value.page = 1
@@ -304,18 +338,14 @@ const selectPeople = (people) => {
   loadData()
 }
 
-// 加载数据
 const loadData = async () => {
   try {
     loading.value = true
 
-    // 只传递支持的参数
     const requestParams = { ...searchParams.value }
 
     try {
       console.log("请求参数:", requestParams)
-
-      // 使用模拟数据
       const response = JSON.parse(JSON.stringify(mockData))
       console.log('模拟数据响应:', response)
 
@@ -324,28 +354,24 @@ const loadData = async () => {
       }
     } catch (apiError) {
       console.log('数据获取失败，使用默认模拟数据:', apiError)
-      // 使用模拟数据
       const response = JSON.parse(JSON.stringify(mockData))
       processResponseData(response)
     }
   } catch (error) {
     console.error('请求失败:', error)
-    // 添加兜底数据
     if (funList.value.length === 0) {
-      funList.value = [
-        {
-          id: 'fallback-1',
-          name: '示例娱乐活动',
-          description: '这是一个示例娱乐活动，展示了基本信息。',
-          image: 'https://via.placeholder.com/400x300?text=示例娱乐',
-          tags: ['示例', '娱乐'],
-          star: 4.5,
-          type: '示例类型',
-          people: '不限',
-          location: '示例地点',
-          price: 88.00
-        }
-      ]
+      funList.value = [{
+        id: 'fallback-1',
+        name: '示例娱乐活动',
+        description: '这是一个示例娱乐活动，展示了基本信息。',
+        image: 'https://via.placeholder.com/400x300?text=示例娱乐',
+        tags: ['示例'],
+        star: 4.5,
+        type: '示例类型',
+        people: '不限',
+        location: '示例地点',
+        price: 88.00
+      }]
       totalCount.value = 1
     }
   } finally {
@@ -353,10 +379,8 @@ const loadData = async () => {
   }
 }
 
-// 处理响应数据
 const processResponseData = (response) => {
   if (response.data && response.data.funItems) {
-    // 使用可靠的占位图片
     const newList = response.data.funItems.map(item => ({
       ...item,
       image: item.image && item.image.includes('http')
@@ -375,64 +399,47 @@ const processResponseData = (response) => {
   }
 }
 
-// 搜索
 const handleSearch = () => {
   searchParams.value.page = 1
   finished.value = false
   loadData()
 }
 
-// 初始化
+const goToDetail = (id) => {
+  console.log('查看详情:', id)
+}
+
 onMounted(() => {
-  // 从路由参数获取分类
   const categoryFromRoute = route.query.category
   if (categoryFromRoute && categoryFromRoute === 'fun') {
     console.log('从娱乐分类进入')
   }
 
-  // 加载数据
   loadData()
 
-  // 尝试隐藏底部导航栏
   setTimeout(() => {
     hideTabBar()
   }, 100)
 })
 
-// 监听路由参数变化
-watch(() => route.query.category, (newCategory) => {
-  if (newCategory && newCategory === 'fun') {
-    searchParams.value.page = 1
-    finished.value = false
-    loadData()
-  }
-})
-
-// 组件卸载时恢复tabbar显示
 onBeforeUnmount(() => {
   showTabBar()
 })
 
-// 隐藏底部导航栏
 const hideTabBar = () => {
   if (document && document.body) {
     document.body.classList.add('hide-tabbar')
   }
-
-  // 也直接隐藏SNPTabBar组件
   const tabBar = document.querySelector('.snptabbar')
   if (tabBar) {
     tabBar.style.display = 'none'
   }
 }
 
-// 显示底部导航栏
 const showTabBar = () => {
   if (document && document.body) {
     document.body.classList.remove('hide-tabbar')
   }
-
-  // 也直接显示SNPTabBar组件
   const tabBar = document.querySelector('.snptabbar')
   if (tabBar) {
     tabBar.style.display = ''
@@ -441,270 +448,410 @@ const showTabBar = () => {
 </script>
 
 <style lang="scss" scoped>
-/* 主容器样式 */
 .fun-container {
-  padding: 0;
-  margin: 0;
-  background-color: #f5f5f5;
   min-height: 100vh;
-  width: 100%;
-  display: block;
+  background-color: #f5f5f5;
   position: relative;
-  z-index: 1;
-  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
-/* 筛选栏样式 - 增加上边距，避免被固定导航栏遮挡 */
-.filter-bar {
-  margin-top: 46px; /* 适配Vant NavBar的高度 */
+/* Hero Background */
+.hero-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 280px;
+  z-index: 0;
+  overflow: hidden;
 }
 
-/* 筛选栏样式 */
-.filter-bar {
-  background-color: #ffffff;
-  padding: 12px 16px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  position: sticky;
-  top: 52px;
+.gradient-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, #48dbfb 0%, #1dd1a1 100%);
+}
+
+.pattern-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image:
+    radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+  opacity: 0.6;
+}
+
+.floating-shapes {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+}
+
+.shape {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  animation: float 6s ease-in-out infinite;
+}
+
+.shape-1 {
+  width: 60px;
+  height: 60px;
+  top: 20%;
+  left: 10%;
+  animation-delay: 0s;
+}
+
+.shape-2 {
+  width: 40px;
+  height: 40px;
+  top: 60%;
+  right: 15%;
+  animation-delay: 2s;
+}
+
+.shape-3 {
+  width: 50px;
+  height: 50px;
+  top: 40%;
+  right: 25%;
+  animation-delay: 4s;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-20px) rotate(180deg);
+  }
+}
+
+/* Header Section */
+.header-section {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  z-index: 100;
+  background: transparent;
+}
+
+.back-btn,
+.action-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  color: white;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:active {
+    transform: scale(0.95);
+    background: rgba(255, 255, 255, 0.3);
+  }
+}
+
+.page-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: white;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin: 0;
+}
+
+.header-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* Filter Card */
+.filter-card {
+  position: relative;
+  margin: 72px 16px 16px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(20px);
+  border-radius: 24px;
+  box-shadow: 0 8px 32px rgba(72, 219, 251, 0.15);
   z-index: 10;
 }
 
-.search-section {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  margin-bottom: 12px;
-}
-
-.search-box {
+.search-bar {
+  position: relative;
   display: flex;
   align-items: center;
-  background-color: #f5f5f5;
-  border-radius: 18px;
-  padding: 8px 14px;
-  flex: 1;
+  background: #f5f5f5;
+  border-radius: 16px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
 }
 
 .search-icon {
+  font-size: 18px;
+  color: #1dd1a1;
   margin-right: 8px;
-  color: #999;
-  font-size: 16px;
 }
 
 .search-input {
-  width: 100%;
-  padding: 6px 0;
+  flex: 1;
   border: none;
   background: transparent;
-  outline: none;
-  font-size: 14px;
+  font-size: 15px;
   color: #333;
+  outline: none;
+
+  &::placeholder {
+    color: #999;
+  }
 }
 
-.search-btn {
-  background: #722ed1; /* 娱乐主题使用紫色系 */
-  color: white;
+.clear-btn {
+  background: transparent;
   border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
-  font-size: 14px;
-  font-weight: 500;
+  color: #999;
+  font-size: 16px;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
-  transition: background-color 0.3s;
-  white-space: nowrap;
 }
 
-.search-btn:hover {
-  background: #9254de;
-}
+.filter-section {
+  margin-bottom: 16px;
 
-/* 筛选样式 */
-.type-filter,
-.people-filter {
-  margin-top: 8px;
+  &:last-child {
+    margin-bottom: 0;
+  }
 }
 
 .filter-label {
-  display: block;
-  font-size: 14px;
-  font-weight: 500;
+  font-size: 13px;
+  font-weight: 600;
   color: #666;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 
-.type-options,
-.people-options {
+.filter-options {
   display: flex;
   gap: 8px;
-  overflow-x: auto;
-  padding-bottom: 4px;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none; /* Firefox */
+  flex-wrap: wrap;
 }
 
-.type-options::-webkit-scrollbar,
-.people-options::-webkit-scrollbar {
-  display: none; /* Chrome, Safari */
-}
-
-.type-option,
-.people-option {
-  flex-shrink: 0;
-  padding: 6px 14px;
-  background-color: #f5f5f5;
-  border-radius: 16px;
-  font-size: 13px;
+.filter-tag {
+  padding: 8px 16px;
+  background: #f5f5f5;
+  border-radius: 20px;
+  font-size: 14px;
   color: #666;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: all 0.3s ease;
   white-space: nowrap;
+
+  &.active {
+    background: linear-gradient(135deg, #48dbfb 0%, #1dd1a1 100%);
+    color: white;
+    font-weight: 500;
+    box-shadow: 0 4px 12px rgba(72, 219, 251, 0.3);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
 }
 
-.type-option:hover,
-.people-option:hover {
-  background-color: #e8e8e8;
+/* Content Section */
+.content-section {
+  position: relative;
+  padding: 0 16px 80px;
+  z-index: 1;
 }
 
-.type-option.active,
-.people-option.active {
-  background-color: #722ed1;
-  color: white;
-}
-
-/* 列表样式 */
-.fun-list {
-  padding: 16px;
-}
-
-.list-header {
+.result-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 16px;
-  font-size: 14px;
+  padding: 0 4px;
 }
 
 .result-count {
+  font-size: 14px;
   color: #666;
   font-weight: 500;
 }
 
-.active-filter {
-  color: #722ed1;
+.active-filters {
+  display: flex;
+  gap: 8px;
+}
+
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  background: linear-gradient(135deg, rgba(72, 219, 251, 0.1), rgba(29, 209, 161, 0.1));
+  border: 1px solid rgba(72, 219, 251, 0.3);
+  border-radius: 16px;
   font-size: 13px;
-  background-color: #f9f0ff;
-  padding: 2px 8px;
-  border-radius: 10px;
+  color: #1dd1a1;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:active {
+    transform: scale(0.95);
+  }
+
+  i {
+    font-size: 12px;
+  }
 }
 
-/* 列表项样式 */
-.fun-item {
-  background-color: white;
-  border-radius: 12px;
+/* Card List */
+.card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.fun-card {
+  background: white;
+  border-radius: 24px;
   overflow: hidden;
-  margin-bottom: 16px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  transition: transform 0.2s, box-shadow 0.2s;
-  position: relative;
+  box-shadow: 0 4px 20px rgba(72, 219, 251, 0.1);
+  transition: all 0.3s ease;
+  cursor: pointer;
+
+  &:active {
+    transform: scale(0.98);
+  }
 }
 
-.fun-item:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.item-cover {
+.card-image-wrapper {
   position: relative;
-  height: 180px;
+  height: 200px;
   overflow: hidden;
 }
 
-.cover-image {
+.card-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.3s;
+  transition: transform 0.3s ease;
 }
 
-.fun-item:hover .cover-image {
-  transform: scale(1.03);
+.fun-card:active .card-image {
+  transform: scale(1.05);
 }
 
-.rating-tag {
+.card-overlay {
   position: absolute;
-  top: 12px;
-  right: 12px;
-  background-color: rgba(0, 0, 0, 0.6);
-  color: white;
-  padding: 4px 10px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 600;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    transparent 50%,
+    rgba(0, 0, 0, 0.3) 100%
+  );
+}
+
+.rating-badge {
+  position: absolute;
+  top: 16px;
+  right: 16px;
   display: flex;
   align-items: center;
   gap: 4px;
+  padding: 6px 12px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+  i {
+    font-size: 14px;
+    color: #ffc107;
+  }
+
+  span {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+  }
 }
 
-.rating-star {
-  color: #ffd700;
-  font-size: 14px;
+.card-content {
+  padding: 20px;
 }
 
-.rating-score {
-  font-size: 14px;
-}
-
-.item-content {
-  padding: 14px 16px 16px;
-}
-
-.item-title {
-  font-size: 17px;
+.card-title {
+  font-size: 18px;
   font-weight: 600;
   color: #333;
-  margin: 0 0 8px;
+  margin: 0 0 12px;
   line-height: 1.4;
 }
 
-/* 标签样式 */
-.fun-tags {
+.card-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
-  margin-bottom: 8px;
+  gap: 8px;
+  margin-bottom: 12px;
 }
 
-.type-badge {
-  background-color: #722ed1;
-  color: white;
-  padding: 2px 8px;
-  border-radius: 10px;
+.tag {
+  padding: 4px 12px;
+  border-radius: 12px;
   font-size: 12px;
   font-weight: 500;
+
+  &.type-tag {
+    background: linear-gradient(135deg, #48dbfb 0%, #1dd1a1 100%);
+    color: white;
+  }
+
+  &.people-tag {
+    background: rgba(29, 209, 161, 0.1);
+    color: #1dd1a1;
+  }
+
+  &:not(.type-tag):not(.people-tag) {
+    background: #f5f5f5;
+    color: #666;
+  }
 }
 
-.people-badge {
-  background-color: #13c2c2;
-  color: white;
-  padding: 2px 8px;
-  border-radius: 10px;
-  font-size: 12px;
-  font-weight: 500;
-}
-
-.fun-tag {
-  background-color: #f5f5f5;
-  color: #666;
-  padding: 2px 8px;
-  border-radius: 10px;
-  font-size: 12px;
-}
-
-.item-description {
+.card-description {
   font-size: 14px;
   color: #666;
-  margin: 0 0 10px;
-  line-height: 1.5;
+  line-height: 1.6;
+  margin: 0 0 16px;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -712,57 +859,42 @@ const showTabBar = () => {
   text-overflow: ellipsis;
 }
 
-.fun-info {
+.card-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 13px;
-  color: #999;
 }
 
 .location {
   display: flex;
   align-items: center;
   gap: 4px;
-  max-width: 60%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  font-size: 13px;
+  color: #999;
+
+  i {
+    font-size: 14px;
+  }
+
+  span {
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 }
 
 .price {
-  font-size: 16px;
-  font-weight: 600;
-  color: #ff4d4f;
+  font-size: 20px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #48dbfb 0%, #1dd1a1 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
-/* 加载状态 */
+/* Loading State */
 .loading-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 40px 0;
-  color: #999;
-}
-
-.loading-spinner {
-  width: 30px;
-  height: 30px;
-  border: 3px solid #f3f3f3;
-  border-top: 3px solid #722ed1;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin-bottom: 12px;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-/* 空状态 */
-.empty-state {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -771,45 +903,68 @@ const showTabBar = () => {
   color: #999;
 }
 
-.empty-icon {
-  font-size: 48px;
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #1dd1a1;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
   margin-bottom: 16px;
-  opacity: 0.6;
 }
 
-.empty-text {
-  font-size: 16px;
-  font-weight: 500;
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Empty State */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 0;
+  text-align: center;
+}
+
+.empty-icon {
+  font-size: 80px;
+  margin-bottom: 24px;
+  opacity: 0.5;
+}
+
+.empty-state h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
   margin: 0 0 8px;
-  color: #666;
 }
 
-.empty-hint {
+.empty-state p {
   font-size: 14px;
-  margin: 0;
   color: #999;
+  margin: 0;
 }
 
-/* 媒体查询适配不同屏幕 */
+/* Responsive */
 @media (min-width: 768px) {
   .fun-container {
     max-width: 768px;
     margin: 0 auto;
-    border-left: 1px solid #e8e8e8;
-    border-right: 1px solid #e8e8e8;
-  }
-
-  .type-options,
-  .people-options {
-    overflow-x: visible;
-    flex-wrap: wrap;
   }
 }
 
-/* 修复iOS上的安全区域 */
+/* iOS Safe Area */
+@supports (padding-top: env(safe-area-inset-top)) {
+  .header-section {
+    padding-top: calc(16px + env(safe-area-inset-top));
+  }
+}
+
 @supports (padding-bottom: env(safe-area-inset-bottom)) {
-  .fun-container {
-    padding-bottom: env(safe-area-inset-bottom);
+  .content-section {
+    padding-bottom: calc(80px + env(safe-area-inset-bottom));
   }
 }
 </style>

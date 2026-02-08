@@ -1,41 +1,54 @@
 <template>
-  <div class="food-list-container">
-    <!-- 使用Vant的NavBar组件 -->
-    <NavBar
-      title="美食探索"
-      left-text=""
-      left-arrow
-      @click-left="goBack"
-      fixed
-      placeholder
-    />
+  <div class="food-container">
+    <!-- Hero Background with Gradient -->
+    <div class="hero-bg">
+      <div class="gradient-layer"></div>
+      <div class="pattern-layer"></div>
+      <div class="floating-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+      </div>
+    </div>
 
-    <!-- 搜索筛选栏 -->
-    <div class="filter-bar">
-      <div class="search-section">
-        <div class="search-box">
-          <div class="search-icon">🔍</div>
-          <input
-            v-model="searchParams.title"
-            type="text"
-            placeholder="搜索美食名称"
-            class="search-input"
-            @keyup.enter="handleSearch"
-          />
-        </div>
-        <button @click="handleSearch" class="search-btn">
-          搜索
+    <!-- Header Section -->
+    <div class="header-section">
+      <button class="back-btn" @click="goBack">
+        <i class="van-icon van-icon-arrow-left"></i>
+      </button>
+      <h1 class="page-title">美食探索</h1>
+      <div class="header-actions">
+        <button class="action-btn" @click="navigateToCreate">
+          <i class="van-icon van-icon-plus"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Floating Filter Card -->
+    <div class="filter-card">
+      <!-- Search Bar -->
+      <div class="search-bar">
+        <i class="van-icon van-icon-search search-icon"></i>
+        <input
+          v-model="searchParams.title"
+          type="text"
+          placeholder="搜索美食..."
+          class="search-input"
+          @keyup.enter="handleSearch"
+        />
+        <button v-if="searchParams.title" @click="clearSearch" class="clear-btn">
+          <i class="van-icon van-icon-clear"></i>
         </button>
       </div>
 
-      <!-- 口味筛选 -->
-      <div class="flavor-filter">
-        <span class="filter-label">口味:</span>
-        <div class="flavor-options">
+      <!-- Flavor Filter -->
+      <div class="filter-section">
+        <div class="filter-label">口味</div>
+        <div class="filter-options">
           <span
             v-for="option in flavorOptions"
             :key="option.value"
-            class="flavor-option"
+            class="filter-tag"
             :class="{ active: searchParams.flavor === option.value }"
             @click="selectFlavor(option.value)"
           >
@@ -44,98 +57,90 @@
         </div>
       </div>
 
-      <!-- 评分筛选 -->
-      <div class="rating-filter">
-        <span class="filter-label">最低评分:</span>
-        <div class="rating-options">
+      <!-- Rating Filter -->
+      <div class="filter-section">
+        <div class="filter-label">评分</div>
+        <div class="filter-options">
           <span
             v-for="score in ratingOptions"
             :key="score"
-            class="rating-option"
+            class="filter-tag"
             :class="{ active: searchParams.min_star === score }"
             @click="selectMinRating(score)"
           >
-            {{ score }}星及以上
+            {{ score }}星+
           </span>
         </div>
       </div>
     </div>
 
-    <!-- 数据列表展示 -->
-    <div class="food-list">
-      <!-- 直接显示数据 -->
-      <div v-if="foodList.length > 0">
-        <div class="list-header">
-          <span class="result-count">找到 {{ totalCount }} 道美食</span>
-          <span v-if="searchParams.flavor" class="active-filter">
-            当前筛选: {{ getFlavorText(searchParams.flavor) }}
-          </span>
-        </div>
-
-        <div
-          v-for="item in foodList"
-          :key="item.id"
-          class="food-item"
-          @click="navigateToDetail(item.id)"
-        >
-          <!-- 封面图 -->
-          <div class="item-cover">
-            <img
-              :src="item.cover"
-              alt="{{ item.title }}"
-              @error="handleImageError"
-              class="cover-image"
-            />
-            <div class="rating-tag">
-              <span class="rating-star">★</span>
-              <span class="rating-score">{{ item.star }}</span>
-            </div>
-          </div>
-
-          <!-- 内容信息 -->
-          <div class="item-content">
-            <h3 class="item-title">{{ item.title }}</h3>
-
-            <!-- 标签 -->
-            <div class="food-tags">
-              <span v-if="item.flavor" class="flavor-badge">{{ item.flavor }}</span>
-              <span v-for="(tag, index) in item.tags" :key="index" class="food-tag">{{ tag }}</span>
-            </div>
-
-            <!-- 简介 -->
-            <p class="item-description">{{ item.content }}</p>
-
-            <!-- 相关信息 -->
-            <div class="food-info">
-              <span class="maker">👨‍🍳 {{ item.maker }}</span>
-              <span class="create-time">{{ formatTime(item.created_at) }}</span>
-            </div>
-          </div>
-        </div>
+    <!-- Content Section -->
+    <div class="content-section">
+      <!-- Result Header -->
+      <div v-if="foodList.length > 0" class="result-header">
+        <span class="result-count">找到 {{ totalCount }} 道美食</span>
+        <button v-if="searchParams.flavor || searchParams.min_star" @click="clearFilters" class="clear-filter-btn">
+          <i class="van-icon van-icon-cross"></i>
+          清除筛选
+        </button>
       </div>
 
-      <!-- 加载状态 -->
-      <div v-else-if="loading" class="loading-state">
+      <!-- Loading State -->
+      <div v-if="loading" class="loading-state">
         <div class="loading-spinner"></div>
         <p>正在加载美食中...</p>
       </div>
 
-      <!-- 空状态 -->
-      <div v-else class="empty-state">
+      <!-- Empty State -->
+      <div v-else-if="foodList.length === 0" class="empty-state">
         <div class="empty-icon">🍽️</div>
         <p class="empty-text">暂无美食记录</p>
         <p class="empty-hint">去发现更多美味佳肴吧</p>
       </div>
-      
-      <!-- 新增按钮 -->
-      <Button 
-        type="primary" 
-        class="create-btn"
-        @click="navigateToCreate"
-        round
-      >
-        新增美食
-      </Button>
+
+      <!-- Card List -->
+      <div v-else class="card-list">
+        <div
+          v-for="item in foodList"
+          :key="item.id"
+          class="food-card"
+          @click="navigateToDetail(item.id)"
+        >
+          <!-- Card Image -->
+          <div class="card-image">
+            <img
+              :src="item.cover"
+              :alt="item.title"
+              @error="handleImageError"
+              class="image"
+            />
+            <div class="rating-badge">
+              <i class="van-icon van-icon-star"></i>
+              <span>{{ item.star }}</span>
+            </div>
+          </div>
+
+          <!-- Card Content -->
+          <div class="card-content">
+            <h3 class="card-title">{{ item.title }}</h3>
+
+            <div class="card-tags">
+              <span v-if="item.flavor" class="tag flavor-tag">{{ item.flavor }}</span>
+              <span v-for="(tag, index) in item.tags" :key="index" class="tag">{{ tag }}</span>
+            </div>
+
+            <p class="card-description">{{ item.content }}</p>
+
+            <div class="card-footer">
+              <span class="maker">
+                <i class="van-icon van-icon-user-o"></i>
+                {{ item.maker }}
+              </span>
+              <span class="time">{{ formatTime(item.created_at) }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -145,7 +150,6 @@ import { ref, onMounted, watch, onBeforeUnmount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import placeholderImage from '@/assets/images/placeholder.png'
 import { getFoodList } from '@/api/foodApi.js'
-import { NavBar, Button } from 'vant';
 
 // 路由
 const route = useRoute()
@@ -156,17 +160,17 @@ const goBack = () => {
   router.back()
 }
 
-// 搜索参数 - 适配API文档中的参数
+// 搜索参数
 const searchParams = ref({
-  page: 1, // 页码，默认1
-  count: 10, // 每页数量，默认10
-  title: '', // 标题模糊查询
-  content: '', // 内容模糊查询
-  maker: '', // 制作者精确查询
-  min_star: '', // 最低评分
-  max_star: '', // 最高评分
-  flavor: '', // 口味精确查询
-  tag: '' // 标签包含查询
+  page: 1,
+  count: 10,
+  title: '',
+  content: '',
+  maker: '',
+  min_star: '',
+  max_star: '',
+  flavor: '',
+  tag: ''
 })
 
 // 列表数据
@@ -187,77 +191,6 @@ const flavorOptions = [
 
 // 评分筛选选项
 const ratingOptions = [0, 3, 4, 4.5]
-
-// 模拟数据 - 调整为API响应格式（使用PostgreSQL的整数ID）
-const mockData = {
-  "code": "000000",
-  "statusCode": 200,
-  "msg": "获取食品列表成功",
-  "data": {
-    "foods": [
-      {
-        "id": 1,
-        "title": "麻婆豆腐",
-        "content": "经典川菜，麻辣鲜香，豆腐嫩滑，肉末鲜香。",
-        "cover": "https://via.placeholder.com/400x300?text=麻婆豆腐",
-        "images": ["https://via.placeholder.com/400x300?text=麻婆豆腐-1.jpg"],
-        "tags": ["川菜", "豆腐", "麻辣", "下饭菜"],
-        "star": 4.8,
-        "maker": "老川菜馆",
-        "flavor": "麻辣",
-        "created_by": 1,
-        "created_at": "2024-01-01T00:00:00",
-        "updated_at": "2024-01-01T00:00:00"
-      },
-      {
-        "id": 2,
-        "title": "宫保鸡丁",
-        "content": "鸡肉鲜嫩，花生酥脆，口味麻辣酸甜。",
-        "cover": "https://via.placeholder.com/400x300?text=宫保鸡丁",
-        "images": [],
-        "tags": ["川菜", "鸡肉", "麻辣", "经典"],
-        "star": 4.7,
-        "maker": "老川菜馆",
-        "flavor": "麻辣",
-        "created_by": 1,
-        "created_at": "2024-01-01T12:00:00",
-        "updated_at": "2024-01-01T12:00:00"
-      },
-      {
-        "id": 3,
-        "title": "白切鸡",
-        "content": "广东名菜，鸡肉嫩滑，蘸料鲜香。",
-        "cover": "https://via.placeholder.com/400x300?text=白切鸡",
-        "images": [],
-        "tags": ["粤菜", "鸡肉", "清淡", "经典"],
-        "star": 4.9,
-        "maker": "粤式餐厅",
-        "flavor": "咸鲜",
-        "created_by": 1,
-        "created_at": "2024-01-02T18:00:00",
-        "updated_at": "2024-01-02T18:00:00"
-      },
-      {
-        "id": 4,
-        "title": "糖醋排骨",
-        "content": "酸甜可口，肉质酥烂，色泽红亮。",
-        "cover": "https://via.placeholder.com/400x300?text=糖醋排骨",
-        "images": [],
-        "tags": ["苏菜", "排骨", "酸甜", "家常菜"],
-        "star": 4.6,
-        "maker": "江南小厨",
-        "flavor": "酸甜",
-        "created_by": 1,
-        "created_at": "2024-01-03T10:00:00",
-        "updated_at": "2024-01-03T10:00:00"
-      }
-    ],
-    "total": 35,
-    "page": 1,
-    "count": 10
-  },
-  "timestamp": "2025-11-27 13:44:02"
-}
 
 // 获取口味文本
 const getFlavorText = (flavor) => {
@@ -302,16 +235,12 @@ const loadData = async () => {
   try {
     loading.value = true
 
-    // 只传递API支持的参数
     const requestParams = { ...searchParams.value }
-    // page = 1 count = 10
     requestParams.page = 1
     requestParams.count = 10
 
     try {
       console.log("请求参数:", requestParams)
-
-      // 调用真实API，直接传递对象参数
       const response = await getFoodList(requestParams)
 
       if (response.code === '000000') {
@@ -319,27 +248,21 @@ const loadData = async () => {
       }
     } catch (apiError) {
       console.log('API调用失败，使用模拟数据:', apiError)
-      // 使用模拟数据
-      // const response = JSON.parse(JSON.stringify(mockData))
-      // processResponseData(response)
     }
   } catch (error) {
     console.error('请求失败:', error)
-    // 添加兜底数据
     if (foodList.value.length === 0) {
-      foodList.value = [
-        {
-          id: 'fallback-1',
-          title: '示例美食',
-          content: '这是一道美味的示例菜品，展示了基本信息。',
-          cover: 'https://via.placeholder.com/400x300?text=示例美食',
-          tags: ['示例', '美食'],
-          star: 4.5,
-          maker: '示例厨师',
-          flavor: '示例口味',
-          create_time: new Date().toISOString()
-        }
-      ]
+      foodList.value = [{
+        id: 'fallback-1',
+        title: '示例美食',
+        content: '这是一道美味的示例菜品，展示了基本信息。',
+        cover: 'https://via.placeholder.com/400x300?text=示例美食',
+        tags: ['示例', '美食'],
+        star: 4.5,
+        maker: '示例厨师',
+        flavor: '示例口味',
+        create_time: new Date().toISOString()
+      }]
       totalCount.value = 1
     }
   } finally {
@@ -347,10 +270,9 @@ const loadData = async () => {
   }
 }
 
-// 处理响应数据 - 适配API响应格式
+// 处理响应数据
 const processResponseData = (response) => {
   if (response.data && response.data.foods) {
-    // 使用可靠的占位图片
     const newList = response.data.foods.map(item => ({
       ...item,
       cover: item.cover && item.cover.includes('http')
@@ -376,19 +298,30 @@ const handleSearch = () => {
   loadData()
 }
 
+// 清空搜索
+const clearSearch = () => {
+  searchParams.value.title = ''
+  handleSearch()
+}
+
+// 清除筛选
+const clearFilters = () => {
+  searchParams.value.flavor = ''
+  searchParams.value.min_star = ''
+  searchParams.value.page = 1
+  finished.value = false
+  loadData()
+}
+
 // 初始化
 onMounted(() => {
-  // 从路由参数获取分类
   const categoryFromRoute = route.query.category
   if (categoryFromRoute && categoryFromRoute === 'eat') {
-    // 如果是从Home.vue的'吃'分类过来，不需要特殊处理
     console.log('从美食分类进入')
   }
 
-  // 加载数据
   loadData()
 
-  // 尝试隐藏底部导航栏
   setTimeout(() => {
     hideTabBar()
   }, 100)
@@ -414,7 +347,6 @@ const hideTabBar = () => {
     document.body.classList.add('hide-tabbar')
   }
 
-  // 也直接隐藏SNPTabBar组件
   const tabBar = document.querySelector('.snptabbar')
   if (tabBar) {
     tabBar.style.display = 'none'
@@ -422,290 +354,409 @@ const hideTabBar = () => {
 }
 
 // 显示底部导航栏
-  const showTabBar = () => {
-    if (document && document.body) {
-      document.body.classList.remove('hide-tabbar')
-    }
-
-    // 也直接显示SNPTabBar组件
-    const tabBar = document.querySelector('.snptabbar')
-    if (tabBar) {
-      tabBar.style.display = ''
-    }
+const showTabBar = () => {
+  if (document && document.body) {
+    document.body.classList.remove('hide-tabbar')
   }
 
-  // 跳转到详情页
-  const navigateToDetail = (foodId) => {
-    router.push(`/food/detail/${foodId}`)
+  const tabBar = document.querySelector('.snptabbar')
+  if (tabBar) {
+    tabBar.style.display = ''
   }
-  
-  // 跳转到新增页面
-  const navigateToCreate = () => {
-    router.push('/food/create')
-  }
+}
+
+// 跳转到详情页
+const navigateToDetail = (foodId) => {
+  router.push(`/food/detail/${foodId}`)
+}
+
+// 跳转到新增页面
+const navigateToCreate = () => {
+  router.push('/food/create')
+}
 </script>
 
 <style lang="scss" scoped>
-/* 主容器样式 */
-.food-list-container {
-  padding: 0;
-  margin: 0;
-  background-color: #f5f5f5;
+.food-container {
   min-height: 100vh;
-  width: 100%;
-  display: block;
+  background-color: #f5f5f5;
   position: relative;
-  z-index: 1;
-  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
-/* 筛选栏样式 - 增加上边距，避免被固定导航栏遮挡 */
-.filter-bar {
-  margin-top: 46px; /* 适配Vant NavBar的高度 */
+/* Hero Background */
+.hero-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 280px;
+  z-index: 0;
+  overflow: hidden;
 }
 
-/* 筛选栏样式 */
-.filter-bar {
-  background-color: #ffffff;
-  padding: 12px 16px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  position: sticky;
-  top: 52px;
+.gradient-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, #ff6b6b 0%, #ffa502 100%);
+}
+
+.pattern-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image:
+    radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+  opacity: 0.6;
+}
+
+.floating-shapes {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+}
+
+.shape {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  animation: float 6s ease-in-out infinite;
+}
+
+.shape-1 {
+  width: 60px;
+  height: 60px;
+  top: 20%;
+  left: 10%;
+  animation-delay: 0s;
+}
+
+.shape-2 {
+  width: 40px;
+  height: 40px;
+  top: 60%;
+  right: 15%;
+  animation-delay: 2s;
+}
+
+.shape-3 {
+  width: 50px;
+  height: 50px;
+  top: 40%;
+  right: 25%;
+  animation-delay: 4s;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-20px) rotate(180deg);
+  }
+}
+
+/* Header Section */
+.header-section {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  z-index: 100;
+  background: transparent;
+}
+
+.back-btn,
+.action-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  color: white;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:active {
+    transform: scale(0.95);
+    background: rgba(255, 255, 255, 0.3);
+  }
+}
+
+.page-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: white;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin: 0;
+}
+
+.header-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* Filter Card */
+.filter-card {
+  position: relative;
+  margin: 72px 16px 16px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(20px);
+  border-radius: 24px;
+  box-shadow: 0 8px 32px rgba(255, 107, 107, 0.15);
   z-index: 10;
 }
 
-.search-section {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  margin-bottom: 12px;
-}
-
-.search-box {
+.search-bar {
+  position: relative;
   display: flex;
   align-items: center;
-  background-color: #f5f5f5;
-  border-radius: 18px;
-  padding: 8px 14px;
-  flex: 1;
+  background: #f5f5f5;
+  border-radius: 16px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
 }
 
 .search-icon {
+  font-size: 18px;
+  color: #ff6b6b;
   margin-right: 8px;
-  color: #999;
-  font-size: 16px;
 }
 
 .search-input {
-  width: 100%;
-  padding: 6px 0;
+  flex: 1;
   border: none;
   background: transparent;
-  outline: none;
-  font-size: 14px;
+  font-size: 15px;
   color: #333;
+  outline: none;
+
+  &::placeholder {
+    color: #999;
+  }
 }
 
-.search-btn {
-  background: #fa541c; /* 食物主题使用橙色系 */
-  color: white;
+.clear-btn {
+  background: transparent;
   border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
-  font-size: 14px;
-  font-weight: 500;
+  color: #999;
+  font-size: 16px;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
-  transition: background-color 0.3s;
-  white-space: nowrap;
 }
 
-.search-btn:hover {
-  background: #d4380d;
-}
+.filter-section {
+  margin-bottom: 16px;
 
-/* 筛选样式 */
-.flavor-filter,
-.rating-filter {
-  margin-top: 8px;
+  &:last-child {
+    margin-bottom: 0;
+  }
 }
 
 .filter-label {
-  display: block;
-  font-size: 14px;
-  font-weight: 500;
+  font-size: 13px;
+  font-weight: 600;
   color: #666;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 
-.flavor-options,
-.rating-options {
+.filter-options {
   display: flex;
   gap: 8px;
-  overflow-x: auto;
-  padding-bottom: 4px;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none; /* Firefox */
+  flex-wrap: wrap;
 }
 
-.flavor-options::-webkit-scrollbar,
-.rating-options::-webkit-scrollbar {
-  display: none; /* Chrome, Safari */
-}
-
-.flavor-option,
-.rating-option {
-  flex-shrink: 0;
-  padding: 6px 14px;
-  background-color: #f5f5f5;
-  border-radius: 16px;
-  font-size: 13px;
+.filter-tag {
+  padding: 8px 16px;
+  background: #f5f5f5;
+  border-radius: 20px;
+  font-size: 14px;
   color: #666;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: all 0.3s ease;
   white-space: nowrap;
+
+  &.active {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ffa502 100%);
+    color: white;
+    font-weight: 500;
+    box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
 }
 
-.flavor-option:hover,
-.rating-option:hover {
-  background-color: #e8e8e8;
+/* Content Section */
+.content-section {
+  position: relative;
+  padding: 0 16px 80px;
+  z-index: 1;
 }
 
-.flavor-option.active,
-.rating-option.active {
-  background-color: #fa541c;
-  color: white;
-}
-
-/* 列表样式 */
-.food-list {
-  padding: 16px;
-}
-
-.list-header {
+.result-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 16px;
-  font-size: 14px;
+  padding: 0 4px;
 }
 
 .result-count {
+  font-size: 14px;
   color: #666;
   font-weight: 500;
 }
 
-.active-filter {
-  color: #fa541c;
+.clear-filter-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  background: rgba(255, 107, 107, 0.1);
+  border: 1px solid rgba(255, 107, 107, 0.3);
+  border-radius: 16px;
   font-size: 13px;
-  background-color: #fff2e8;
-  padding: 2px 8px;
-  border-radius: 10px;
-}
-
-/* 列表项样式 */
-.food-item {
-  background-color: white;
-  border-radius: 12px;
-  overflow: hidden;
-  margin-bottom: 16px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  transition: transform 0.2s, box-shadow 0.2s;
-  position: relative;
-}
-
-.food-item:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.food-item {
+  color: #ff6b6b;
   cursor: pointer;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+
+  &:active {
+    transform: scale(0.95);
+  }
+
+  i {
+    font-size: 12px;
+  }
 }
 
-.item-cover {
+/* Card List */
+.card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.food-card {
+  background: white;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(255, 107, 107, 0.1);
+  transition: all 0.3s ease;
+  cursor: pointer;
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+.card-image {
   position: relative;
-  height: 180px;
+  height: 200px;
   overflow: hidden;
 }
 
-.cover-image {
+.image {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.3s;
+  transition: transform 0.3s ease;
 }
 
-.food-item:hover .cover-image {
-  transform: scale(1.03);
+.food-card:active .image {
+  transform: scale(1.05);
 }
 
-.rating-tag {
+.rating-badge {
   position: absolute;
-  top: 12px;
-  right: 12px;
-  background-color: rgba(0, 0, 0, 0.6);
-  color: white;
-  padding: 4px 10px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 600;
+  top: 16px;
+  right: 16px;
   display: flex;
   align-items: center;
   gap: 4px;
+  padding: 6px 12px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+  i {
+    font-size: 14px;
+    color: #ffc107;
+  }
+
+  span {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+  }
 }
 
-.rating-star {
-  color: #ffd700;
-  font-size: 14px;
+.card-content {
+  padding: 20px;
 }
 
-.rating-score {
-  font-size: 14px;
-}
-
-.item-content {
-  padding: 14px 16px 16px;
-}
-
-.item-title {
-  font-size: 17px;
+.card-title {
+  font-size: 18px;
   font-weight: 600;
   color: #333;
-  margin: 0 0 8px;
+  margin: 0 0 12px;
   line-height: 1.4;
 }
 
-/* 标签样式 */
-.food-tags {
+.card-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
-  margin-bottom: 8px;
+  gap: 8px;
+  margin-bottom: 12px;
 }
 
-.flavor-badge {
-  background-color: #fa541c;
-  color: white;
-  padding: 2px 8px;
-  border-radius: 10px;
+.tag {
+  padding: 4px 12px;
+  border-radius: 12px;
   font-size: 12px;
   font-weight: 500;
+
+  &.flavor-tag {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ffa502 100%);
+    color: white;
+  }
+
+  &:not(.flavor-tag) {
+    background: #f5f5f5;
+    color: #666;
+  }
 }
 
-.food-tag {
-  background-color: #f5f5f5;
-  color: #666;
-  padding: 2px 8px;
-  border-radius: 10px;
-  font-size: 12px;
-}
-
-.item-description {
+.card-description {
   font-size: 14px;
   color: #666;
-  margin: 0 0 10px;
-  line-height: 1.5;
+  line-height: 1.6;
+  margin: 0 0 16px;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -713,51 +764,32 @@ const hideTabBar = () => {
   text-overflow: ellipsis;
 }
 
-.food-info {
+.card-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 13px;
-  color: #999;
 }
 
 .maker {
   display: flex;
   align-items: center;
   gap: 4px;
+  font-size: 13px;
+  color: #999;
+  flex: 1;
+
+  i {
+    font-size: 14px;
+  }
 }
 
-.create-time {
+.time {
   font-size: 12px;
-}
-
-/* 加载状态 */
-.loading-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 40px 0;
   color: #999;
 }
 
-.loading-spinner {
-  width: 30px;
-  height: 30px;
-  border: 3px solid #f3f3f3;
-  border-top: 3px solid #fa541c;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin-bottom: 12px;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-/* 空状态 */
-.empty-state {
+/* Loading State */
+.loading-state {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -766,66 +798,68 @@ const hideTabBar = () => {
   color: #999;
 }
 
-/* 新增按钮样式 */
-.create-btn {
-  position: fixed;
-  bottom: 80px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 80%;
-  max-width: 400px;
-  background-color: #fa541c;
-  border: none;
-  box-shadow: 0 4px 12px rgba(250, 84, 28, 0.4);
-  z-index: 10;
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #ff6b6b;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
 }
 
-/* 适配iOS安全区域 */
-@supports (padding-bottom: env(safe-area-inset-bottom)) {
-  .create-btn {
-    bottom: calc(80px + env(safe-area-inset-bottom));
-  }
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Empty State */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 0;
+  text-align: center;
 }
 
 .empty-icon {
-  font-size: 48px;
-  margin-bottom: 16px;
-  opacity: 0.6;
+  font-size: 80px;
+  margin-bottom: 24px;
+  opacity: 0.5;
 }
 
 .empty-text {
-  font-size: 16px;
-  font-weight: 500;
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
   margin: 0 0 8px;
-  color: #666;
 }
 
 .empty-hint {
   font-size: 14px;
-  margin: 0;
   color: #999;
+  margin: 0;
 }
 
-/* 媒体查询适配不同屏幕 */
+/* Responsive */
 @media (min-width: 768px) {
-  .food-list-container {
+  .food-container {
     max-width: 768px;
     margin: 0 auto;
-    border-left: 1px solid #e8e8e8;
-    border-right: 1px solid #e8e8e8;
-  }
-
-  .flavor-options,
-  .rating-options {
-    overflow-x: visible;
-    flex-wrap: wrap;
   }
 }
 
-/* 修复iOS上的安全区域 */
+/* iOS Safe Area */
+@supports (padding-top: env(safe-area-inset-top)) {
+  .header-section {
+    padding-top: calc(16px + env(safe-area-inset-top));
+  }
+}
+
 @supports (padding-bottom: env(safe-area-inset-bottom)) {
-  .food-list-container {
-    padding-bottom: env(safe-area-inset-bottom);
+  .content-section {
+    padding-bottom: calc(80px + env(safe-area-inset-bottom));
   }
 }
 </style>

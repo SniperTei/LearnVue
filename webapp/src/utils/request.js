@@ -190,4 +190,34 @@ export function del(url, data, autoShowError = true) {
   });
 }
 
+/**
+ * 封装文件上传请求
+ * @param {string} url - 请求URL
+ * @param {FormData} formData - 包含文件的FormData对象
+ * @param {Function} onProgress - 上传进度回调函数
+ * @param {boolean} autoShowError - 是否自动显示错误提示，默认为true
+ * @returns {Promise} - 返回请求的Promise
+ */
+export function upload(url, formData, onProgress, autoShowError = true) {
+  return service({
+    url,
+    method: 'post',
+    data: formData,
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    },
+    onUploadProgress: (progressEvent) => {
+      if (onProgress && progressEvent.total) {
+        const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total)
+        onProgress(percentCompleted)
+      }
+    }
+  }).catch(error => {
+    if (autoShowError) {
+      showDialog({ message: error.message || '上传失败' })
+    }
+    return Promise.reject(error)
+  })
+}
+
 export default service;

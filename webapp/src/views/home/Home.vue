@@ -323,19 +323,28 @@ const handleAvatarError = () => {
 // 从原生app获取用户信息
 const fetchUserInfoFromApp = async () => {
   try {
-    console.log('尝试从原生app获取用户信息...')
+    console.log('========== 开始从原生app获取用户信息 ==========')
 
     const result = await deviceBridge.getUserInfoFromApp((response) => {
       console.log('getUserInfoFromApp 回调:', response)
     })
 
-    console.log('getUserInfoFromApp 结果:', result)
+    console.log('原生app返回的完整结果:', JSON.stringify(result, null, 2))
 
     // 检查返回结果
     if (result && result.code === '000000') {
-      // 成功获取用户信息
       const userData = result.data
-      console.log('成功获取用户信息:', userData)
+      console.log('userData内容:', JSON.stringify(userData, null, 2))
+
+      // 检查必要字段是否存在
+      if (!userData.token || !userData.userInfo || Object.keys(userData.userInfo).length === 0) {
+        console.warn('⚠️ 用户数据不完整，跳过保存')
+        console.warn('  - token:', userData.token)
+        console.warn('  - userInfo:', userData.userInfo)
+        return
+      }
+
+      console.log('✅ 用户数据验证通过，开始保存')
 
       // 设置头像URL
       if (userData.userInfo?.avatar) {
@@ -344,7 +353,7 @@ const fetchUserInfoFromApp = async () => {
 
       // 构建用户数据对象
       const userInfo = {
-        token: userData.token || '',
+        token: userData.token,
         tokenType: userData.tokenType || 'Bearer',
         userInfo: {
           id: userData.userInfo?.id,
@@ -354,25 +363,54 @@ const fetchUserInfoFromApp = async () => {
         }
       }
 
+      console.log('准备保存的数据:', JSON.stringify(userInfo, null, 2))
+
       // 保存到userStore
       userStore.setUserData(userInfo)
-      console.log('用户信息已保存到store:', userStore.userInfo)
+
+      console.log('✅ 用户信息已保存')
+      console.log('  - token:', userStore.token ? '已设置' : '未设置')
+      console.log('  - username:', userStore.userInfo?.username)
+      console.log('  - email:', userStore.userInfo?.email)
+      console.log('  - isAuthenticated:', userStore.isAuthenticated)
     } else {
-      // 获取失败或用户未登录
-      console.log('未获取到用户信息或用户未登录:', result?.msg || '未知错误')
+      console.log('❌ 获取失败或用户未登录')
+      console.log('  - code:', result?.code)
+      console.log('  - msg:', result?.msg)
     }
+
+    console.log('========== 获取用户信息结束 ==========')
   } catch (error) {
-    console.error('从原生app获取用户信息失败:', error)
+    console.error('❌ 从原生app获取用户信息异常:', error)
   }
 }
 
 onMounted(() => {
-  console.log('Home.vue mounted')
+  console.log('========== Home.vue mounted ==========')
+  console.log('设备环境:', {
+    isWeb: deviceBridge.isWeb,
+    isIOS: deviceBridge.isIOS,
+    isAndroid: deviceBridge.isAndroid
+  })
+  console.log('当前用户状态:', {
+    isAuthenticated: userStore.isAuthenticated,
+    hasToken: !!userStore.token,
+    username: userStore.userInfo?.username,
+    displayName: userStore.displayName
+  })
 
-  // 如果在app环境中且未登录，尝试从原生app获取用户信息
-  if (!deviceBridge.isWeb && !userStore.isAuthenticated) {
+  // 如果未登录，尝试获取用户信息（支持原生环境和Web环境的Mock数据）
+  if (!userStore.isAuthenticated) {
+    if (deviceBridge.isWeb) {
+      console.log('🌐 在Web环境，使用Mock数据获取用户信息')
+    } else {
+      console.log('📱 在App环境，从原生app获取用户信息')
+    }
     fetchUserInfoFromApp()
+  } else {
+    console.log('✅ 用户已登录，无需重新获取')
   }
+  console.log('=====================================')
 })
 </script>
 

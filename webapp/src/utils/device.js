@@ -9,13 +9,47 @@ class DeviceBridge {
     this.isIOS = false;
     this.isAndroid = false;
     this.isWeb = false;
+
+    // 开发环境强制Web模式（可通过URL参数 ?forceWeb=true 控制）
+    this.forceWebMode = this.shouldForceWebMode();
+
     this.setup();
+  }
+
+  /**
+   * 检查是否应该强制使用Web模式
+   */
+  shouldForceWebMode() {
+    // 1. 检查URL参数
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('forceWeb') === 'true') {
+      console.log('✅ 检测到forceWeb=true，强制使用Web模式');
+      return true;
+    }
+
+    // 2. 开发环境默认强制Web模式
+    if (import.meta.env.DEV) {
+      console.log('✅ 开发环境，默认强制使用Web模式');
+      return true;
+    }
+
+    return false;
   }
 
   /**
    * 初始化设备检测
    */
   setup() {
+    // 如果强制Web模式，跳过设备检测
+    if (this.forceWebMode) {
+      this.isWeb = true;
+      this.isIOS = false;
+      this.isAndroid = false;
+      console.log('🌐 强制Web模式已启用');
+      return;
+    }
+
+    // 正常的设备检测逻辑
     const ua = navigator.userAgent.toLowerCase();
     this.isIOS = /iphone|ipad|ipod/.test(ua);
     this.isAndroid = /android/.test(ua);
@@ -24,8 +58,56 @@ class DeviceBridge {
     console.log('设备类型检测:', {
       isIOS: this.isIOS,
       isAndroid: this.isAndroid,
-      isWeb: this.isWeb
+      isWeb: this.isWeb,
+      userAgent: navigator.userAgent
     });
+  }
+
+  /**
+   * Mock数据配置
+   * 在Web环境下模拟原生返回的数据
+   */
+  getMockData(method) {
+    const mockData = {
+      // 用户信息mock数据（与Android返回格式一致）
+      'userInfo.getUserInfoFromApp': {
+        code: '000000',
+        msg: 'success',
+        data: {
+          token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NzA1MjcxMzYsInN1YiI6IjIifQ.NIR2w5T_Ciw4cyT-z-GjtbZbxRxn2qYcWasa5kUmsfs',
+          tokenType: 'bearer',
+          userInfo: {
+            id: 2,
+            email: 'test@example.com',
+            username: 'test',
+            mobile: null,
+            is_active: true,
+            created_at: '2026-02-05T05:06:24.142815+00:00',
+            updated_at: '2026-02-05T05:06:24.142815+00:00'
+          },
+          isLoggedIn: true
+        }
+      },
+
+      // 设备信息mock数据
+      'device.getDeviceInfo': {
+        code: '000000',
+        msg: 'success',
+        data: {
+          deviceId: 'mock-device-id-12345',
+          deviceName: 'Mock Device',
+          platform: 'web',
+          systemVersion: '1.0.0',
+          appVersion: '1.0.0'
+        }
+      }
+    };
+
+    return mockData[method] || {
+      code: '900001',
+      msg: `Mock数据未定义: ${method}`,
+      data: null
+    };
   }
 
   /**
@@ -119,7 +201,20 @@ class DeviceBridge {
    */
   call(method, params = {}) {
     return new Promise((resolve) => {
-      // 始终resolve整个结果，不做内部判断，让外部决定如何处理
+      // 如果是Web环境，使用mock数据
+      if (this.isWeb) {
+        console.log('🌐 Web环境，使用Mock数据:', { method, params });
+        const mockResult = this.getMockData(method);
+        console.log('📦 Mock数据返回:', mockResult);
+
+        // 模拟异步延迟，更真实
+        setTimeout(() => {
+          resolve(mockResult);
+        }, 100);
+        return;
+      }
+
+      // 原生环境：调用原生方法
       this.callNative(method, params, (result) => {
         resolve(result);
       });
@@ -185,7 +280,70 @@ class DeviceBridge {
    * @returns {Promise} 返回Promise对象，resolve整个原始结果
    */
   async selectImage(callback = null) {
-    // 如果是web环境，直接调用浏览器的文件选择器
+    // 如果是web环境，使用浏览器的文件选择器
+    if (this.isWeb) {
+      return new Promise((resolve) => {
+        // 创建input元素
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*';
+        input.multiple = true; // 允许选择多张图片
+
+        input.onchange = (e) => {
+          const files = Array.from(e.target.files);
+          if (files.length === 0) {
+            resolve({ code: '999999', msg: '未选择图片', data: null });
+            return;
+          }
+
+          // 读取文件并转换为Base64
+          const readers = files.map(file => {
+            return new Promise((resolveFile, rejectFile) => {
+              const reader = new FileReader();
+              reader.onload = (event) => {
+                resolveFile(event.target.result);
+              };
+              reader.onerror = () => {
+                rejectFile(new Error('读取文件失败'));
+              };
+              reader.readAsDataURL(file);
+            });
+          });
+
+          // 等待所有文件读取完成
+          Promise.all(readers)
+            .then(base64Images => {
+              const result = {
+                code: '000000',
+                msg: 'success',
+                data: base64Images
+              };
+
+              if (typeof callback === 'function') {
+                callback(result);
+              }
+              resolve(result);
+            })
+            .catch((error) => {
+              const errorResult = {
+                code: '999999',
+                msg: error.message || '读取图片失败',
+                data: null
+              };
+
+              if (typeof callback === 'function') {
+                callback(errorResult);
+              }
+              resolve(errorResult);
+            });
+        };
+
+        // 触发文件选择对话框
+        input.click();
+      });
+    }
+
+    // 原生环境：调用原生方法
     return this.callWithCallback('camera.selectImage', {}, callback);
   }
 

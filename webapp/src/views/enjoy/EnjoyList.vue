@@ -1,41 +1,54 @@
 <template>
-  <div class="enjoy-list-container">
-    <!-- 使用Vant的NavBar组件 -->
-    <NavBar
-      title="饭店列表"
-      left-text=""
-      left-arrow
-      @click-left="goBack"
-      fixed
-      placeholder
-    />
+  <div class="enjoy-container">
+    <!-- Hero Background with Gradient -->
+    <div class="hero-bg">
+      <div class="gradient-layer"></div>
+      <div class="pattern-layer"></div>
+      <div class="floating-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+      </div>
+    </div>
 
-    <!-- 搜索筛选栏 -->
-    <div class="filter-bar">
-      <div class="search-section">
-        <div class="search-box">
-          <div class="search-icon">🔍</div>
-          <input
-            v-model="searchParams.title"
-            type="text"
-            placeholder="搜索饭店名称"
-            class="search-input"
-            @keyup.enter="handleSearch"
-          />
-        </div>
-        <button @click="handleSearch" class="search-btn">
-          搜索
+    <!-- Header Section -->
+    <div class="header-section">
+      <button class="back-btn" @click="goBack">
+        <i class="van-icon van-icon-arrow-left"></i>
+      </button>
+      <h1 class="page-title">文化探索</h1>
+      <div class="header-actions">
+        <button class="action-btn" @click="navigateToCreate">
+          <i class="van-icon van-icon-plus"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Floating Filter Card -->
+    <div class="filter-card">
+      <!-- Search Bar -->
+      <div class="search-bar">
+        <i class="van-icon van-icon-search search-icon"></i>
+        <input
+          v-model="searchParams.title"
+          type="text"
+          placeholder="搜索饭店..."
+          class="search-input"
+          @keyup.enter="handleSearch"
+        />
+        <button v-if="searchParams.title" @click="clearSearch" class="clear-btn">
+          <i class="van-icon van-icon-clear"></i>
         </button>
       </div>
 
-      <!-- 菜系筛选 -->
-      <div class="cuisine-filter">
-        <span class="filter-label">菜系:</span>
-        <div class="cuisine-options">
+      <!-- Cuisine Filter -->
+      <div class="filter-section">
+        <div class="filter-label">菜系</div>
+        <div class="filter-options">
           <span
             v-for="option in cuisineOptions"
             :key="option.value"
-            class="cuisine-option"
+            class="filter-tag"
             :class="{ active: searchParams.cuisine === option.value }"
             @click="selectCuisine(option.value)"
           >
@@ -44,138 +57,139 @@
         </div>
       </div>
 
-      <!-- 评分筛选 -->
-      <div class="rating-filter">
-        <span class="filter-label">最低评分:</span>
-        <div class="rating-options">
+      <!-- Rating Filter -->
+      <div class="filter-section">
+        <div class="filter-label">评分</div>
+        <div class="filter-options">
           <span
             v-for="score in ratingOptions"
             :key="score"
-            class="rating-option"
+            class="filter-tag"
             :class="{ active: searchParams.min_star === score }"
             @click="selectMinRating(score)"
           >
-            {{ score }}星及以上
+            {{ score }}星+
           </span>
         </div>
       </div>
     </div>
 
-    <!-- 数据列表展示 -->
-    <div class="enjoy-list">
-      <!-- 直接显示数据 -->
-      <div v-if="enjoyList.length > 0">
-        <div class="list-header">
-          <span class="result-count">找到 {{ totalCount }} 家饭店</span>
-          <span v-if="searchParams.cuisine" class="active-filter">
-            当前筛选: {{ getCuisineText(searchParams.cuisine) }}
+    <!-- Content Section -->
+    <div class="content-section">
+      <!-- Result Header -->
+      <div v-if="enjoyList.length > 0" class="result-header">
+        <span class="result-count">共 {{ totalCount }} 家饭店</span>
+        <div v-if="hasActiveFilters" class="active-filters">
+          <span
+            v-if="searchParams.cuisine"
+            class="filter-chip"
+            @click="selectCuisine('')"
+          >
+            {{ getCuisineText(searchParams.cuisine) }}
+            <i class="van-icon van-icon-cross"></i>
+          </span>
+          <span
+            v-if="searchParams.min_star"
+            class="filter-chip"
+            @click="selectMinRating(0)"
+          >
+            {{ searchParams.min_star }}星+
+            <i class="van-icon van-icon-cross"></i>
           </span>
         </div>
+      </div>
 
+      <!-- Card List -->
+      <div v-if="enjoyList.length > 0" class="card-list">
         <div
           v-for="item in enjoyList"
           :key="item.id"
-          class="enjoy-item"
+          class="enjoy-card"
           @click="navigateToDetail(item.id)"
         >
-          <!-- 封面图 -->
-          <div class="item-cover">
+          <div class="card-image-wrapper">
             <img
               :src="item.cover"
-              alt="{{ item.title }}"
+              :alt="item.title"
               @error="handleImageError"
-              class="cover-image"
+              class="card-image"
             />
-            <div class="rating-tag">
-              <span class="rating-star">★</span>
-              <span class="rating-score">{{ item.star }}</span>
+            <div class="card-overlay"></div>
+            <div class="rating-badge">
+              <i class="van-icon van-icon-star"></i>
+              <span>{{ item.star }}</span>
             </div>
           </div>
 
-          <!-- 内容信息 -->
-          <div class="item-content">
-            <h3 class="item-title">{{ item.title }}</h3>
+          <div class="card-content">
+            <h3 class="card-title">{{ item.title }}</h3>
 
-            <!-- 标签 -->
-            <div class="enjoy-tags">
-              <span v-if="item.cuisine" class="cuisine-badge">{{ item.cuisine }}</span>
-              <span v-for="(tag, index) in item.tags" :key="index" class="enjoy-tag">{{ tag }}</span>
+            <div class="card-tags">
+              <span v-if="item.cuisine" class="tag cuisine-tag">{{ item.cuisine }}</span>
+              <span v-for="(tag, idx) in item.tags" :key="idx" class="tag">
+                {{ tag }}
+              </span>
             </div>
 
-            <!-- 简介 -->
-            <p class="item-description">{{ item.content }}</p>
+            <p class="card-description">{{ item.content }}</p>
 
-            <!-- 相关信息 -->
-            <div class="enjoy-info">
-              <span class="location">📍 {{ item.location }}</span>
-              <span class="create-time">{{ formatTime(item.created_at) }}</span>
+            <div class="card-footer">
+              <div class="location">
+                <i class="van-icon van-icon-location-o"></i>
+                <span>{{ item.location }}</span>
+              </div>
+              <div class="time">{{ formatTime(item.created_at) }}</div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- 加载状态 -->
+      <!-- Loading State -->
       <div v-else-if="loading" class="loading-state">
         <div class="loading-spinner"></div>
-        <p>正在加载饭店信息...</p>
+        <p>正在加载精彩内容...</p>
       </div>
 
-      <!-- 空状态 -->
+      <!-- Empty State -->
       <div v-else class="empty-state">
-        <div class="empty-icon">🏨</div>
-        <p class="empty-text">暂无饭店记录</p>
-        <p class="empty-hint">去发现更多美食饭店吧</p>
+        <div class="empty-icon">🎨</div>
+        <h3>暂无内容</h3>
+        <p>点击右上角添加您的第一家饭店</p>
       </div>
-
-      <!-- 新增按钮 -->
-      <Button
-        type="primary"
-        class="create-btn"
-        @click="navigateToCreate"
-        round
-      >
-        新增饭店
-      </Button>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { ref, onMounted, computed, onBeforeUnmount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import placeholderImage from '@/assets/images/placeholder.png'
 import { getEnjoyList } from '@/api/enjoyApi.js'
-import { NavBar, Button } from 'vant';
 
-// 路由
 const route = useRoute()
 const router = useRouter()
 
-// 返回上一页
 const goBack = () => {
   router.back()
 }
 
-// 搜索参数 - 适配API文档中的参数
 const searchParams = ref({
-  page: 1, // 页码，默认1
-  count: 10, // 每页数量，默认10
-  title: '', // 标题模糊查询
-  content: '', // 内容模糊查询
-  location: '', // 位置查询
-  min_star: '', // 最低评分
-  max_star: '', // 最高评分
-  cuisine: '', // 菜系精确查询
-  tag: '' // 标签包含查询
+  page: 1,
+  count: 10,
+  title: '',
+  content: '',
+  location: '',
+  min_star: '',
+  max_star: '',
+  cuisine: '',
+  tag: ''
 })
 
-// 列表数据
 const enjoyList = ref([])
 const loading = ref(false)
 const finished = ref(false)
 const totalCount = ref(0)
 
-// 菜系筛选选项
 const cuisineOptions = [
   { text: '全部', value: '' },
   { text: '川菜', value: '川菜' },
@@ -187,78 +201,26 @@ const cuisineOptions = [
   { text: '韩料', value: '韩料' }
 ]
 
-// 评分筛选选项
-const ratingOptions = [0, 3, 4, 4.5]
+const ratingOptions = [0, 3, 4, 4.5, 5]
 
-// 模拟数据 - 调整为API响应格式
-const mockData = {
-  "code": "000000",
-  "statusCode": 200,
-  "msg": "获取饭店列表成功",
-  "data": {
-    "enjoys": [
-      {
-        "id": 1,
-        "title": "老川菜馆",
-        "content": "正宗川菜，麻辣鲜香，环境优雅，服务周到。",
-        "cover": "https://via.placeholder.com/400x300?text=老川菜馆",
-        "images": ["https://via.placeholder.com/400x300?text=老川菜馆-1.jpg"],
-        "tags": ["川菜", "正宗", "环境优雅", "服务周到"],
-        "star": 4.8,
-        "location": "北京市朝阳区建国路88号",
-        "cuisine": "川菜",
-        "created_by": 1,
-        "created_at": "2024-01-01T00:00:00",
-        "updated_at": "2024-01-01T00:00:00"
-      },
-      {
-        "id": 2,
-        "title": "粤式茶餐厅",
-        "content": "正宗粤菜，点心精致，价格实惠。",
-        "cover": "https://via.placeholder.com/400x300?text=粤式茶餐厅",
-        "images": [],
-        "tags": ["粤菜", "点心", "实惠", "人气旺"],
-        "star": 4.7,
-        "location": "上海市浦东新区陆家嘴环路168号",
-        "cuisine": "粤菜",
-        "created_by": 1,
-        "created_at": "2024-01-01T12:00:00",
-        "updated_at": "2024-01-01T12:00:00"
-      },
-      {
-        "id": 3,
-        "title": "日式料理店",
-        "content": "新鲜食材，传统做法，环境清幽。",
-        "cover": "https://via.placeholder.com/400x300?text=日式料理店",
-        "images": [],
-        "tags": ["日料", "新鲜", "传统", "清幽"],
-        "star": 4.9,
-        "location": "广州市天河区天河路385号",
-        "cuisine": "日料",
-        "created_by": 1,
-        "created_at": "2024-01-02T18:00:00",
-        "updated_at": "2024-01-02T18:00:00"
-      }
-    ],
-    "total": 25,
-    "page": 1,
-    "count": 10
-  },
-  "timestamp": "2025-11-27 13:44:02"
-}
+const hasActiveFilters = computed(() => {
+  return !!(searchParams.value.cuisine || searchParams.value.min_star)
+})
 
-// 获取菜系文本
 const getCuisineText = (cuisine) => {
   const option = cuisineOptions.find(opt => opt.value === cuisine)
   return option ? option.text : cuisine
 }
 
-// 处理图片加载失败
 const handleImageError = (event) => {
   event.target.src = placeholderImage
 }
 
-// 选择菜系
+const clearSearch = () => {
+  searchParams.value.title = ''
+  handleSearch()
+}
+
 const selectCuisine = (cuisine) => {
   searchParams.value.cuisine = cuisine
   searchParams.value.page = 1
@@ -266,7 +228,6 @@ const selectCuisine = (cuisine) => {
   loadData()
 }
 
-// 选择最低评分
 const selectMinRating = (score) => {
   searchParams.value.min_star = score === 0 ? '' : score
   searchParams.value.page = 1
@@ -274,7 +235,6 @@ const selectMinRating = (score) => {
   loadData()
 }
 
-// 格式化时间
 const formatTime = (timeString) => {
   if (!timeString) return ''
   const date = new Date(timeString)
@@ -285,21 +245,16 @@ const formatTime = (timeString) => {
   })
 }
 
-// 加载数据
 const loadData = async () => {
   try {
     loading.value = true
 
-    // 只传递API支持的参数
     const requestParams = { ...searchParams.value }
-    // page = 1 count = 10
     requestParams.page = 1
     requestParams.count = 10
 
     try {
       console.log("请求参数:", requestParams)
-
-      // 调用真实API，直接传递对象参数
       const response = await getEnjoyList(requestParams)
 
       if (response.code === '000000') {
@@ -307,27 +262,79 @@ const loadData = async () => {
       }
     } catch (apiError) {
       console.log('API调用失败，使用模拟数据:', apiError)
-      // 使用模拟数据
-      // const response = JSON.parse(JSON.stringify(mockData))
-      // processResponseData(response)
+
+      // Use mock data
+      const mockData = {
+        "code": "000000",
+        "statusCode": 200,
+        "msg": "获取饭店列表成功",
+        "data": {
+          "enjoys": [
+            {
+              "id": 1,
+              "title": "老川菜馆",
+              "content": "正宗川菜，麻辣鲜香，环境优雅，服务周到。",
+              "cover": "https://via.placeholder.com/400x300?text=老川菜馆",
+              "images": [],
+              "tags": ["正宗", "环境优雅"],
+              "star": 4.8,
+              "location": "北京市朝阳区建国路88号",
+              "cuisine": "川菜",
+              "created_by": 1,
+              "created_at": "2024-01-01T00:00:00",
+              "updated_at": "2024-01-01T00:00:00"
+            },
+            {
+              "id": 2,
+              "title": "粤式茶餐厅",
+              "content": "正宗粤菜，点心精致，价格实惠。",
+              "cover": "https://via.placeholder.com/400x300?text=粤式茶餐厅",
+              "images": [],
+              "tags": ["点心", "实惠"],
+              "star": 4.7,
+              "location": "上海市浦东新区陆家嘴环路168号",
+              "cuisine": "粤菜",
+              "created_by": 1,
+              "created_at": "2024-01-01T12:00:00",
+              "updated_at": "2024-01-01T12:00:00"
+            },
+            {
+              "id": 3,
+              "title": "日式料理店",
+              "content": "新鲜食材，传统做法，环境清幽。",
+              "cover": "https://via.placeholder.com/400x300?text=日式料理店",
+              "images": [],
+              "tags": ["新鲜", "传统"],
+              "star": 4.9,
+              "location": "广州市天河区天河路385号",
+              "cuisine": "日料",
+              "created_by": 1,
+              "created_at": "2024-01-02T18:00:00",
+              "updated_at": "2024-01-02T18:00:00"
+            }
+          ],
+          "total": 25,
+          "page": 1,
+          "count": 10
+        },
+        "timestamp": "2025-11-27 13:44:02"
+      }
+      processResponseData(mockData)
     }
   } catch (error) {
     console.error('请求失败:', error)
-    // 添加兜底数据
     if (enjoyList.value.length === 0) {
-      enjoyList.value = [
-        {
-          id: 'fallback-1',
-          title: '示例饭店',
-          content: '这是一家示例饭店，展示了基本信息。',
-          cover: 'https://via.placeholder.com/400x300?text=示例饭店',
-          tags: ['示例', '饭店'],
-          star: 4.5,
-          location: '示例地址',
-          cuisine: '示例菜系',
-          created_at: new Date().toISOString()
-        }
-      ]
+      enjoyList.value = [{
+        id: 'fallback-1',
+        title: '示例饭店',
+        content: '这是一家示例饭店，展示了基本信息。',
+        cover: 'https://via.placeholder.com/400x300?text=示例饭店',
+        tags: ['示例'],
+        star: 4.5,
+        location: '示例地址',
+        cuisine: '示例菜系',
+        created_at: new Date().toISOString()
+      }]
       totalCount.value = 1
     }
   } finally {
@@ -335,10 +342,8 @@ const loadData = async () => {
   }
 }
 
-// 处理响应数据 - 适配API响应格式
 const processResponseData = (response) => {
   if (response.data && response.data.enjoys) {
-    // 使用可靠的占位图片
     const newList = response.data.enjoys.map(item => ({
       ...item,
       cover: item.cover && item.cover.includes('http')
@@ -357,327 +362,453 @@ const processResponseData = (response) => {
   }
 }
 
-// 搜索
 const handleSearch = () => {
   searchParams.value.page = 1
   finished.value = false
   loadData()
 }
 
-// 初始化
+const navigateToDetail = (enjoyId) => {
+  router.push(`/enjoy/detail/${enjoyId}`)
+}
+
+const navigateToCreate = () => {
+  router.push('/enjoy/create')
+}
+
 onMounted(() => {
-  // 加载数据
   loadData()
 
-  // 尝试隐藏底部导航栏
   setTimeout(() => {
     hideTabBar()
   }, 100)
 })
 
-// 组件卸载时恢复tabbar显示
 onBeforeUnmount(() => {
   showTabBar()
 })
 
-// 隐藏底部导航栏
 const hideTabBar = () => {
   if (document && document.body) {
     document.body.classList.add('hide-tabbar')
   }
-
-  // 也直接隐藏SNPTabBar组件
   const tabBar = document.querySelector('.snptabbar')
   if (tabBar) {
     tabBar.style.display = 'none'
   }
 }
 
-// 显示底部导航栏
-  const showTabBar = () => {
-    if (document && document.body) {
-      document.body.classList.remove('hide-tabbar')
-    }
-
-    // 也直接显示SNPTabBar组件
-    const tabBar = document.querySelector('.snptabbar')
-    if (tabBar) {
-      tabBar.style.display = ''
-    }
+const showTabBar = () => {
+  if (document && document.body) {
+    document.body.classList.remove('hide-tabbar')
   }
-
-  // 跳转到详情页
-  const navigateToDetail = (enjoyId) => {
-    router.push(`/enjoy/detail/${enjoyId}`)
+  const tabBar = document.querySelector('.snptabbar')
+  if (tabBar) {
+    tabBar.style.display = ''
   }
-
-  // 跳转到新增页面
-  const navigateToCreate = () => {
-    router.push('/enjoy/create')
-  }
+}
 </script>
 
 <style lang="scss" scoped>
-/* 主容器样式 */
-.enjoy-list-container {
-  padding: 0;
-  margin: 0;
-  background-color: #f5f5f5;
+.enjoy-container {
   min-height: 100vh;
-  width: 100%;
-  display: block;
+  background-color: #f5f5f5;
   position: relative;
-  z-index: 1;
-  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
-/* 筛选栏样式 - 增加上边距，避免被固定导航栏遮挡 */
-.filter-bar {
-  margin-top: 46px; /* 适配Vant NavBar的高度 */
+/* Hero Background */
+.hero-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 280px;
+  z-index: 0;
+  overflow: hidden;
 }
 
-/* 筛选栏样式 */
-.filter-bar {
-  background-color: #ffffff;
-  padding: 12px 16px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  position: sticky;
-  top: 52px;
+.gradient-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, #ff9ff3 0%, #5f27cd 100%);
+}
+
+.pattern-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image:
+    radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+  opacity: 0.6;
+}
+
+.floating-shapes {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+}
+
+.shape {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  animation: float 6s ease-in-out infinite;
+}
+
+.shape-1 {
+  width: 60px;
+  height: 60px;
+  top: 20%;
+  left: 10%;
+  animation-delay: 0s;
+}
+
+.shape-2 {
+  width: 40px;
+  height: 40px;
+  top: 60%;
+  right: 15%;
+  animation-delay: 2s;
+}
+
+.shape-3 {
+  width: 50px;
+  height: 50px;
+  top: 40%;
+  right: 25%;
+  animation-delay: 4s;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-20px) rotate(180deg);
+  }
+}
+
+/* Header Section */
+.header-section {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  z-index: 100;
+  background: transparent;
+}
+
+.back-btn,
+.action-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  color: white;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:active {
+    transform: scale(0.95);
+    background: rgba(255, 255, 255, 0.3);
+  }
+}
+
+.page-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: white;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin: 0;
+}
+
+.header-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* Filter Card */
+.filter-card {
+  position: relative;
+  margin: 72px 16px 16px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(20px);
+  border-radius: 24px;
+  box-shadow: 0 8px 32px rgba(255, 159, 243, 0.15);
   z-index: 10;
 }
 
-.search-section {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  margin-bottom: 12px;
-}
-
-.search-box {
+.search-bar {
+  position: relative;
   display: flex;
   align-items: center;
-  background-color: #f5f5f5;
-  border-radius: 18px;
-  padding: 8px 14px;
-  flex: 1;
+  background: #f5f5f5;
+  border-radius: 16px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
 }
 
 .search-icon {
+  font-size: 18px;
+  color: #5f27cd;
   margin-right: 8px;
-  color: #999;
-  font-size: 16px;
 }
 
 .search-input {
-  width: 100%;
-  padding: 6px 0;
+  flex: 1;
   border: none;
   background: transparent;
-  outline: none;
-  font-size: 14px;
+  font-size: 15px;
   color: #333;
+  outline: none;
+
+  &::placeholder {
+    color: #999;
+  }
 }
 
-.search-btn {
-  background: #1890ff; /* 饭店主题使用蓝色系 */
-  color: white;
+.clear-btn {
+  background: transparent;
   border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
-  font-size: 14px;
-  font-weight: 500;
+  color: #999;
+  font-size: 16px;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
-  transition: background-color 0.3s;
-  white-space: nowrap;
 }
 
-.search-btn:hover {
-  background: #40a9ff;
-}
+.filter-section {
+  margin-bottom: 16px;
 
-/* 筛选样式 */
-.cuisine-filter,
-.rating-filter {
-  margin-top: 8px;
+  &:last-child {
+    margin-bottom: 0;
+  }
 }
 
 .filter-label {
-  display: block;
-  font-size: 14px;
-  font-weight: 500;
+  font-size: 13px;
+  font-weight: 600;
   color: #666;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 
-.cuisine-options,
-.rating-options {
+.filter-options {
   display: flex;
   gap: 8px;
-  overflow-x: auto;
-  padding-bottom: 4px;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none; /* Firefox */
+  flex-wrap: wrap;
 }
 
-.cuisine-options::-webkit-scrollbar,
-.rating-options::-webkit-scrollbar {
-  display: none; /* Chrome, Safari */
-}
-
-.cuisine-option,
-.rating-option {
-  flex-shrink: 0;
-  padding: 6px 14px;
-  background-color: #f5f5f5;
-  border-radius: 16px;
-  font-size: 13px;
+.filter-tag {
+  padding: 8px 16px;
+  background: #f5f5f5;
+  border-radius: 20px;
+  font-size: 14px;
   color: #666;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: all 0.3s ease;
   white-space: nowrap;
+
+  &.active {
+    background: linear-gradient(135deg, #ff9ff3 0%, #5f27cd 100%);
+    color: white;
+    font-weight: 500;
+    box-shadow: 0 4px 12px rgba(255, 159, 243, 0.3);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
 }
 
-.cuisine-option:hover,
-.rating-option:hover {
-  background-color: #e8e8e8;
+/* Content Section */
+.content-section {
+  position: relative;
+  padding: 0 16px 80px;
+  z-index: 1;
 }
 
-.cuisine-option.active,
-.rating-option.active {
-  background-color: #1890ff;
-  color: white;
-}
-
-/* 列表样式 */
-.enjoy-list {
-  padding: 16px;
-}
-
-.list-header {
+.result-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 16px;
-  font-size: 14px;
+  padding: 0 4px;
 }
 
 .result-count {
+  font-size: 14px;
   color: #666;
   font-weight: 500;
 }
 
-.active-filter {
-  color: #1890ff;
+.active-filters {
+  display: flex;
+  gap: 8px;
+}
+
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  background: linear-gradient(135deg, rgba(255, 159, 243, 0.1), rgba(95, 39, 205, 0.1));
+  border: 1px solid rgba(255, 159, 243, 0.3);
+  border-radius: 16px;
   font-size: 13px;
-  background-color: #e6f7ff;
-  padding: 2px 8px;
-  border-radius: 10px;
-}
-
-/* 列表项样式 */
-.enjoy-item {
-  background-color: white;
-  border-radius: 12px;
-  overflow: hidden;
-  margin-bottom: 16px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  transition: transform 0.2s, box-shadow 0.2s;
-  position: relative;
-}
-
-.enjoy-item:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.enjoy-item {
+  color: #5f27cd;
   cursor: pointer;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+
+  &:active {
+    transform: scale(0.95);
+  }
+
+  i {
+    font-size: 12px;
+  }
 }
 
-.item-cover {
+/* Card List */
+.card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.enjoy-card {
+  background: white;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(255, 159, 243, 0.1);
+  transition: all 0.3s ease;
+  cursor: pointer;
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+.card-image-wrapper {
   position: relative;
-  height: 180px;
+  height: 200px;
   overflow: hidden;
 }
 
-.cover-image {
+.card-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.3s;
+  transition: transform 0.3s ease;
 }
 
-.enjoy-item:hover .cover-image {
-  transform: scale(1.03);
+.enjoy-card:active .card-image {
+  transform: scale(1.05);
 }
 
-.rating-tag {
+.card-overlay {
   position: absolute;
-  top: 12px;
-  right: 12px;
-  background-color: rgba(0, 0, 0, 0.6);
-  color: white;
-  padding: 4px 10px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 600;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    transparent 50%,
+    rgba(0, 0, 0, 0.3) 100%
+  );
+}
+
+.rating-badge {
+  position: absolute;
+  top: 16px;
+  right: 16px;
   display: flex;
   align-items: center;
   gap: 4px;
+  padding: 6px 12px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+  i {
+    font-size: 14px;
+    color: #ffc107;
+  }
+
+  span {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+  }
 }
 
-.rating-star {
-  color: #ffd700;
-  font-size: 14px;
+.card-content {
+  padding: 20px;
 }
 
-.rating-score {
-  font-size: 14px;
-}
-
-.item-content {
-  padding: 14px 16px 16px;
-}
-
-.item-title {
-  font-size: 17px;
+.card-title {
+  font-size: 18px;
   font-weight: 600;
   color: #333;
-  margin: 0 0 8px;
+  margin: 0 0 12px;
   line-height: 1.4;
 }
 
-/* 标签样式 */
-.enjoy-tags {
+.card-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
-  margin-bottom: 8px;
+  gap: 8px;
+  margin-bottom: 12px;
 }
 
-.cuisine-badge {
-  background-color: #1890ff;
-  color: white;
-  padding: 2px 8px;
-  border-radius: 10px;
+.tag {
+  padding: 4px 12px;
+  border-radius: 12px;
   font-size: 12px;
   font-weight: 500;
+
+  &.cuisine-tag {
+    background: linear-gradient(135deg, #ff9ff3 0%, #5f27cd 100%);
+    color: white;
+  }
+
+  &:not(.cuisine-tag) {
+    background: #f5f5f5;
+    color: #666;
+  }
 }
 
-.enjoy-tag {
-  background-color: #f5f5f5;
-  color: #666;
-  padding: 2px 8px;
-  border-radius: 10px;
-  font-size: 12px;
-}
-
-.item-description {
+.card-description {
   font-size: 14px;
   color: #666;
-  margin: 0 0 10px;
-  line-height: 1.5;
+  line-height: 1.6;
+  margin: 0 0 16px;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -685,51 +816,39 @@ const hideTabBar = () => {
   text-overflow: ellipsis;
 }
 
-.enjoy-info {
+.card-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 13px;
-  color: #999;
 }
 
 .location {
   display: flex;
   align-items: center;
   gap: 4px;
+  font-size: 13px;
+  color: #999;
+  flex: 1;
+
+  i {
+    font-size: 14px;
+  }
+
+  span {
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 }
 
-.create-time {
+.time {
   font-size: 12px;
-}
-
-/* 加载状态 */
-.loading-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 40px 0;
   color: #999;
 }
 
-.loading-spinner {
-  width: 30px;
-  height: 30px;
-  border: 3px solid #f3f3f3;
-  border-top: 3px solid #1890ff;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin-bottom: 12px;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-/* 空状态 */
-.empty-state {
+/* Loading State */
+.loading-state {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -738,66 +857,68 @@ const hideTabBar = () => {
   color: #999;
 }
 
-/* 新增按钮样式 */
-.create-btn {
-  position: fixed;
-  bottom: 80px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 80%;
-  max-width: 400px;
-  background-color: #1890ff;
-  border: none;
-  box-shadow: 0 4px 12px rgba(24, 144, 255, 0.4);
-  z-index: 10;
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #5f27cd;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
 }
 
-/* 适配iOS安全区域 */
-@supports (padding-bottom: env(safe-area-inset-bottom)) {
-  .create-btn {
-    bottom: calc(80px + env(safe-area-inset-bottom));
-  }
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Empty State */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 0;
+  text-align: center;
 }
 
 .empty-icon {
-  font-size: 48px;
-  margin-bottom: 16px;
-  opacity: 0.6;
+  font-size: 80px;
+  margin-bottom: 24px;
+  opacity: 0.5;
 }
 
-.empty-text {
-  font-size: 16px;
-  font-weight: 500;
+.empty-state h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
   margin: 0 0 8px;
-  color: #666;
 }
 
-.empty-hint {
+.empty-state p {
   font-size: 14px;
-  margin: 0;
   color: #999;
+  margin: 0;
 }
 
-/* 媒体查询适配不同屏幕 */
+/* Responsive */
 @media (min-width: 768px) {
-  .enjoy-list-container {
+  .enjoy-container {
     max-width: 768px;
     margin: 0 auto;
-    border-left: 1px solid #e8e8e8;
-    border-right: 1px solid #e8e8e8;
-  }
-
-  .cuisine-options,
-  .rating-options {
-    overflow-x: visible;
-    flex-wrap: wrap;
   }
 }
 
-/* 修复iOS上的安全区域 */
+/* iOS Safe Area */
+@supports (padding-top: env(safe-area-inset-top)) {
+  .header-section {
+    padding-top: calc(16px + env(safe-area-inset-top));
+  }
+}
+
 @supports (padding-bottom: env(safe-area-inset-bottom)) {
-  .enjoy-list-container {
-    padding-bottom: env(safe-area-inset-bottom);
+  .content-section {
+    padding-bottom: calc(80px + env(safe-area-inset-bottom));
   }
 }
 </style>

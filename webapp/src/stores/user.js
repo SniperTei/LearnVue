@@ -33,13 +33,12 @@ export const useUserStore = defineStore('user', () => {
 
       // 模拟登录响应（使用PostgreSQL的整数ID）
       const mockResponse = {
-        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NjQ4Mjk0NDYsInN1YiI6IjY5MjE0MWM5Y2YxMzUwMDU2ZDE1ZmI2NSJ9.Ag5UReLQYQAP-BUNjkJBGjWzL4IXwm5Vt9MBSyOTpEo",
-        "tokenType": "Bearer",
+        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NzExNDIzNDgsInN1YiI6IjIifQ.H3l489AAyvWZRdLolSUvJ1a0m_mEKDwgEJE2dBaAslk",
+        "tokenType": "bearer",
         "userInfo": {
           "id": 1,
           "email": "test001@example.com",
           "username": "test001",
-          "mobile": "13800000001"
         }
       }
 
@@ -75,6 +74,9 @@ export const useUserStore = defineStore('user', () => {
     if (data.userInfo) userInfo.value = data.userInfo
 
     isAuthenticated.value = !!token.value && !!userInfo.value
+
+    // 自动保存到localStorage
+    saveToStorage()
   }
 
   // 保存数据到localStorage
