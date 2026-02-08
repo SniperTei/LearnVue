@@ -167,7 +167,7 @@ const formData = reactive({
   star: 0,
   location: '',
   cuisine: '',
-  user_id: '1' // 模拟用户ID
+  created_by: 1 // PostgreSQL使用整数ID和created_by字段名
 })
 
 // 标签输入

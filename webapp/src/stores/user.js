@@ -31,12 +31,12 @@ export const useUserStore = defineStore('user', () => {
       // 实际项目中应调用登录API
       // const response = await request.post('/api/v1/auth/login', credentials)
 
-      // 模拟登录响应
+      // 模拟登录响应（使用PostgreSQL的整数ID）
       const mockResponse = {
         "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NjQ4Mjk0NDYsInN1YiI6IjY5MjE0MWM5Y2YxMzUwMDU2ZDE1ZmI2NSJ9.Ag5UReLQYQAP-BUNjkJBGjWzL4IXwm5Vt9MBSyOTpEo",
         "tokenType": "Bearer",
         "userInfo": {
-          "id": "692141c9cf1350056d15fb65",
+          "id": 1,
           "email": "test001@example.com",
           "username": "test001",
           "mobile": "13800000001"

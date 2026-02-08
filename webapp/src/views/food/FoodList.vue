@@ -108,7 +108,7 @@
             <!-- 相关信息 -->
             <div class="food-info">
               <span class="maker">👨‍🍳 {{ item.maker }}</span>
-              <span class="create-time">{{ formatTime(item.create_time) }}</span>
+              <span class="create-time">{{ formatTime(item.created_at) }}</span>
             </div>
           </div>
         </div>
@@ -188,7 +188,7 @@ const flavorOptions = [
 // 评分筛选选项
 const ratingOptions = [0, 3, 4, 4.5]
 
-// 模拟数据 - 调整为API响应格式
+// 模拟数据 - 调整为API响应格式（使用PostgreSQL的整数ID）
 const mockData = {
   "code": "000000",
   "statusCode": 200,
@@ -196,7 +196,7 @@ const mockData = {
   "data": {
     "foods": [
       {
-        "id": "6562c5a5b1d4e3f2e4a1b2c3",
+        "id": 1,
         "title": "麻婆豆腐",
         "content": "经典川菜，麻辣鲜香，豆腐嫩滑，肉末鲜香。",
         "cover": "https://via.placeholder.com/400x300?text=麻婆豆腐",
@@ -205,12 +205,12 @@ const mockData = {
         "star": 4.8,
         "maker": "老川菜馆",
         "flavor": "麻辣",
-        "user_id": "1",
-        "create_time": "2024-01-01T00:00:00",
-        "update_time": "2024-01-01T00:00:00"
+        "created_by": 1,
+        "created_at": "2024-01-01T00:00:00",
+        "updated_at": "2024-01-01T00:00:00"
       },
       {
-        "id": "6562c5a5b1d4e3f2e4a1b2c4",
+        "id": 2,
         "title": "宫保鸡丁",
         "content": "鸡肉鲜嫩，花生酥脆，口味麻辣酸甜。",
         "cover": "https://via.placeholder.com/400x300?text=宫保鸡丁",
@@ -219,12 +219,12 @@ const mockData = {
         "star": 4.7,
         "maker": "老川菜馆",
         "flavor": "麻辣",
-        "user_id": "1",
-        "create_time": "2024-01-01T12:00:00",
-        "update_time": "2024-01-01T12:00:00"
+        "created_by": 1,
+        "created_at": "2024-01-01T12:00:00",
+        "updated_at": "2024-01-01T12:00:00"
       },
       {
-        "id": "6562c5a5b1d4e3f2e4a1b2c5",
+        "id": 3,
         "title": "白切鸡",
         "content": "广东名菜，鸡肉嫩滑，蘸料鲜香。",
         "cover": "https://via.placeholder.com/400x300?text=白切鸡",
@@ -233,12 +233,12 @@ const mockData = {
         "star": 4.9,
         "maker": "粤式餐厅",
         "flavor": "咸鲜",
-        "user_id": "1",
-        "create_time": "2024-01-02T18:00:00",
-        "update_time": "2024-01-02T18:00:00"
+        "created_by": 1,
+        "created_at": "2024-01-02T18:00:00",
+        "updated_at": "2024-01-02T18:00:00"
       },
       {
-        "id": "6562c5a5b1d4e3f2e4a1b2c6",
+        "id": 4,
         "title": "糖醋排骨",
         "content": "酸甜可口，肉质酥烂，色泽红亮。",
         "cover": "https://via.placeholder.com/400x300?text=糖醋排骨",
@@ -247,9 +247,9 @@ const mockData = {
         "star": 4.6,
         "maker": "江南小厨",
         "flavor": "酸甜",
-        "user_id": "1",
-        "create_time": "2024-01-03T10:00:00",
-        "update_time": "2024-01-03T10:00:00"
+        "created_by": 1,
+        "created_at": "2024-01-03T10:00:00",
+        "updated_at": "2024-01-03T10:00:00"
       }
     ],
     "total": 35,

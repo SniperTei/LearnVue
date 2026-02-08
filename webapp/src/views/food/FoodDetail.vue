@@ -98,11 +98,11 @@
           </div>
           <div class="info-item">
             <span class="info-label">创建时间：</span>
-            <span class="info-value">{{ formatTime(foodDetail.create_time) }}</span>
+            <span class="info-value">{{ formatTime(foodDetail.created_at) }}</span>
           </div>
-          <div class="info-item" v-if="foodDetail.update_time && foodDetail.update_time !== foodDetail.create_time">
+          <div class="info-item" v-if="foodDetail.updated_at && foodDetail.updated_at !== foodDetail.created_at">
             <span class="info-label">更新时间：</span>
-            <span class="info-value">{{ formatTime(foodDetail.update_time) }}</span>
+            <span class="info-value">{{ formatTime(foodDetail.updated_at) }}</span>
           </div>
         </div>
       </div>
@@ -231,9 +231,9 @@ const loadFoodDetail = async () => {
 
 // 设置模拟数据
 const setMockData = () => {
-  // 使用模拟数据，基于API文档中的示例
+  // 使用模拟数据，基于API文档中的示例（使用PostgreSQL的整数ID）
   foodDetail.value = {
-    "id": route.params.id || "6562c5a5b1d4e3f2e4a1b2c3",
+    "id": parseInt(route.params.id) || 1,
     "title": "宫保鸡丁",
     "content": "鸡肉嫩滑，花生酥脆，麻辣鲜香。宫保鸡丁是一道闻名中外的川菜，由鸡肉、花生米、干辣椒等材料烹制而成。这道菜以其独特的麻辣口味和丰富的口感而受到广泛喜爱。鸡肉经过腌制后口感更加嫩滑，花生米增加了脆爽的口感，干辣椒则带来了麻辣的风味。制作这道菜需要掌握好火候，确保鸡肉鲜嫩多汁，同时让调料充分渗入食材中。",
     "cover": "https://via.placeholder.com/600x400?text=宫保鸡丁",
@@ -245,9 +245,9 @@ const setMockData = () => {
     "star": 4,
     "maker": "老川菜馆",
     "flavor": "麻辣",
-    "user_id": "1",
-    "create_time": "2024-01-01T00:00:00",
-    "update_time": "2024-01-01T12:00:00"
+    "created_by": 1,
+    "created_at": "2024-01-01T00:00:00",
+    "updated_at": "2024-01-01T12:00:00"
   }
   
   // 准备图片列表

@@ -98,11 +98,11 @@
           </div>
           <div class="info-item">
             <span class="info-label">创建时间：</span>
-            <span class="info-value">{{ formatTime(enjoyDetail.create_time) }}</span>
+            <span class="info-value">{{ formatTime(enjoyDetail.created_at) }}</span>
           </div>
-          <div class="info-item" v-if="enjoyDetail.update_time && enjoyDetail.update_time !== enjoyDetail.create_time">
+          <div class="info-item" v-if="enjoyDetail.updated_at && enjoyDetail.updated_at !== enjoyDetail.created_at">
             <span class="info-label">更新时间：</span>
-            <span class="info-value">{{ formatTime(enjoyDetail.update_time) }}</span>
+            <span class="info-value">{{ formatTime(enjoyDetail.updated_at) }}</span>
           </div>
         </div>
       </div>
@@ -231,9 +231,9 @@ const loadEnjoyDetail = async () => {
 
 // 设置模拟数据
 const setMockData = () => {
-  // 使用模拟数据，基于API文档中的示例
+  // 使用模拟数据，基于API文档中的示例（使用PostgreSQL的整数ID）
   enjoyDetail.value = {
-    "id": route.params.id || "6562c5a5b1d4e3f2e4a1b2c3",
+    "id": parseInt(route.params.id) || 1,
     "title": "老川菜馆",
     "content": "正宗川菜，麻辣鲜香，环境优雅，服务周到。老川菜馆成立于2005年，专注于传承正宗川菜文化，所有菜品均由资深川菜大师掌勺，使用新鲜食材，为顾客提供最地道的川菜体验。",
     "cover": "https://via.placeholder.com/600x400?text=老川菜馆",
@@ -245,9 +245,9 @@ const setMockData = () => {
     "star": 4.8,
     "location": "北京市朝阳区建国路88号",
     "cuisine": "川菜",
-    "user_id": "1",
-    "create_time": "2024-01-01T00:00:00",
-    "update_time": "2024-01-01T12:00:00"
+    "created_by": 1,
+    "created_at": "2024-01-01T00:00:00",
+    "updated_at": "2024-01-01T12:00:00"
   }
   
   // 准备图片列表

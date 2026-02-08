@@ -167,7 +167,7 @@ const formData = reactive({
   star: 0,
   maker: '',
   flavor: '',
-  user_id: '1' // 模拟用户ID
+  created_by: 1 // PostgreSQL使用整数ID和created_by字段名
 })
 
 // 标签输入
@@ -246,21 +246,25 @@ const mockImages = [
 
 // 处理封面图选择
 const handleCoverUpload = async () => {
-  try {
-    // 调用app方法选择图片
-    const result = await deviceBridge.selectImage()
-    if (result.code === '000000' && result.data && result.data.length > 0) {
-      // 选择第一张图片作为封面，并确保包含正确的Base64前缀
-      formData.cover = ensureBase64Prefix(result.data[0])
-      delete errors.cover
-      showToast('已选择封面图')
-    } else {
-      showToast('未选择图片')
-    }
-  } catch (error) {
-    console.error('选择封面图失败:', error)
-    showToast('选择封面图失败')
-  }
+  // try {
+    // const mockImgUrl = "http://snpfiles.sniper14.online/haixiantang.jpg"
+    const mockImgUrl = "http://snpfiles.sniper14.online/haixianxiaoka.png"
+    formData.cover = mockImgUrl
+    delete errors.cover
+  //   // 调用app方法选择图片
+  //   const result = await deviceBridge.selectImage()
+  //   if (result.code === '000000' && result.data && result.data.length > 0) {
+  //     // 选择第一张图片作为封面，并确保包含正确的Base64前缀
+  //     formData.cover = ensureBase64Prefix(result.data[0])
+  //     delete errors.cover
+  //     showToast('已选择封面图')
+  //   } else {
+  //     showToast('未选择图片')
+  //   }
+  // } catch (error) {
+  //   console.error('选择封面图失败:', error)
+  //   showToast('选择封面图失败')
+  // }
 }
 
 // 处理图片上传

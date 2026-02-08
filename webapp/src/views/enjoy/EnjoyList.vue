@@ -108,7 +108,7 @@
             <!-- 相关信息 -->
             <div class="enjoy-info">
               <span class="location">📍 {{ item.location }}</span>
-              <span class="create-time">{{ formatTime(item.create_time) }}</span>
+              <span class="create-time">{{ formatTime(item.created_at) }}</span>
             </div>
           </div>
         </div>
@@ -198,7 +198,7 @@ const mockData = {
   "data": {
     "enjoys": [
       {
-        "id": "6562c5a5b1d4e3f2e4a1b2c3",
+        "id": 1,
         "title": "老川菜馆",
         "content": "正宗川菜，麻辣鲜香，环境优雅，服务周到。",
         "cover": "https://via.placeholder.com/400x300?text=老川菜馆",
@@ -207,12 +207,12 @@ const mockData = {
         "star": 4.8,
         "location": "北京市朝阳区建国路88号",
         "cuisine": "川菜",
-        "user_id": "1",
-        "create_time": "2024-01-01T00:00:00",
-        "update_time": "2024-01-01T00:00:00"
+        "created_by": 1,
+        "created_at": "2024-01-01T00:00:00",
+        "updated_at": "2024-01-01T00:00:00"
       },
       {
-        "id": "6562c5a5b1d4e3f2e4a1b2c4",
+        "id": 2,
         "title": "粤式茶餐厅",
         "content": "正宗粤菜，点心精致，价格实惠。",
         "cover": "https://via.placeholder.com/400x300?text=粤式茶餐厅",
@@ -221,12 +221,12 @@ const mockData = {
         "star": 4.7,
         "location": "上海市浦东新区陆家嘴环路168号",
         "cuisine": "粤菜",
-        "user_id": "1",
-        "create_time": "2024-01-01T12:00:00",
-        "update_time": "2024-01-01T12:00:00"
+        "created_by": 1,
+        "created_at": "2024-01-01T12:00:00",
+        "updated_at": "2024-01-01T12:00:00"
       },
       {
-        "id": "6562c5a5b1d4e3f2e4a1b2c5",
+        "id": 3,
         "title": "日式料理店",
         "content": "新鲜食材，传统做法，环境清幽。",
         "cover": "https://via.placeholder.com/400x300?text=日式料理店",
@@ -235,9 +235,9 @@ const mockData = {
         "star": 4.9,
         "location": "广州市天河区天河路385号",
         "cuisine": "日料",
-        "user_id": "1",
-        "create_time": "2024-01-02T18:00:00",
-        "update_time": "2024-01-02T18:00:00"
+        "created_by": 1,
+        "created_at": "2024-01-02T18:00:00",
+        "updated_at": "2024-01-02T18:00:00"
       }
     ],
     "total": 25,
@@ -325,7 +325,7 @@ const loadData = async () => {
           star: 4.5,
           location: '示例地址',
           cuisine: '示例菜系',
-          create_time: new Date().toISOString()
+          created_at: new Date().toISOString()
         }
       ]
       totalCount.value = 1
