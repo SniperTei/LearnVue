@@ -31,9 +31,10 @@ export const useUserStore = defineStore('user', () => {
       // 实际项目中应调用登录API
       // const response = await request.post('/api/v1/auth/login', credentials)
 
-      // 模拟登录响应（使用PostgreSQL的整数ID）
+      // 模拟登录响应（动态生成 mock token）
+      const mockToken = `mock_jwt_token_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`
       const mockResponse = {
-        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NzExNDIzNDgsInN1YiI6IjIifQ.H3l489AAyvWZRdLolSUvJ1a0m_mEKDwgEJE2dBaAslk",
+        "token": mockToken,
         "tokenType": "bearer",
         "userInfo": {
           "id": 1,

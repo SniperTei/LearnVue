@@ -68,13 +68,18 @@ class DeviceBridge {
    * 在Web环境下模拟原生返回的数据
    */
   getMockData(method) {
+    // 动态生成 mock token，避免硬编码敏感信息
+    const generateMockToken = () => {
+      return `mock_jwt_token_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
+    };
+
     const mockData = {
       // 用户信息mock数据（与Android返回格式一致）
       'userInfo.getUserInfoFromApp': {
         code: '000000',
         msg: 'success',
         data: {
-          token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NzA1MjcxMzYsInN1YiI6IjIifQ.NIR2w5T_Ciw4cyT-z-GjtbZbxRxn2qYcWasa5kUmsfs',
+          token: generateMockToken(),
           tokenType: 'bearer',
           userInfo: {
             id: 2,
