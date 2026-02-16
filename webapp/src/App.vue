@@ -12,6 +12,6 @@ import SNPTabBar from './components/tabbar/SNPTabBar.vue';
 <style scoped lang="scss">
 .app-container {
   min-height: 100vh;
-  padding-bottom: 50px; /* 为底部导航栏预留空间 */
+  padding-bottom: 100px; /* 为底部导航栏和备案号预留空间 */
 }
 </style>

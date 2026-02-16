@@ -149,7 +149,7 @@
 import { ref, onMounted, watch, onBeforeUnmount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import placeholderImage from '@/assets/images/placeholder.png'
-import { getFoodList } from '@/api/drinkApi.js'
+import { getDrinkList } from '@/api/drinkApi.js'
 
 // 路由
 const route = useRoute()
@@ -245,7 +245,7 @@ const loadData = async () => {
 
     try {
       console.log("请求参数:", requestParams)
-      const response = await getFoodList(requestParams)
+      const response = await getDrinkList(requestParams)
 
       if (response.code === '000000') {
         processResponseData(response)

@@ -103,6 +103,11 @@
 
     <!-- 退出登录 -->
     <div class="logout-section">
+      <!-- 开发环境测试登录按钮 -->
+      <button v-if="isDev" class="test-login-btn" @click="handleTestLogin">
+        <i class="van-icon van-icon-lock"></i>
+        <span>测试登录</span>
+      </button>
       <button class="logout-btn" @click="handleLogout">
         <i class="van-icon van-icon-sign-out"></i>
         <span>退出登录</span>
@@ -231,6 +236,52 @@ const handleLogout = async () => {
   }
 }
 
+// 检测是否是开发环境
+const isDev = import.meta.env.DEV
+
+// 测试登录 - 调用后端API获取token
+const handleTestLogin = async () => {
+  console.log('开始测试登录...')
+
+  try {
+    // 调用后端测试登录接口
+    // const response = await fetch('http://localhost:8000/api/v1/users/test-login', {
+    const response = await fetch('http://api-test.sniper14.online/api/v1/users/test-login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+
+    const result = await response.json()
+
+    if (result.code === '000000') {
+      console.log('测试登录成功:', result.data)
+
+      // 保存用户数据到 userStore
+      userStore.setUserData({
+        token: result.data.access_token,
+        tokenType: result.data.token_type,
+        userInfo: {
+          id: '2',
+          username: 'test',
+          email: 'test@example.com',
+          mobile: null
+        }
+      })
+
+      // 显示提示
+      alert('测试登录成功！')
+    } else {
+      console.error('测试登录失败:', result.msg)
+      alert(`测试登录失败: ${result.msg}`)
+    }
+  } catch (error) {
+    console.error('测试登录异常:', error)
+    alert(`测试登录异常: ${error.message}`)
+  }
+}
+
 // 从原生app获取用户信息
 const fetchUserInfoFromApp = async () => {
   try {
@@ -282,14 +333,13 @@ const fetchUserInfoFromApp = async () => {
   }
 }
 
-// 组件挂载时尝试获取用户信息
+// 组件挂载时
 onMounted(() => {
   console.log('Mine.vue mounted')
 
-  // 如果在app环境中且未登录，尝试从原生app获取用户信息
-  if (!deviceBridge.isWeb && !userStore.isAuthenticated) {
-    fetchUserInfoFromApp()
-  }
+  // 注意：App 登录数据的获取已在 main.js 中统一处理
+  // 这里不再重复获取，避免多次调用
+  // 如果需要手动刷新登录状态，可以调用 fetchUserInfoFromApp()
 })
 </script>
 
@@ -827,6 +877,33 @@ onMounted(() => {
 /* ========== 退出登录 ========== */
 .logout-section {
   padding: 0 16px;
+}
+
+.test-login-btn {
+  width: 100%;
+  padding: 16px;
+  background: #4caf50;
+  border: none;
+  border-radius: 16px;
+  font-size: 16px;
+  font-weight: 600;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 20px rgba(76, 175, 80, 0.3);
+  transition: all 0.3s ease;
+
+  &:active {
+    background: #45a049;
+    transform: scale(0.98);
+  }
+
+  .van-icon {
+    font-size: 18px;
+  }
 }
 
 .logout-btn {

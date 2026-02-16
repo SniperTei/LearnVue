@@ -20,6 +20,7 @@
       <div class="header-actions">
         <button class="action-btn" @click="navigateToCreate">
           <i class="van-icon van-icon-plus"></i>
+          <span class="action-text">新增</span>
         </button>
       </div>
     </div>
@@ -482,23 +483,30 @@ const navigateToCreate = () => {
 
 .back-btn,
 .action-btn {
-  width: 40px;
+  min-width: 40px;
   height: 40px;
-  border-radius: 50%;
+  padding: 0 12px;
+  border-radius: 20px;
   border: none;
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.3);
   backdrop-filter: blur(10px);
   color: white;
   font-size: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 4px;
   cursor: pointer;
   transition: all 0.3s ease;
 
+  .action-text {
+    font-size: 14px;
+    font-weight: 600;
+  }
+
   &:active {
     transform: scale(0.95);
-    background: rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.4);
   }
 }
 

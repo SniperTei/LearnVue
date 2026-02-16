@@ -6,6 +6,9 @@
         {{ item.name }}
       </van-tabbar-item>
     </van-tabbar>
+    <div class="icp-info">
+      <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer">粤ICP备2025453493号-1</a>
+    </div>
   </div>
 </template>
 
@@ -41,5 +44,26 @@ const activeColor = 'var(--van-primary-color)'; // 使用主题红色
   left: 0;
   right: 0;
   z-index: 100;
+}
+
+.icp-info {
+  position: fixed;
+  bottom: 50px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  padding: 8px 0;
+  background-color: #f5f5f5;
+  border-top: 1px solid #e5e5e5;
+  font-size: 12px;
+
+  a {
+    color: #999;
+    text-decoration: none;
+
+    &:hover {
+      color: var(--van-primary-color);
+    }
+  }
 }
 </style>
