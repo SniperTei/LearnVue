@@ -353,6 +353,66 @@ class DeviceBridge {
   }
 
   /**
+   * 打开相机拍照
+   * @param {function} callback - 可选的回调函数，接收完整的原始结果（包含code、msg、data）
+   * @returns {Promise} 返回Promise对象，resolve整个原始结果
+   */
+  async takePhoto(callback = null) {
+    // 如果是web环境，使用浏览器的文件选择器
+    if (this.isWeb) {
+      return new Promise((resolve) => {
+        // 创建input元素
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*';
+        input.capture = 'camera'; // 优先使用相机
+
+        input.onchange = (e) => {
+          const file = e.target.files[0];
+          if (!file) {
+            resolve({ code: '999999', msg: '未拍照', data: null });
+            return;
+          }
+
+          // 读取文件并转换为Base64
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            const result = {
+              code: '000000',
+              msg: 'success',
+              data: event.target.result // 返回单个Base64字符串
+            };
+
+            if (typeof callback === 'function') {
+              callback(result);
+            }
+            resolve(result);
+          };
+          reader.onerror = () => {
+            const errorResult = {
+              code: '999999',
+              msg: '读取图片失败',
+              data: null
+            };
+
+            if (typeof callback === 'function') {
+              callback(errorResult);
+            }
+            resolve(errorResult);
+          };
+          reader.readAsDataURL(file);
+        };
+
+        // 触发相机
+        input.click();
+      });
+    }
+
+    // 原生环境：调用原生方法
+    return this.callWithCallback('camera.takePhoto', {}, callback);
+  }
+
+  /**
    * 执行耗时操作
    * @param {function} callback - 可选的回调函数，接收完整的原始结果（包含code、msg、data）
    * @returns {Promise} 返回Promise对象，resolve整个原始结果
