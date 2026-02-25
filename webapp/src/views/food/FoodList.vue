@@ -1,33 +1,18 @@
 <template>
-  <div class="food-container">
-    <!-- Hero Background with Gradient -->
-    <div class="hero-bg">
-      <div class="gradient-layer"></div>
-      <div class="pattern-layer"></div>
-      <div class="floating-shapes">
-        <div class="shape shape-1"></div>
-        <div class="shape shape-2"></div>
-        <div class="shape shape-3"></div>
-      </div>
-    </div>
-
-    <!-- Header Section -->
-    <div class="header-section">
-      <button class="back-btn" @click="goBack">
-        <i class="van-icon van-icon-arrow-left"></i>
-      </button>
-      <h1 class="page-title">美食探索</h1>
-      <div class="header-actions">
+  <div class="food-page">
+    <!-- 固定顶部 Header -->
+    <div class="fixed-header">
+      <div class="header-top">
+        <button class="back-btn" @click="goBack">
+          <i class="van-icon van-icon-arrow-left"></i>
+        </button>
+        <h1 class="page-title">美食探索</h1>
         <button class="action-btn" @click="navigateToCreate">
           <i class="van-icon van-icon-plus"></i>
-          <span class="action-text">新增</span>
         </button>
       </div>
-    </div>
 
-    <!-- Floating Filter Card -->
-    <div class="filter-card">
-      <!-- Search Bar -->
+      <!-- 搜索栏 -->
       <div class="search-bar">
         <i class="van-icon van-icon-search search-icon"></i>
         <input
@@ -42,10 +27,9 @@
         </button>
       </div>
 
-      <!-- Flavor Filter -->
-      <div class="filter-section">
-        <div class="filter-label">口味</div>
-        <div class="filter-options">
+      <!-- 筛选栏 -->
+      <div class="filter-bar">
+        <div class="filter-group">
           <span
             v-for="option in flavorOptions"
             :key="option.value"
@@ -56,12 +40,7 @@
             {{ option.text }}
           </span>
         </div>
-      </div>
-
-      <!-- Rating Filter -->
-      <div class="filter-section">
-        <div class="filter-label">评分</div>
-        <div class="filter-options">
+        <div class="filter-group">
           <span
             v-for="score in ratingOptions"
             :key="score"
@@ -75,73 +54,67 @@
       </div>
     </div>
 
-    <!-- Content Section -->
-    <div class="content-section">
-      <!-- Result Header -->
-      <div v-if="foodList.length > 0" class="result-header">
-        <span class="result-count">找到 {{ totalCount }} 道美食</span>
-        <button v-if="searchParams.flavor || searchParams.min_star" @click="clearFilters" class="clear-filter-btn">
-          <i class="van-icon van-icon-cross"></i>
-          清除筛选
-        </button>
-      </div>
-
-      <!-- Loading State -->
-      <div v-if="loading" class="loading-state">
-        <div class="loading-spinner"></div>
-        <p>正在加载美食中...</p>
-      </div>
-
-      <!-- Empty State -->
-      <div v-else-if="foodList.length === 0" class="empty-state">
-        <div class="empty-icon">🍽️</div>
-        <p class="empty-text">暂无美食记录</p>
-        <p class="empty-hint">去发现更多美味佳肴吧</p>
-      </div>
-
-      <!-- Card List -->
-      <div v-else class="card-list">
-        <div
-          v-for="item in foodList"
-          :key="item.id"
-          class="food-card"
-          @click="navigateToDetail(item.id)"
+    <!-- 全屏滚动列表 -->
+    <div class="scroll-content">
+      <van-pull-refresh
+        v-model="refreshing"
+        @refresh="onRefresh"
+        :success-text="refreshSuccessText"
+        success-duration="1500"
+      >
+        <van-list
+          v-model:loading="listLoading"
+          :finished="finished"
+          finished-text="没有更多了"
+          @load="onLoad"
+          :immediate-check="false"
         >
-          <!-- Card Image -->
-          <div class="card-image">
-            <img
-              :src="item.cover"
-              :alt="item.title"
-              @error="handleImageError"
-              class="image"
-            />
-            <div class="rating-badge">
-              <i class="van-icon van-icon-star"></i>
-              <span>{{ item.star }}</span>
-            </div>
+          <!-- 结果统计 -->
+          <div v-if="foodList.length > 0" class="result-info">
+            <span class="result-count">找到 {{ totalCount }} 道美食</span>
+            <button v-if="searchParams.flavor || searchParams.min_star" @click="clearFilters" class="clear-filter-btn">
+              清除筛选
+            </button>
           </div>
 
-          <!-- Card Content -->
-          <div class="card-content">
-            <h3 class="card-title">{{ item.title }}</h3>
+          <!-- 空状态 -->
+          <div v-if="foodList.length === 0 && !loading" class="empty-state">
+            <div class="empty-icon">🍽️</div>
+            <p class="empty-text">暂无美食记录</p>
+          </div>
 
-            <div class="card-tags">
-              <span v-if="item.flavor" class="tag flavor-tag">{{ item.flavor }}</span>
-              <span v-for="(tag, index) in item.tags" :key="index" class="tag">{{ tag }}</span>
-            </div>
-
-            <p class="card-description">{{ item.content }}</p>
-
-            <div class="card-footer">
-              <span class="maker">
-                <i class="van-icon van-icon-user-o"></i>
-                {{ item.maker }}
-              </span>
-              <span class="time">{{ formatTime(item.created_at) }}</span>
+          <!-- 列表 -->
+          <div v-else class="card-list">
+            <div
+              v-for="item in foodList"
+              :key="item.id"
+              class="food-card"
+              @click="navigateToDetail(item.id)"
+            >
+              <img
+                :src="item.cover"
+                :alt="item.title"
+                @error="handleImageError"
+                class="card-image"
+                loading="lazy"
+              />
+              <div class="rating-badge">{{ item.star }}★</div>
+              <div class="card-content">
+                <h3 class="card-title">{{ item.title }}</h3>
+                <div class="card-tags">
+                  <span v-if="item.flavor" class="tag flavor-tag">{{ item.flavor }}</span>
+                  <span v-for="(tag, index) in item.tags" :key="index" class="tag">{{ tag }}</span>
+                </div>
+                <p class="card-desc">{{ item.content }}</p>
+                <div class="card-footer">
+                  <span class="maker">{{ item.maker }}</span>
+                  <span class="time">{{ formatTime(item.created_at) }}</span>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
+        </van-list>
+      </van-pull-refresh>
     </div>
   </div>
 </template>
@@ -149,6 +122,7 @@
 <script setup>
 import { ref, onMounted, watch, onBeforeUnmount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { showToast } from 'vant'
 import placeholderImage from '@/assets/images/placeholder.png'
 import { getFoodList } from '@/api/foodApi.js'
 
@@ -180,6 +154,11 @@ const loading = ref(false)
 const finished = ref(false)
 const totalCount = ref(0)
 
+// 下拉刷新和上拉加载状态
+const refreshing = ref(false)
+const listLoading = ref(false)
+const refreshSuccessText = ref('刷新成功')
+
 // 口味筛选选项
 const flavorOptions = [
   { text: '全部', value: '' },
@@ -193,12 +172,6 @@ const flavorOptions = [
 // 评分筛选选项
 const ratingOptions = [0, 3, 4, 4.5]
 
-// 获取口味文本
-const getFlavorText = (flavor) => {
-  const option = flavorOptions.find(opt => opt.value === flavor)
-  return option ? option.text : flavor
-}
-
 // 处理图片加载失败
 const handleImageError = (event) => {
   event.target.src = placeholderImage
@@ -209,6 +182,7 @@ const selectFlavor = (flavor) => {
   searchParams.value.flavor = flavor
   searchParams.value.page = 1
   finished.value = false
+  foodList.value = []
   loadData()
 }
 
@@ -217,6 +191,7 @@ const selectMinRating = (score) => {
   searchParams.value.min_star = score === 0 ? '' : score
   searchParams.value.page = 1
   finished.value = false
+  foodList.value = []
   loadData()
 }
 
@@ -272,7 +247,7 @@ const loadData = async () => {
 }
 
 // 处理响应数据
-const processResponseData = (response) => {
+const processResponseData = (response, append = false) => {
   if (response.data && response.data.foods) {
     const newList = response.data.foods.map(item => ({
       ...item,
@@ -281,7 +256,8 @@ const processResponseData = (response) => {
         : `https://via.placeholder.com/400x300?text=${encodeURIComponent(item.title || '美食')}`
     }))
 
-    if (searchParams.value.page === 1) {
+    // 如果是第一页或者是刷新，直接替换；否则追加
+    if (searchParams.value.page === 1 || !append) {
       foodList.value = newList
     } else {
       foodList.value.push(...newList)
@@ -289,6 +265,72 @@ const processResponseData = (response) => {
 
     totalCount.value = response.data.total || 0
     finished.value = foodList.value.length >= totalCount.value
+
+    console.log(`分页信息: 第${searchParams.value.page}页, 已加载${foodList.value.length}条, 总共${totalCount.value}条`)
+  }
+}
+
+// 下拉刷新
+const onRefresh = async () => {
+  try {
+    // 重置到第一页
+    searchParams.value.page = 1
+    finished.value = false
+
+    const requestParams = { ...searchParams.value }
+    requestParams.page = 1
+    requestParams.count = 10
+
+    const response = await getFoodList(requestParams)
+
+    if (response.code === '000000') {
+      processResponseData(response)
+      refreshSuccessText.value = `刷新成功，共 ${totalCount.value} 道美食`
+    } else {
+      refreshSuccessText.value = '刷新失败'
+    }
+  } catch (error) {
+    console.error('刷新失败:', error)
+    refreshSuccessText.value = '刷新失败'
+  } finally {
+    refreshing.value = false
+  }
+}
+
+// 上拉加载
+const onLoad = async () => {
+  try {
+    // 如果已经没有更多数据，直接返回
+    if (finished.value) {
+      listLoading.value = false
+      return
+    }
+
+    // 当前页加1（加载下一页）
+    const currentPage = searchParams.value.page
+    const nextPage = currentPage + 1
+
+    const requestParams = { ...searchParams.value }
+    requestParams.page = nextPage
+    requestParams.count = 10
+
+    const response = await getFoodList(requestParams)
+
+    if (response.code === '000000') {
+      // 只有成功后才更新页码
+      searchParams.value.page = nextPage
+      processResponseData(response, true)  // 追加模式
+    } else {
+      // 加载失败，不更新页码
+      listLoading.value = false
+    }
+  } catch (error) {
+    console.error('加载失败:', error)
+    // 加载失败，不更新页码
+    listLoading.value = false
+  } finally {
+    // 确保加载状态被重置
+    listLoading.value = false
   }
 }
 
@@ -296,6 +338,7 @@ const processResponseData = (response) => {
 const handleSearch = () => {
   searchParams.value.page = 1
   finished.value = false
+  foodList.value = []
   loadData()
 }
 
@@ -311,6 +354,7 @@ const clearFilters = () => {
   searchParams.value.min_star = ''
   searchParams.value.page = 1
   finished.value = false
+  foodList.value = []
   loadData()
 }
 
@@ -326,6 +370,16 @@ onMounted(() => {
   setTimeout(() => {
     hideTabBar()
   }, 100)
+
+  // 禁用 body 和 html 的滚动
+  if (document.body) {
+    document.body.style.overflow = 'hidden'
+    document.body.style.height = '100%'
+  }
+  if (document.documentElement) {
+    document.documentElement.style.overflow = 'hidden'
+    document.documentElement.style.height = '100%'
+  }
 })
 
 // 监听路由参数变化
@@ -340,6 +394,16 @@ watch(() => route.query.category, (newCategory) => {
 // 组件卸载时恢复tabbar显示
 onBeforeUnmount(() => {
   showTabBar()
+
+  // 恢复 body 和 html 的滚动
+  if (document.body) {
+    document.body.style.overflow = ''
+    document.body.style.height = ''
+  }
+  if (document.documentElement) {
+    document.documentElement.style.overflow = ''
+    document.documentElement.style.height = ''
+  }
 })
 
 // 隐藏底部导航栏
@@ -378,184 +442,90 @@ const navigateToCreate = () => {
 </script>
 
 <style lang="scss" scoped>
-.food-container {
-  min-height: 100vh;
+.food-page {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
   background-color: #f5f5f5;
-  position: relative;
-  overflow-x: hidden;
-}
-
-/* Hero Background */
-.hero-bg {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 280px;
-  z-index: 0;
   overflow: hidden;
 }
 
-.gradient-layer {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+/* 禁用外层滚动 */
+:deep(body),
+:deep(html) {
+  overflow: hidden !important;
+  height: 100% !important;
+}
+
+/* 固定顶部 */
+.fixed-header {
+  flex-shrink: 0;
   background: linear-gradient(135deg, #ff6b6b 0%, #ffa502 100%);
+  padding: 12px 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  z-index: 100;
 }
 
-.pattern-layer {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image:
-    radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
-  opacity: 0.6;
-}
-
-.floating-shapes {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  overflow: hidden;
-}
-
-.shape {
-  position: absolute;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 50%;
-  animation: float 6s ease-in-out infinite;
-}
-
-.shape-1 {
-  width: 60px;
-  height: 60px;
-  top: 20%;
-  left: 10%;
-  animation-delay: 0s;
-}
-
-.shape-2 {
-  width: 40px;
-  height: 40px;
-  top: 60%;
-  right: 15%;
-  animation-delay: 2s;
-}
-
-.shape-3 {
-  width: 50px;
-  height: 50px;
-  top: 40%;
-  right: 25%;
-  animation-delay: 4s;
-}
-
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0) rotate(0deg);
-  }
-  50% {
-    transform: translateY(-20px) rotate(180deg);
-  }
-}
-
-/* Header Section */
-.header-section {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 56px;
+.header-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 16px;
-  z-index: 100;
-  background: transparent;
+  margin-bottom: 12px;
 }
 
 .back-btn,
 .action-btn {
-  min-width: 40px;
-  height: 40px;
-  padding: 0 12px;
-  border-radius: 20px;
+  width: 36px;
+  height: 36px;
+  border-radius: 18px;
   border: none;
   background: rgba(255, 255, 255, 0.3);
-  backdrop-filter: blur(10px);
   color: white;
-  font-size: 20px;
+  font-size: 18px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
 
-  .action-text {
-    font-size: 14px;
-    font-weight: 600;
-  }
-
-  &:active {
-    transform: scale(0.95);
-    background: rgba(255, 255, 255, 0.4);
-  }
+.back-btn:active,
+.action-btn:active {
+  background: rgba(255, 255, 255, 0.5);
 }
 
 .page-title {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 600;
   color: white;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   margin: 0;
+  text-align: center;
+  flex: 1;
 }
 
-.header-actions {
-  display: flex;
-  gap: 8px;
-}
-
-/* Filter Card */
-.filter-card {
-  position: relative;
-  margin: 72px 16px 16px;
-  padding: 20px;
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(20px);
-  border-radius: 24px;
-  box-shadow: 0 8px 32px rgba(255, 107, 107, 0.15);
-  z-index: 10;
-}
-
+/* 搜索栏 */
 .search-bar {
   position: relative;
   display: flex;
   align-items: center;
-  background: #f5f5f5;
-  border-radius: 16px;
-  padding: 12px 16px;
-  margin-bottom: 16px;
+  background: white;
+  border-radius: 20px;
+  padding: 8px 16px;
+  margin-bottom: 12px;
 }
 
 .search-icon {
-  font-size: 18px;
+  font-size: 16px;
   color: #ff6b6b;
   margin-right: 8px;
+  flex-shrink: 0;
 }
 
 .search-input {
   flex: 1;
   border: none;
   background: transparent;
-  font-size: 15px;
+  font-size: 14px;
   color: #333;
   outline: none;
 
@@ -574,179 +544,127 @@ const navigateToCreate = () => {
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  flex-shrink: 0;
 }
 
-.filter-section {
-  margin-bottom: 16px;
+/* 筛选栏 */
+.filter-bar {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 
-  &:last-child {
-    margin-bottom: 0;
+  &::-webkit-scrollbar {
+    display: none;
   }
 }
 
-.filter-label {
-  font-size: 13px;
-  font-weight: 600;
-  color: #666;
-  margin-bottom: 10px;
-}
-
-.filter-options {
+.filter-group {
   display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
+  gap: 6px;
+  flex-shrink: 0;
 }
 
 .filter-tag {
-  padding: 8px 16px;
-  background: #f5f5f5;
-  border-radius: 20px;
-  font-size: 14px;
-  color: #666;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  white-space: nowrap;
-
-  &.active {
-    background: linear-gradient(135deg, #ff6b6b 0%, #ffa502 100%);
-    color: white;
-    font-weight: 500;
-    box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
-  }
-
-  &:active {
-    transform: scale(0.95);
-  }
-}
-
-/* Content Section */
-.content-section {
-  position: relative;
-  padding: 0 16px 80px;
-  z-index: 1;
-}
-
-.result-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-  padding: 0 4px;
-}
-
-.result-count {
-  font-size: 14px;
-  color: #666;
-  font-weight: 500;
-}
-
-.clear-filter-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
   padding: 6px 12px;
-  background: rgba(255, 107, 107, 0.1);
-  border: 1px solid rgba(255, 107, 107, 0.3);
+  background: rgba(255, 255, 255, 0.3);
   border-radius: 16px;
   font-size: 13px;
-  color: #ff6b6b;
+  color: white;
+  white-space: nowrap;
   cursor: pointer;
-  transition: all 0.3s ease;
+  flex-shrink: 0;
 
-  &:active {
-    transform: scale(0.95);
-  }
-
-  i {
-    font-size: 12px;
+  &.active {
+    background: white;
+    color: #ff6b6b;
+    font-weight: 500;
   }
 }
 
-/* Card List */
+/* 滚动内容区域 */
+.scroll-content {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+
+/* 让 pull-refresh 处理滚动 */
+.scroll-content :deep(.van-pull-refresh) {
+  height: 100%;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 20px;
+  box-sizing: border-box;
+}
+
+/* 修复 iOS 安全区域 */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .scroll-content :deep(.van-pull-refresh) {
+    padding-bottom: calc(20px + env(safe-area-inset-bottom));
+  }
+}
+
+/* 列表 */
 .card-list {
+  padding: 12px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
 }
 
 .food-card {
   background: white;
-  border-radius: 24px;
+  border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 4px 20px rgba(255, 107, 107, 0.1);
-  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   cursor: pointer;
-
-  &:active {
-    transform: scale(0.98);
-  }
+  position: relative;
 }
 
 .card-image {
-  position: relative;
-  height: 200px;
-  overflow: hidden;
-}
-
-.image {
   width: 100%;
-  height: 100%;
+  height: 160px;
   object-fit: cover;
-  transition: transform 0.3s ease;
-}
-
-.food-card:active .image {
-  transform: scale(1.05);
+  display: block;
 }
 
 .rating-badge {
   position: absolute;
-  top: 16px;
-  right: 16px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 6px 12px;
+  top: 8px;
+  right: 8px;
   background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  border-radius: 20px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-
-  i {
-    font-size: 14px;
-    color: #ffc107;
-  }
-
-  span {
-    font-size: 14px;
-    font-weight: 600;
-    color: #333;
-  }
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #333;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .card-content {
-  padding: 20px;
+  padding: 12px;
 }
 
 .card-title {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
   color: #333;
-  margin: 0 0 12px;
+  margin: 0 0 8px;
   line-height: 1.4;
 }
 
 .card-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 12px;
+  gap: 6px;
+  margin-bottom: 8px;
 }
 
 .tag {
-  padding: 4px 12px;
-  border-radius: 12px;
-  font-size: 12px;
+  padding: 3px 8px;
+  border-radius: 8px;
+  font-size: 11px;
   font-weight: 500;
 
   &.flavor-tag {
@@ -760,11 +678,11 @@ const navigateToCreate = () => {
   }
 }
 
-.card-description {
-  font-size: 14px;
+.card-desc {
+  font-size: 13px;
   color: #666;
-  line-height: 1.6;
-  margin: 0 0 16px;
+  line-height: 1.5;
+  margin: 0 0 8px;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -776,98 +694,72 @@ const navigateToCreate = () => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-}
-
-.maker {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 13px;
-  color: #999;
-  flex: 1;
-
-  i {
-    font-size: 14px;
-  }
-}
-
-.time {
   font-size: 12px;
   color: #999;
 }
 
-/* Loading State */
-.loading-state {
+.maker {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.time {
+  flex-shrink: 0;
+  margin-left: 8px;
+}
+
+/* 结果信息 */
+.result-info {
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
   align-items: center;
-  justify-content: center;
-  padding: 60px 0;
-  color: #999;
+  padding: 12px 16px 8px;
 }
 
-.loading-spinner {
-  width: 40px;
-  height: 40px;
-  border: 3px solid #f3f3f3;
-  border-top: 3px solid #ff6b6b;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin-bottom: 16px;
+.result-count {
+  font-size: 13px;
+  color: #666;
 }
 
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+.clear-filter-btn {
+  padding: 4px 10px;
+  background: rgba(255, 107, 107, 0.1);
+  border: 1px solid rgba(255, 107, 107, 0.3);
+  border-radius: 12px;
+  font-size: 12px;
+  color: #ff6b6b;
+  cursor: pointer;
 }
 
-/* Empty State */
+/* 空状态 */
 .empty-state {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 80px 0;
+  padding: 60px 20px;
   text-align: center;
 }
 
 .empty-icon {
-  font-size: 80px;
-  margin-bottom: 24px;
+  font-size: 64px;
+  margin-bottom: 16px;
   opacity: 0.5;
 }
 
 .empty-text {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
   color: #333;
-  margin: 0 0 8px;
-}
-
-.empty-hint {
-  font-size: 14px;
-  color: #999;
   margin: 0;
-}
-
-/* Responsive */
-@media (min-width: 768px) {
-  .food-container {
-    max-width: 768px;
-    margin: 0 auto;
-  }
 }
 
 /* iOS Safe Area */
 @supports (padding-top: env(safe-area-inset-top)) {
-  .header-section {
-    padding-top: calc(16px + env(safe-area-inset-top));
-  }
-}
-
-@supports (padding-bottom: env(safe-area-inset-bottom)) {
-  .content-section {
-    padding-bottom: calc(80px + env(safe-area-inset-bottom));
+  .fixed-header {
+    padding-top: calc(12px + env(safe-area-inset-top));
   }
 }
 </style>

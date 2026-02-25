@@ -29,24 +29,25 @@
       <!-- 图片轮播 -->
       <div class="image-carousel">
         <div class="carousel-container">
-          <div 
+          <div
             class="carousel-item"
             :class="{ active: currentImageIndex === index }"
             v-for="(img, index) in imageList"
             :key="index"
           >
-            <img 
-              :src="img.includes('http') ? img : `https://via.placeholder.com/600x400?text=${encodeURIComponent(foodDetail.title || '美食')}`" 
+            <img
+              :src="img.includes('http') ? img : `https://via.placeholder.com/600x400?text=${encodeURIComponent(foodDetail.title || '美食')}`"
               :alt="`${foodDetail.title || '美食'} 图片${index + 1}`"
               @error="handleImageError"
               class="carousel-image"
+              @click="previewImages(index)"
             />
           </div>
         </div>
         <!-- 轮播指示器 -->
         <div class="carousel-indicators" v-if="imageList.length > 1">
-          <span 
-            v-for="(img, index) in imageList" 
+          <span
+            v-for="(img, index) in imageList"
             :key="index"
             class="indicator"
             :class="{ active: currentImageIndex === index }"
@@ -114,7 +115,7 @@
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getFoodDetail } from '@/api/foodApi'
-import { NavBar } from 'vant'
+import { NavBar, showImagePreview } from 'vant'
 import placeholderImage from '@/assets/images/placeholder.png'
 
 // 路由
@@ -152,6 +153,15 @@ const formatTime = (timeString) => {
 // 处理图片加载失败
 const handleImageError = (event) => {
   event.target.src = placeholderImage
+}
+
+// 预览图片（从点击的位置开始）
+const previewImages = (startIndex = 0) => {
+  showImagePreview({
+    images: imageList.value,
+    startPosition: startIndex,
+    closeable: true,
+  })
 }
 
 // 轮播图控制

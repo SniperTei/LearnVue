@@ -25,6 +25,7 @@
             class="cover-preview"
             @error="handleCoverImageError"
             @load="handleCoverImageLoad"
+            @click.stop="previewImage(formData.cover)"
           />
           <div v-else class="upload-placeholder">
             <div class="upload-icon">📷</div>
@@ -47,7 +48,12 @@
             :key="index"
             class="image-item"
           >
-            <img :src="image" alt="食品图片" class="image-preview" />
+            <img
+              :src="image"
+              alt="食品图片"
+              class="image-preview"
+              @click="previewImages(index)"
+            />
             <span class="image-remove" @click="removeImage(index)">×</span>
           </div>
           <div v-if="formData.images.length < 5" class="image-upload" @click="handleImageUpload">
@@ -155,7 +161,7 @@
 <script setup>
 import { ref, reactive, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
-import { NavBar, showToast, showLoadingToast, closeToast } from 'vant'
+import { NavBar, showToast, showLoadingToast, closeToast, showImagePreview } from 'vant'
 import { createFood } from '@/api/foodApi'
 import { uploadBase64Image } from '@/api/uploadApi'
 import deviceBridge from '@/utils/device'
@@ -235,8 +241,8 @@ const removeTag = (index) => {
 // 处理封面图选择
 const handleCoverUpload = async () => {
   try {
-    // 调用app方法选择图片
-    const result = await deviceBridge.selectImage()
+    // 调用app方法显示选择对话框（拍照或相册）
+    const result = await deviceBridge.showImagePickerDialog()
     if (result.code === '000000' && result.data && result.data.length > 0) {
       // 选择第一张图片作为封面
       const base64Image = ensureBase64Prefix(result.data[0])
@@ -283,8 +289,8 @@ const handleImageUpload = async () => {
       return
     }
 
-    // 调用app方法选择图片
-    const result = await deviceBridge.selectImage()
+    // 调用app方法显示选择对话框（拍照或相册）
+    const result = await deviceBridge.showImagePickerDialog()
     if (result.code === '000000' && result.data && result.data.length > 0) {
       console.log('选择了', result.data.length, '张图片')
 
@@ -383,6 +389,23 @@ const ensureBase64Prefix = (base64Str) => {
   }
   // 否则添加默认的jpg前缀
   return `data:image/jpeg;base64,${base64Str}`
+}
+
+// 预览单张图片（封面图）
+const previewImage = (imageUrl) => {
+  showImagePreview({
+    images: [imageUrl],
+    closeable: true,
+  })
+}
+
+// 预览多张图片（从指定位置开始）
+const previewImages = (startIndex = 0) => {
+  showImagePreview({
+    images: formData.images,
+    startPosition: startIndex,
+    closeable: true,
+  })
 }
 
 // 表单验证

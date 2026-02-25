@@ -27,9 +27,17 @@ class DeviceBridge {
       return true;
     }
 
-    // 2. 开发环境默认强制Web模式
+    // 2. 检查是否在 WebView 中（通过 UserAgent 判断）
+    const ua = navigator.userAgent.toLowerCase();
+    const isInWebView = /webboxapp|wv|micromessenger/.test(ua);
+    if (isInWebView) {
+      console.log('✅ 检测到 WebView 环境，使用原生模式');
+      return false;  // WebView 中使用原生模式
+    }
+
+    // 3. 开发环境默认强制Web模式（但不在 WebView 中）
     if (import.meta.env.DEV) {
-      console.log('✅ 开发环境，默认强制使用Web模式');
+      console.log('✅ 开发环境（非 WebView），默认强制使用Web模式');
       return true;
     }
 
@@ -350,6 +358,68 @@ class DeviceBridge {
 
     // 原生环境：调用原生方法
     return this.callWithCallback('camera.selectImage', {}, callback);
+  }
+
+  /**
+   * 显示图片来源选择对话框
+   * 让用户选择是拍照还是从相册选择
+   * @param {function} callback - 可选的回调函数，接收完整的原始结果（包含code、msg、data）
+   * @returns {Promise} 返回Promise对象，resolve整个原始结果
+   */
+  async showImagePickerDialog(callback = null) {
+    // 如果是web环境，使用浏览器的文件选择器
+    if (this.isWeb) {
+      return new Promise((resolve) => {
+        console.log('🌐 Web环境，使用浏览器的文件选择器');
+
+        // 创建input元素
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*';
+
+        input.onchange = (e) => {
+          const file = e.target.files[0];
+          if (!file) {
+            resolve({ code: '999999', msg: '未选择图片', data: null });
+            return;
+          }
+
+          // 读取文件并转换为Base64
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            const result = {
+              code: '000000',
+              msg: 'success',
+              data: [event.target.result] // 返回数组格式，与原生保持一致
+            };
+
+            if (typeof callback === 'function') {
+              callback(result);
+            }
+            resolve(result);
+          };
+          reader.onerror = () => {
+            const errorResult = {
+              code: '999999',
+              msg: '读取图片失败',
+              data: null
+            };
+
+            if (typeof callback === 'function') {
+              callback(errorResult);
+            }
+            resolve(errorResult);
+          };
+          reader.readAsDataURL(file);
+        };
+
+        // 触发文件选择对话框
+        input.click();
+      });
+    }
+
+    // 原生环境：调用原生方法
+    return this.callWithCallback('camera.showImagePickerDialog', {}, callback);
   }
 
   /**
