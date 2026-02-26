@@ -516,26 +516,30 @@ const handleSubmit = async () => {
       // 编辑模式：调用更新 API
       response = await updateFood(foodId.value, submitData)
       if (response.code === '000000') {
-        showToast('保存成功')
+        closeToast()  // 关闭加载提示
+        showToast({
+          message: '保存成功',
+          duration: 1500
+        })
       }
     } else {
       // 创建模式：调用创建 API
       response = await createFood(submitData)
       if (response.code === '000000') {
-        showToast('创建成功')
+        closeToast()  // 关闭加载提示
+        showToast({
+          message: '创建成功',
+          duration: 1500
+        })
       }
     }
 
-    closeToast()
+    // closeToast()  // 移除这行，避免关闭成功提示
 
     if (response.code === '000000') {
-      // 成功后返回详情页或列表页
+      // 成功后统一返回列表页
       setTimeout(() => {
-        if (isEditMode.value) {
-          router.back()
-        } else {
-          router.push('/food')
-        }
+        router.push('/food')
       }, 1500)
     } else {
       showToast(response.msg || (isEditMode.value ? '保存失败' : '创建失败'))
