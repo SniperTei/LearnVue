@@ -42,6 +42,17 @@
         </div>
         <div class="filter-group">
           <span
+            v-for="option in categoryOptions"
+            :key="option.value"
+            class="filter-tag"
+            :class="{ active: searchParams.category === option.value }"
+            @click="selectCategory(option.value)"
+          >
+            {{ option.text }}
+          </span>
+        </div>
+        <div class="filter-group">
+          <span
             v-for="score in ratingOptions"
             :key="score"
             class="filter-tag"
@@ -72,7 +83,7 @@
           <!-- 结果统计 -->
           <div v-if="foodList.length > 0" class="result-info">
             <span class="result-count">找到 {{ totalCount }} 道美食</span>
-            <button v-if="searchParams.flavor || searchParams.min_star" @click="clearFilters" class="clear-filter-btn">
+            <button v-if="searchParams.flavor || searchParams.min_star || searchParams.category" @click="clearFilters" class="clear-filter-btn">
               清除筛选
             </button>
           </div>
@@ -102,6 +113,7 @@
               <div class="card-content">
                 <h3 class="card-title">{{ item.title }}</h3>
                 <div class="card-tags">
+                  <span v-if="item.category" class="tag category-tag">{{ item.category }}</span>
                   <span v-if="item.flavor" class="tag flavor-tag">{{ item.flavor }}</span>
                   <span v-for="(tag, index) in item.tags" :key="index" class="tag">{{ tag }}</span>
                 </div>
@@ -145,7 +157,8 @@ const searchParams = ref({
   min_star: '',
   max_star: '',
   flavor: '',
-  tag: ''
+  tag: '',
+  category: '' // 菜品分类
 })
 
 // 列表数据
@@ -169,6 +182,20 @@ const flavorOptions = [
   { text: '香辣', value: '香辣' }
 ]
 
+// 分类筛选选项
+const categoryOptions = [
+  { text: '全部分类', value: '' },
+  { text: '素菜', value: '素菜' },
+  { text: '荤菜', value: '荤菜' },
+  { text: '凉菜', value: '凉菜' },
+  { text: '热菜', value: '热菜' },
+  { text: '汤类', value: '汤类' },
+  { text: '下酒菜', value: '下酒菜' },
+  { text: '主食', value: '主食' },
+  { text: '甜点', value: '甜点' },
+  { text: '小吃', value: '小吃' }
+]
+
 // 评分筛选选项
 const ratingOptions = [0, 3, 4, 4.5]
 
@@ -180,6 +207,15 @@ const handleImageError = (event) => {
 // 选择口味
 const selectFlavor = (flavor) => {
   searchParams.value.flavor = flavor
+  searchParams.value.page = 1
+  finished.value = false
+  foodList.value = []
+  loadData()
+}
+
+// 选择分类
+const selectCategory = (category) => {
+  searchParams.value.category = category
   searchParams.value.page = 1
   finished.value = false
   foodList.value = []
@@ -352,6 +388,7 @@ const clearSearch = () => {
 const clearFilters = () => {
   searchParams.value.flavor = ''
   searchParams.value.min_star = ''
+  searchParams.value.category = ''
   searchParams.value.page = 1
   finished.value = false
   foodList.value = []
@@ -487,11 +524,13 @@ const navigateToCreate = () => {
   justify-content: center;
   cursor: pointer;
   flex-shrink: 0;
+  transition: all 0.2s;
 }
 
 .back-btn:active,
 .action-btn:active {
   background: rgba(255, 255, 255, 0.5);
+  transform: scale(0.95);
 }
 
 .page-title {
@@ -512,6 +551,7 @@ const navigateToCreate = () => {
   border-radius: 20px;
   padding: 8px 16px;
   margin-bottom: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 }
 
 .search-icon {
@@ -574,11 +614,18 @@ const navigateToCreate = () => {
   white-space: nowrap;
   cursor: pointer;
   flex-shrink: 0;
+  transition: all 0.2s;
+  border: 1px solid transparent;
+
+  &:active {
+    transform: scale(0.95);
+  }
 
   &.active {
     background: white;
     color: #ff6b6b;
     font-weight: 500;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
   }
 }
 
@@ -672,7 +719,12 @@ const navigateToCreate = () => {
     color: white;
   }
 
-  &:not(.flavor-tag) {
+  &.category-tag {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+  }
+
+  &:not(.flavor-tag):not(.category-tag) {
     background: #f5f5f5;
     color: #666;
   }

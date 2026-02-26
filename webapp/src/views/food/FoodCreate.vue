@@ -2,7 +2,7 @@
   <div class="food-create-container">
     <!-- 导航栏 -->
     <NavBar
-      title="新增美食"
+      :title="isEditMode ? '编辑美食' : '新增美食'"
       left-text=""
       left-arrow
       @click-left="goBack"
@@ -105,6 +105,23 @@
         <span v-if="errors.flavor" class="error-message">{{ errors.flavor }}</span>
       </div>
 
+      <!-- 分类 -->
+      <div class="form-section">
+        <label class="form-label">菜品分类（选填）</label>
+        <div class="flavor-options">
+          <span
+            v-for="option in categoryOptions"
+            :key="option.value"
+            class="flavor-option"
+            :class="{ active: formData.category === option.value }"
+            @click="selectCategory(option.value)"
+          >
+            {{ option.text }}
+          </span>
+        </div>
+        <p class="form-hint">选择菜品分类（素菜、荤菜、凉菜等）</p>
+      </div>
+
       <!-- 评分 -->
       <div class="form-section">
         <label class="form-label">评分 *</label>
@@ -159,15 +176,20 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, onBeforeUnmount } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, reactive, onMounted, onBeforeUnmount, computed } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { NavBar, showToast, showLoadingToast, closeToast, showImagePreview } from 'vant'
-import { createFood } from '@/api/foodApi'
+import { createFood, getFoodDetail, updateFood } from '@/api/foodApi'
 import { uploadBase64Image } from '@/api/uploadApi'
 import deviceBridge from '@/utils/device'
 
 // 路由
 const router = useRouter()
+const route = useRoute()
+
+// 判断是否为编辑模式
+const isEditMode = computed(() => !!route.params.id)
+const foodId = computed(() => route.params.id)
 
 // 表单数据
 const formData = reactive({
@@ -179,6 +201,7 @@ const formData = reactive({
   star: 0,
   maker: '',
   flavor: '',
+  category: '', // 菜品分类
   created_by: 1 // PostgreSQL使用整数ID和created_by字段名
 })
 
@@ -198,6 +221,19 @@ const flavorOptions = [
   { text: '其他', value: '其他' }
 ]
 
+// 分类选项
+const categoryOptions = [
+  { text: '素菜', value: '素菜' },
+  { text: '荤菜', value: '荤菜' },
+  { text: '凉菜', value: '凉菜' },
+  { text: '热菜', value: '热菜' },
+  { text: '汤类', value: '汤类' },
+  { text: '下酒菜', value: '下酒菜' },
+  { text: '主食', value: '主食' },
+  { text: '甜点', value: '甜点' },
+  { text: '小吃', value: '小吃' }
+]
+
 // 返回上一页
 const goBack = () => {
   router.back()
@@ -207,6 +243,11 @@ const goBack = () => {
 const selectFlavor = (flavor) => {
   formData.flavor = flavor
   delete errors.flavor
+}
+
+// 选择分类
+const selectCategory = (category) => {
+  formData.category = formData.category === category ? '' : category
 }
 
 // 设置评分
@@ -458,40 +499,102 @@ const handleSubmit = async () => {
   }
 
   try {
+    showLoadingToast({
+      message: isEditMode.value ? '正在保存...' : '正在创建...',
+      forbidClick: true,
+      duration: 0
+    })
+
     // 准备提交数据
     const submitData = {
       ...formData,
-      // 格式化数据，确保与API期望格式一致
-      star: Number(formData.star),
-      // 这里可以添加更多数据处理逻辑，如图片上传等
+      star: Number(formData.star)
     }
 
-    // 调用API创建美食
-    const response = await createFood(submitData)
+    let response
+    if (isEditMode.value) {
+      // 编辑模式：调用更新 API
+      response = await updateFood(foodId.value, submitData)
+      if (response.code === '000000') {
+        showToast('保存成功')
+      }
+    } else {
+      // 创建模式：调用创建 API
+      response = await createFood(submitData)
+      if (response.code === '000000') {
+        showToast('创建成功')
+      }
+    }
+
+    closeToast()
 
     if (response.code === '000000') {
-      showToast('创建成功')
-      // 创建成功后返回列表页
+      // 成功后返回详情页或列表页
       setTimeout(() => {
-        router.push('/food')
+        if (isEditMode.value) {
+          router.back()
+        } else {
+          router.push('/food')
+        }
       }, 1500)
     } else {
-      showToast(response.msg || '创建失败')
-      // 失败时不跳转，停留在当前页面
+      showToast(response.msg || (isEditMode.value ? '保存失败' : '创建失败'))
     }
   } catch (error) {
-    console.error('创建美食失败:', error)
-    showToast('创建失败，请稍后重试')
-    // 错误时不跳转，停留在当前页面
+    closeToast()
+    console.error(isEditMode.value ? '更新美食失败:' : '创建美食失败:', error)
+    showToast(isEditMode.value ? '保存失败，请稍后重试' : '创建失败，请稍后重试')
+  }
+}
+
+// 加载美食详情（编辑模式）
+const loadFoodDetail = async () => {
+  try {
+    showLoadingToast({
+      message: '加载中...',
+      forbidClick: true,
+      duration: 0
+    })
+
+    const response = await getFoodDetail(foodId.value)
+    closeToast()
+
+    if (response.code === '000000' && response.data) {
+      const data = response.data
+
+      // 回填表单数据
+      formData.title = data.title || ''
+      formData.content = data.content || ''
+      formData.cover = data.cover || ''
+      formData.images = data.images || []
+      formData.tags = data.tags || []
+      formData.star = data.star || 0
+      formData.maker = data.maker || ''
+      formData.flavor = data.flavor || ''
+      formData.category = data.category || ''
+    } else {
+      showToast('加载失败')
+      router.back()
+    }
+  } catch (error) {
+    closeToast()
+    console.error('加载美食详情失败:', error)
+    showToast('加载失败，请稍后重试')
+    router.back()
   }
 }
 
 // 初始化
-onMounted(() => {
+onMounted(async () => {
   // 隐藏底部导航栏
   setTimeout(() => {
     hideTabBar()
   }, 100)
+
+  // 如果是编辑模式，加载现有数据
+  if (isEditMode.value) {
+    await loadFoodDetail()
+  }
 })
 
 // 组件卸载时恢复tabbar显示

@@ -6,6 +6,8 @@
       left-text="返回"
       left-arrow
       @click-left="goBack"
+      right-text="编辑"
+      @click-right="navigateToEdit"
       fixed
       placeholder
       safe-area-inset-top
@@ -65,7 +67,11 @@
             <span class="star-icon">★</span>
             <span class="star-score">{{ foodDetail.star }}</span>
           </div>
-          
+
+          <div class="category-badge" v-if="foodDetail.category">
+            {{ foodDetail.category }}
+          </div>
+
           <div class="flavor-badge" v-if="foodDetail.flavor">
             {{ foodDetail.flavor }}
           </div>
@@ -135,6 +141,12 @@ const carouselTimer = ref(null)
 // 返回上一页
 const goBack = () => {
   router.back()
+}
+
+// 跳转到编辑页面
+const navigateToEdit = () => {
+  const foodId = route.params.id
+  router.push(`/food/edit/${foodId}`)
 }
 
 // 格式化时间
@@ -518,6 +530,15 @@ const showTabBar = () => {
 
 .flavor-badge {
   background-color: #fa541c;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.category-badge {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   padding: 4px 12px;
   border-radius: 12px;

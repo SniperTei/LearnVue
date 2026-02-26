@@ -76,9 +76,9 @@ class DeviceBridge {
    * 在Web环境下模拟原生返回的数据
    */
   getMockData(method) {
-    // 动态生成 mock token，避免硬编码敏感信息
+    // 生成mock token（仅用于开发测试）
     const generateMockToken = () => {
-      return `mock_jwt_token_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
+      return "mock-jwt-token-placeholder-for-development-only";
     };
 
     const mockData = {
@@ -90,13 +90,13 @@ class DeviceBridge {
           token: generateMockToken(),
           tokenType: 'bearer',
           userInfo: {
-            id: 2,
-            email: 'test@example.com',
-            username: 'test',
-            mobile: null,
+            id: "1",
+            email: "test@example.com",
+            username: "testuser",
+            mobile: "13000000000",
             is_active: true,
-            created_at: '2026-02-05T05:06:24.142815+00:00',
-            updated_at: '2026-02-05T05:06:24.142815+00:00'
+            created_at: "2026-02-08T11:53:21.090883+00:00",
+            updated_at: "2026-02-08T11:53:21.090993+00:00"
           },
           isLoggedIn: true
         }
@@ -113,6 +113,13 @@ class DeviceBridge {
           systemVersion: '1.0.0',
           appVersion: '1.0.0'
         }
+      },
+
+      // 拍照mock数据
+      'camera.takePhoto': {
+        code: '000000',
+        msg: 'success',
+        data: 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBD'
       }
     };
 

@@ -61,6 +61,14 @@ const router = createRouter({
         title: '新增美食'
       }
     },
+    {
+      path: '/food/edit/:id',
+      name: 'FoodEdit',
+      component: FoodCreate,
+      meta: {
+        title: '编辑美食'
+      }
+    },
     // 喝
     {
       path: '/drink',
