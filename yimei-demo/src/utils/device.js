@@ -291,7 +291,30 @@ export default new DeviceBridge();
 
 // 供原生调用的全局方法，用于处理回调
 window.nativeCallback = function(callbackId, result) {
-  if (window[callbackId] && typeof window[callbackId] === 'function') {
+  console.log('nativeCallback 被调用:', { callbackId, result });
+
+  // 检查 result 的结构
+  if (!result) {
+    console.error('nativeCallback: result 为空');
+    return;
+  }
+
+  // 检查回调函数是否存在
+  if (!window[callbackId]) {
+    console.error('nativeCallback: 找不到回调函数', callbackId);
+    return;
+  }
+
+  if (typeof window[callbackId] !== 'function') {
+    console.error('nativeCallback: 回调不是函数', callbackId, typeof window[callbackId]);
+    return;
+  }
+
+  try {
+    // 调用回调函数
     window[callbackId](result);
+    console.log('nativeCallback: 回调执行成功');
+  } catch (error) {
+    console.error('nativeCallback: 回调执行失败', error);
   }
 };
