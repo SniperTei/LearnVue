@@ -88,6 +88,39 @@
         </div>
       </div>
 
+      <!-- 检查清单 -->
+      <div class="checklist-section">
+        <div class="checklist-header">
+          <span class="checklist-title">检查清单</span>
+          <span class="checklist-count">{{ checkedItems.length }}/3</span>
+        </div>
+        <div class="checklist-items">
+          <van-checkbox-group v-model="checkedItems" direction="vertical">
+            <div class="checklist-item-wrapper" v-for="(item, index) in checklistItems" :key="item.id">
+              <van-checkbox
+                :name="item.id"
+                shape="square"
+                checked-color="#07c160"
+                icon-size="18px"
+              >
+                <template #default="{ checked, disabled }">
+                  <div class="checklist-item-content" :class="{ 'is-checked': checked }">
+                    <span class="item-label">{{ item.label }}</span>
+                    <van-icon
+                      v-if="checked"
+                      name="success"
+                      size="16"
+                      color="#07c160"
+                      class="check-icon"
+                    />
+                  </div>
+                </template>
+              </van-checkbox>
+            </div>
+          </van-checkbox-group>
+        </div>
+      </div>
+
       <!-- 打卡按钮 -->
       <div class="checkin-button-section">
         <van-button type="primary" size="large" @click="checkInClick" class="checkin-btn" :disabled="isLoading">{{ isLoading ? '打卡中...' : '打卡' }}</van-button>
@@ -138,7 +171,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import { Button, Icon, Field, Popup } from 'vant';
+import { Button, Icon, Field, Popup, Checkbox, CheckboxGroup } from 'vant';
 import device from '@/utils/device.js';
 import { checkIn } from '@/api/checkInApi';
 import { uploadFile } from '@/api/uploadApi';
@@ -163,6 +196,14 @@ const selectedItem = ref({
   image: ''
 });
 
+// 检查清单
+const checklistItems = ref([
+  { id: 'clean', label: '地面干净' },
+  { id: 'tidy', label: '桌面整洁' },
+  { id: 'organized', label: '物品归位' }
+]);
+const checkedItems = ref([]);
+
 // 图片预览相关状态
 const showImagePreview = ref(false);
 const previewImages = ref([]);
@@ -184,6 +225,8 @@ onMounted(() => {
   currentImage.value = '';
   // 重置分数显示
   resetScore();
+  // 重置检查清单
+  checkedItems.value = [];
 
   // 输出所有路由参数，方便调试
   console.log('路由参数:', route.query);
@@ -290,7 +333,14 @@ const checkInClick = () => {
   // 检查是否有项目ID
   if (!selectedItem.value.id) {
     alert('警告: 未获取到项目ID，请确认上一页是否正确传递参数');
+    return;
   }
+
+  // 检查清单验证（可选）
+  // if (checkedItems.value.length === 0) {
+  //   alert('请至少选择一项检查清单');
+  //   return;
+  // }
 
   // 开始加载
   isLoading.value = true;
@@ -320,10 +370,12 @@ const checkInClick = () => {
     if (uploadResponse && uploadResponse.code === 1 && uploadResponse.data) {
       const imageUrl = uploadResponse.data.url || uploadResponse.data;
 
-      // 使用上传后的URL调用打卡API
+      // 使用上传后的URL调用打卡API，同时传递检查清单
       return checkIn({
         items_id: selectedItem.value.id,
-        file_name: imageUrl
+        file_name: imageUrl,
+        checklist: checkedItems.value,  // 添加检查项数据
+        category: selectedCategory.value  // 添加分类信息
       });
     } else {
       throw new Error('文件上传失败: ' + (uploadResponse?.message || '未知错误'));
@@ -473,6 +525,90 @@ $background-color: $bg-secondary; // 使用已定义的背景色变量
 
     .category-selector {
       flex: 1;
+    }
+  }
+
+  // 检查清单部分
+  .checklist-section {
+    margin-bottom: $spacing-lg;
+    background-color: $bg-primary;
+    border-radius: 12px;
+    padding: $spacing-base;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+
+    .checklist-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: $spacing-base;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #f0f0f0;
+
+      .checklist-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: $text-primary;
+      }
+
+      .checklist-count {
+        font-size: 13px;
+        color: #999;
+        background-color: #f5f5f5;
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-weight: 500;
+      }
+    }
+
+    .checklist-items {
+      .checklist-item-wrapper {
+        margin-bottom: 8px;
+
+        &:last-child {
+          margin-bottom: 0;
+        }
+
+        .checklist-item-content {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 12px;
+          padding: 12px;
+          background-color: #fafafa;
+          border-radius: 8px;
+          transition: all 0.3s ease;
+
+          &.is-checked {
+            background-color: #f0fdf4;
+            border: 1px solid #86efac;
+          }
+
+          .item-label {
+            flex: 1;
+            font-size: 15px;
+            color: $text-primary;
+            font-weight: 500;
+          }
+
+          .check-icon {
+            animation: checkIn 0.3s ease;
+          }
+        }
+      }
+    }
+  }
+
+  @keyframes checkIn {
+    0% {
+      transform: scale(0);
+      opacity: 0;
+    }
+    50% {
+      transform: scale(1.2);
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
     }
   }
 
