@@ -79,7 +79,7 @@ const loading = ref(false)
 const finished = ref(false)
 
 // 标签列表
-const tags = ref(['全部', 'AI技术', 'OCR识别', '图像处理', '人脸识别', '二维码扫描'])
+const tags = ref(['全部', 'AI技术', 'OCR识别', '图像处理', '人脸识别', '二维码扫描', 'coconut测试'])
 
 // 功能列表数据
 const functionItems = ref([
@@ -154,6 +154,15 @@ const functionItems = ref([
     functionName: 'speechRecognition',
     appMethod: 'speech.recognize',
     categories: ['AI技术']
+  },
+  {
+    id: '9',
+    name: 'Coconut Bridge 测试',
+    description: '验证 H5 与 Android 原生 Coconut SDK Bridge 通信链路，测试设备、网络、存储、剪贴板等原生 API',
+    type: 'page',
+    functionName: 'coconutTest',
+    url: '/coconut-test',
+    categories: ['coconut测试']
   }
 ])
 

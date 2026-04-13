@@ -99,14 +99,115 @@ function filterEmptyFields(obj) {
 }
 
 /**
+ * 判断是否应使用原生请求
+ * @returns {boolean}
+ */
+function shouldUseNativeRequest() {
+  const mode = envConfig.useNativeRequest || 'auto';
+
+  if (mode === 'native') return true;
+  if (mode === 'axios') return false;
+
+  // auto 模式：检测 WebView 环境
+  // URL 参数 ?forceWeb=true 强制 Web 模式
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('forceWeb') === 'true') return false;
+
+  // 检测 coconut bridge 是否可用（WebView 环境）
+  return !!(window.Coconut && window.Coconut.network);
+}
+
+/**
+ * 通过 coconut bridge 发起原生网络请求
+ * @param {string} method - HTTP 方法 (GET/POST/PUT/DELETE)
+ * @param {string} url - 请求路径（相对路径）
+ * @param {Object} data - 请求数据
+ * @param {boolean} autoShowError - 是否自动显示错误
+ * @returns {Promise} - 返回与 axios 响应拦截器格式一致的 Promise
+ */
+async function nativeRequest(method, url, data, autoShowError) {
+  const fullUrl = envConfig.baseURL + url;
+  const headers = { 'Content-Type': 'application/json' };
+
+  // 从 userStore 获取 token
+  try {
+    const userStore = useUserStore();
+    if (userStore.token) {
+      headers['Authorization'] = `Bearer ${userStore.token}`;
+    }
+  } catch (e) {
+    // userStore 可能尚未初始化
+  }
+
+  // 构造 coconut network.request 参数
+  const params = {
+    url: fullUrl,
+    method: method.toUpperCase(),
+    headers,
+  };
+
+  // GET 请求参数拼接到 URL
+  if (method === 'get' && data) {
+    const filtered = filterEmptyFields(data);
+    const qs = new URLSearchParams(filtered).toString();
+    if (qs) params.url += '?' + qs;
+  } else if (data) {
+    params.body = JSON.stringify(filterEmptyFields(data));
+  }
+
+  try {
+    console.log('[nativeRequest]', params.method, params.url);
+    const response = await window.Coconut.callAsync('network.request', params);
+
+    // 解析 bridge 响应：{ statusCode, body, headers }
+    const result = response.result || response;
+    const body = typeof result.body === 'string' ? JSON.parse(result.body) : result.body;
+
+    console.log('[nativeRequest] 响应:', body);
+
+    // 与 axios 响应拦截器一致的错误处理
+    if (body.code !== '000000') {
+      console.error('[nativeRequest] 错误:', body.msg);
+
+      if (body.code === 'A00102') {
+        localStorage.removeItem('token');
+        window.location.href = '/login';
+      }
+
+      const error = {
+        message: body.msg || '未知错误',
+        code: body.code,
+        response: body
+      };
+
+      if (autoShowError) {
+        showDialog({ message: error.message });
+      }
+      return Promise.reject(error);
+    }
+
+    return body;
+  } catch (err) {
+    console.error('[nativeRequest] 异常:', err);
+    const error = {
+      message: err.message || '网络错误，请稍后重试',
+      code: 'NETWORK_ERROR',
+      response: null
+    };
+    if (autoShowError) {
+      showDialog({ message: error.message });
+    }
+    return Promise.reject(error);
+  }
+}
+
+/**
  * 封装GET请求
- * @param {string} url - 请求URL
- * @param {Object} params - 请求参数
- * @param {boolean} autoShowError - 是否自动显示错误提示，默认为true
- * @returns {Promise} - 返回请求的Promise
  */
 export function get(url, params, autoShowError = true) {
-  // 过滤空字段
+  if (shouldUseNativeRequest()) {
+    return nativeRequest('get', url, params, autoShowError);
+  }
   const filteredParams = filterEmptyFields(params);
   return service({
     url,
@@ -114,7 +215,6 @@ export function get(url, params, autoShowError = true) {
     params: filteredParams
   }).catch(error => {
     if (autoShowError) {
-      // 使用服务器返回的错误消息
       showDialog({ message: error.message || '请求失败' });
     }
     return Promise.reject(error);
@@ -123,13 +223,11 @@ export function get(url, params, autoShowError = true) {
 
 /**
  * 封装POST请求
- * @param {string} url - 请求URL
- * @param {Object} data - 请求数据
- * @param {boolean} autoShowError - 是否自动显示错误提示，默认为true
- * @returns {Promise} - 返回请求的Promise
  */
 export function post(url, data, autoShowError = true) {
-  // 过滤空字段
+  if (shouldUseNativeRequest()) {
+    return nativeRequest('post', url, data, autoShowError);
+  }
   const filteredData = filterEmptyFields(data);
   return service({
     url,
@@ -137,7 +235,6 @@ export function post(url, data, autoShowError = true) {
     data: filteredData
   }).catch(error => {
     if (autoShowError) {
-      // 使用服务器返回的错误消息
       showDialog({ message: error.message || '请求失败' });
     }
     return Promise.reject(error);
@@ -146,13 +243,11 @@ export function post(url, data, autoShowError = true) {
 
 /**
  * 封装PUT请求
- * @param {string} url - 请求URL
- * @param {Object} data - 请求数据
- * @param {boolean} autoShowError - 是否自动显示错误提示，默认为true
- * @returns {Promise} - 返回请求的Promise
  */
 export function put(url, data, autoShowError = true) {
-  // 过滤空字段
+  if (shouldUseNativeRequest()) {
+    return nativeRequest('put', url, data, autoShowError);
+  }
   const filteredData = filterEmptyFields(data);
   return service({
     url,
@@ -160,7 +255,6 @@ export function put(url, data, autoShowError = true) {
     data: filteredData
   }).catch(error => {
     if (autoShowError) {
-      // 使用服务器返回的错误消息
       showDialog({ message: error.message || '请求失败' });
     }
     return Promise.reject(error);
@@ -169,21 +263,18 @@ export function put(url, data, autoShowError = true) {
 
 /**
  * 封装DELETE请求
- * @param {string} url - 请求URL
- * @param {Object} data - 请求数据
- * @param {boolean} autoShowError - 是否自动显示错误提示，默认为true
- * @returns {Promise} - 返回请求的Promise
  */
 export function del(url, data, autoShowError = true) {
-  // 过滤空字段
+  if (shouldUseNativeRequest()) {
+    return nativeRequest('delete', url, data, autoShowError);
+  }
   const filteredData = filterEmptyFields(data);
   return service({
     url,
     method: 'delete',
-    data: filteredData // 直接传入过滤后的数据作为请求体
+    data: filteredData
   }).catch(error => {
     if (autoShowError) {
-      // 使用服务器返回的错误消息
       showDialog({ message: error.message || '请求失败' });
     }
     return Promise.reject(error);
@@ -192,13 +283,9 @@ export function del(url, data, autoShowError = true) {
 
 /**
  * 封装文件上传请求
- * @param {string} url - 请求URL
- * @param {FormData} formData - 包含文件的FormData对象
- * @param {Function} onProgress - 上传进度回调函数
- * @param {boolean} autoShowError - 是否自动显示错误提示，默认为true
- * @returns {Promise} - 返回请求的Promise
  */
 export function upload(url, formData, onProgress, autoShowError = true) {
+  // 文件上传始终走 axios（coconut bridge 不支持 FormData）
   return service({
     url,
     method: 'post',

@@ -17,6 +17,8 @@ import EnjoyCreate from '@/views/enjoy/EnjoyCreate.vue'
 import Fun from '@/views/fun/FunList.vue'
 // AI聊天
 import AIChat from '@/views/study/AIChat.vue'
+// Coconut Bridge 测试
+import CoconutTest from '@/views/study/CoconutTest.vue'
 
 
 const router = createRouter({
@@ -105,6 +107,12 @@ const router = createRouter({
       path: '/large-language-model',
       name: 'largeLanguageModel',
       component: AIChat,
+    },
+    // Coconut Bridge 测试
+    {
+      path: '/coconut-test',
+      name: 'coconutTest',
+      component: CoconutTest,
     },
   ],
 })
